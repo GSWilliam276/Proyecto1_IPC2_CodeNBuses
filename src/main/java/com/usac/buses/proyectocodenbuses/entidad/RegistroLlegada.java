@@ -10,6 +10,7 @@ import java.util.Date;
  * @author eduar
  */
 public class RegistroLlegada { //Inmutable
+    //Atributos
     private final int idRegistroLlegada;
     private final Viaje viaje;
     private final Date horaLlegadaReal;

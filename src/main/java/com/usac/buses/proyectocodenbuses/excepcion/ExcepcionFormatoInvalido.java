@@ -11,7 +11,7 @@ package com.usac.buses.proyectocodenbuses.excepcion;
 public class ExcepcionFormatoInvalido extends ExcepcionCodeNBuses {
     private String campo;
     
-    public ExcepcionFormatoInvalido(String mensaje) {
+    public ExcepcionFormatoInvalido(String campo, String mensaje) {
         super(mensaje);
         this.campo = campo;
     }
