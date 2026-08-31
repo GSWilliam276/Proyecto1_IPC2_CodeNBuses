@@ -11,6 +11,7 @@ import com.usac.buses.proyectocodenbuses.entidad.ViajeRegular;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Optional;
 /**
  *
  * @author eduar
@@ -132,22 +133,20 @@ public class ViajeRegularPersistencia implements Persistencia<ViajeRegular> {
     }
 
     @Override
-    public ViajeRegular buscarPorId(int id) {
+    public Optional<ViajeRegular> buscarPorId(int id) {
         String sql = "SELECT v.*, vr.id_ruta FROM viaje v "
-                   + "JOIN viaje_regular vr ON v.id_viaje = vr.id_viaje WHERE v.id_viaje = ?";
+                + "JOIN viaje_regular vr ON v.id_viaje = vr.id_viaje WHERE v.id_viaje = ?";
         try (Connection conexion = conexionBase.obtenerConexion();
-             PreparedStatement ps = conexion.prepareStatement(sql)) {
-
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                return mapearViajeRegular(rs);
+                return Optional.of(mapearViajeRegular(rs));
             }
-            return null;
-
+            return Optional.empty();
         } catch (SQLException e) {
             System.err.println("Error al buscar viaje regular: " + e.getMessage());
-            return null;
+            return Optional.empty();
         }
     }
 
@@ -173,13 +172,13 @@ public class ViajeRegularPersistencia implements Persistencia<ViajeRegular> {
     private ViajeRegular mapearViajeRegular(ResultSet rs) throws SQLException {
         ViajeRegular viaje = new ViajeRegular();
         viaje.setIdViaje(rs.getInt("id_viaje"));
-        Bus bus = busPersistencia.buscarPorId(rs.getInt("id_bus"));
+        Bus bus = busPersistencia.buscarPorId(rs.getInt("id_bus")).orElse(null);
         viaje.setBus(bus);
-        Chofer chofer = choferPersistencia.buscarPorId(rs.getInt("id_chofer"));
+        Chofer chofer = choferPersistencia.buscarPorId(rs.getInt("id_chofer")).orElse(null);
         viaje.setChofer(chofer);
         viaje.setFechaHoraSalida(new Date(rs.getTimestamp("fecha_hora_salida").getTime()));
         viaje.setFechaHoraLlegadaEstimada(new Date(rs.getTimestamp("fecha_hora_llegada_estimada").getTime()));
-        Ruta ruta = rutaPersistencia.buscarPorId(rs.getInt("id_ruta"));
+        Ruta ruta = rutaPersistencia.buscarPorId(rs.getInt("id_ruta")).orElse(null);
         viaje.setRuta(ruta);
         return viaje;
     }

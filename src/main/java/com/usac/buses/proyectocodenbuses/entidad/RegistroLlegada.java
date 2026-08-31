@@ -10,7 +10,6 @@ import java.util.Date;
  * @author eduar
  */
 public class RegistroLlegada { //Inmutable
-    //Atributos
     private final int idRegistroLlegada;
     private final Viaje viaje;
     private final Date horaLlegadaReal;
@@ -18,6 +17,7 @@ public class RegistroLlegada { //Inmutable
     private final double gastoCombustible;
     private final double depreciacionCalculada;
 
+    //Constructor para crear un registro nuevo: calcula la depreciacion automaticamente
     public RegistroLlegada(Viaje viaje, Date horaLlegadaReal, double kilometrajeLlegada,
                             double gastoCombustible, double montoDepreciacionPorKm) {
         this.idRegistroLlegada = 0;
@@ -26,6 +26,18 @@ public class RegistroLlegada { //Inmutable
         this.kilometrajeLlegada = kilometrajeLlegada;
         this.gastoCombustible = gastoCombustible;
         this.depreciacionCalculada = calcularDepreciacion(kilometrajeLlegada, montoDepreciacionPorKm);
+    }
+
+    //Constructor para reconstruir un registro que ya existe en la base de datos:
+    //recibe la depreciacion ya calculada, sin volver a calcularla
+    public RegistroLlegada(int idRegistroLlegada, Viaje viaje, Date horaLlegadaReal,
+                            double kilometrajeLlegada, double gastoCombustible, double depreciacionCalculada) {
+        this.idRegistroLlegada = idRegistroLlegada;
+        this.viaje = viaje;
+        this.horaLlegadaReal = horaLlegadaReal;
+        this.kilometrajeLlegada = kilometrajeLlegada;
+        this.gastoCombustible = gastoCombustible;
+        this.depreciacionCalculada = depreciacionCalculada;
     }
 
     private double calcularDepreciacion(double km, double montoPorKm) {

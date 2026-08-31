@@ -8,6 +8,7 @@ import com.usac.buses.proyectocodenbuses.entidad.AdminSucursal;
 import com.usac.buses.proyectocodenbuses.entidad.Sucursal;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Optional;
 /**
  *
  * @author eduar
@@ -129,22 +130,22 @@ public class AdminSucursalPersistencia implements Persistencia<AdminSucursal> {
     }
 
     @Override
-    public AdminSucursal buscarPorId(int id) {
+    public Optional<AdminSucursal> buscarPorId(int id) {
         String sql = "SELECT u.*, a.id_sucursal FROM usuario u "
-                   + "JOIN admin_sucursal a ON u.id_usuario = a.id_usuario WHERE u.id_usuario = ?";
+                + "JOIN admin_sucursal a ON u.id_usuario = a.id_usuario WHERE u.id_usuario = ?";
         try (Connection conexion = conexionBase.obtenerConexion();
-             PreparedStatement ps = conexion.prepareStatement(sql)) {
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
 
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                return mapearAdminSucursal(rs);
+                return Optional.of(mapearAdminSucursal(rs));
             }
-            return null;
+            return Optional.empty();
 
         } catch (SQLException e) {
             System.err.println("Error al buscar admin sucursal: " + e.getMessage());
-            return null;
+            return Optional.empty();
         }
     }
 
@@ -186,7 +187,7 @@ public class AdminSucursalPersistencia implements Persistencia<AdminSucursal> {
         return admins;
     }
 
-    private AdminSucursal mapearAdminSucursal(ResultSet rs) throws SQLException {
+   private AdminSucursal mapearAdminSucursal(ResultSet rs) throws SQLException {
         AdminSucursal admin = new AdminSucursal();
         admin.setIdUsuario(rs.getInt("id_usuario"));
         admin.setNit(rs.getString("nit"));
@@ -196,7 +197,7 @@ public class AdminSucursalPersistencia implements Persistencia<AdminSucursal> {
         admin.setCorreo(rs.getString("correo"));
         admin.setContrasena(rs.getString("contrasena"));
         admin.setActivo(rs.getBoolean("activo"));
-        Sucursal sucursal = sucursalPersistencia.buscarPorId(rs.getInt("id_sucursal"));
+        Sucursal sucursal = sucursalPersistencia.buscarPorId(rs.getInt("id_sucursal")).orElse(null);
         admin.setSucursal(sucursal);
         return admin;
     }

@@ -9,6 +9,7 @@ import com.usac.buses.proyectocodenbuses.entidad.EstadoOperativo;
 import com.usac.buses.proyectocodenbuses.entidad.Sucursal;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Optional;
 /**
  *
  * @author eduar
@@ -89,21 +90,19 @@ public class BusPersistencia implements Persistencia<Bus> {
     }
 
     @Override
-    public Bus buscarPorId(int id) {
+    public Optional<Bus> buscarPorId(int id) {
         String sql = "SELECT * FROM bus WHERE id_bus = ?";
         try (Connection conexion = conexionBase.obtenerConexion();
-             PreparedStatement ps = conexion.prepareStatement(sql)) {
-
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                return mapearBus(rs);
+                return Optional.of(mapearBus(rs));
             }
-            return null;
-
+            return Optional.empty();
         } catch (SQLException e) {
             System.err.println("Error al buscar bus: " + e.getMessage());
-            return null;
+            return Optional.empty();
         }
     }
 
@@ -164,7 +163,7 @@ public class BusPersistencia implements Persistencia<Bus> {
     private Bus mapearBus(ResultSet rs) throws SQLException {
         Bus bus = new Bus();
         bus.setIdBus(rs.getInt("id_bus"));
-        Sucursal sucursal = sucursalPersistencia.buscarPorId(rs.getInt("id_sucursal"));
+        Sucursal sucursal = sucursalPersistencia.buscarPorId(rs.getInt("id_sucursal")).orElse(null);
         bus.setSucursal(sucursal);
         bus.setPlaca(rs.getString("placa"));
         bus.setMarca(rs.getString("marca"));

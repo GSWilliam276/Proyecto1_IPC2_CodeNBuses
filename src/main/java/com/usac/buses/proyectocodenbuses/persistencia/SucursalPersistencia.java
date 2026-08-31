@@ -7,6 +7,7 @@ package com.usac.buses.proyectocodenbuses.persistencia;
 import com.usac.buses.proyectocodenbuses.entidad.Sucursal;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Optional;
 /**
  *
  * @author eduar
@@ -66,22 +67,19 @@ public class SucursalPersistencia implements Persistencia<Sucursal> {
     }
 
     @Override
-    public Sucursal buscarPorId(int id) {
+    public Optional<Sucursal> buscarPorId(int id) {
         String sql = "SELECT * FROM sucursal WHERE id_sucursal = ?";
         try (Connection conexion = conexionBase.obtenerConexion();
-             PreparedStatement ps = conexion.prepareStatement(sql)) {
-
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
-
             if (rs.next()) {
-                return mapearSucursal(rs);
+                return Optional.of(mapearSucursal(rs));
             }
-            return null;
-
+            return Optional.empty();
         } catch (SQLException e) {
             System.err.println("Error al buscar sucursal: " + e.getMessage());
-            return null;
+            return Optional.empty();
         }
     }
 

@@ -8,6 +8,7 @@ import com.usac.buses.proyectocodenbuses.entidad.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Optional;
 /**
  *
  * @author eduar
@@ -110,21 +111,19 @@ public class BoletoPersistencia implements Persistencia<Boleto> {
     }
 
     @Override
-    public Boleto buscarPorId(int id) {
+    public Optional<Boleto> buscarPorId(int id) {
         String sql = "SELECT * FROM boleto WHERE id_boleto = ?";
         try (Connection conexion = conexionBase.obtenerConexion();
-             PreparedStatement ps = conexion.prepareStatement(sql)) {
-
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                return mapearBoleto(rs);
+                return Optional.of(mapearBoleto(rs));
             }
-            return null;
-
+            return Optional.empty();
         } catch (SQLException e) {
             System.err.println("Error al buscar boleto: " + e.getMessage());
-            return null;
+            return Optional.empty();
         }
     }
 
@@ -203,9 +202,9 @@ public class BoletoPersistencia implements Persistencia<Boleto> {
     private Boleto mapearBoleto(ResultSet rs) throws SQLException {
         Boleto boleto = new Boleto();
         boleto.setIdBoleto(rs.getInt("id_boleto"));
-        ViajeRegular viaje = viajeRegularPersistencia.buscarPorId(rs.getInt("id_viaje_regular"));
+        ViajeRegular viaje = viajeRegularPersistencia.buscarPorId(rs.getInt("id_viaje_regular")).orElse(null);
         boleto.setViaje(viaje);
-        ClienteRegular cliente = clienteRegularPersistencia.buscarPorId(rs.getInt("id_cliente"));
+        ClienteRegular cliente = clienteRegularPersistencia.buscarPorId(rs.getInt("id_cliente")).orElse(null);
         boleto.setCliente(cliente);
         boleto.setNumeroAsiento(rs.getInt("numero_asiento"));
         boleto.setFechaPago(new Date(rs.getTimestamp("fecha_pago").getTime()));

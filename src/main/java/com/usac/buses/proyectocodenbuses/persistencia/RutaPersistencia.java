@@ -8,6 +8,7 @@ import com.usac.buses.proyectocodenbuses.entidad.Ruta;
 import com.usac.buses.proyectocodenbuses.entidad.Sucursal;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Optional;
 /**
  *
  * @author eduar
@@ -75,21 +76,19 @@ public class RutaPersistencia implements Persistencia<Ruta> {
     }
 
     @Override
-    public Ruta buscarPorId(int id) {
+    public Optional<Ruta> buscarPorId(int id) {
         String sql = "SELECT * FROM ruta WHERE id_ruta = ?";
         try (Connection conexion = conexionBase.obtenerConexion();
-             PreparedStatement ps = conexion.prepareStatement(sql)) {
-
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                return mapearRuta(rs);
+                return Optional.of(mapearRuta(rs));
             }
-            return null;
-
+            return Optional.empty();
         } catch (SQLException e) {
             System.err.println("Error al buscar ruta: " + e.getMessage());
-            return null;
+            return Optional.empty();
         }
     }
 
@@ -150,8 +149,8 @@ public class RutaPersistencia implements Persistencia<Ruta> {
     private Ruta mapearRuta(ResultSet rs) throws SQLException {
         Ruta ruta = new Ruta();
         ruta.setIdRuta(rs.getInt("id_ruta"));
-        Sucursal origen = sucursalPersistencia.buscarPorId(rs.getInt("id_sucursal_origen"));
-        Sucursal destino = sucursalPersistencia.buscarPorId(rs.getInt("id_sucursal_destino"));
+        Sucursal origen = sucursalPersistencia.buscarPorId(rs.getInt("id_sucursal_origen")).orElse(null);
+        Sucursal destino = sucursalPersistencia.buscarPorId(rs.getInt("id_sucursal_destino")).orElse(null);
         ruta.setSucursalOrigen(origen);
         ruta.setSucursalDestino(destino);
         ruta.setDistanciaKm(rs.getDouble("distancia_km"));

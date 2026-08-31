@@ -5,6 +5,7 @@
 package com.usac.buses.proyectocodenbuses.persistencia;
 
 import java.util.ArrayList;
+import java.util.Optional;
 /**
  *
  * @author eduar
@@ -13,6 +14,6 @@ public interface Persistencia<T> {
     boolean insertar(T objeto);
     boolean actualizar(T objeto);
     boolean eliminar(int id);
-    T buscarPorId(int id);
+    Optional<T> buscarPorId(int id);
     ArrayList<T> listarTodos();
 }

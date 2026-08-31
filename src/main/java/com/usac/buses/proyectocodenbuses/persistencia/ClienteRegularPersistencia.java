@@ -7,6 +7,7 @@ package com.usac.buses.proyectocodenbuses.persistencia;
 import com.usac.buses.proyectocodenbuses.entidad.ClienteRegular;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Optional;
 /**
  *
  * @author eduar
@@ -102,22 +103,20 @@ public class ClienteRegularPersistencia implements Persistencia<ClienteRegular> 
     }
 
     @Override
-    public ClienteRegular buscarPorId(int id) {
+    public Optional<ClienteRegular> buscarPorId(int id) {
         String sql = "SELECT u.* FROM usuario u "
-                   + "JOIN cliente_regular c ON u.id_usuario = c.id_usuario WHERE u.id_usuario = ?";
+                + "JOIN cliente_regular c ON u.id_usuario = c.id_usuario WHERE u.id_usuario = ?";
         try (Connection conexion = conexionBase.obtenerConexion();
-             PreparedStatement ps = conexion.prepareStatement(sql)) {
-
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                return mapearCliente(rs);
+                return Optional.of(mapearCliente(rs));
             }
-            return null;
-
+            return Optional.empty();
         } catch (SQLException e) {
             System.err.println("Error al buscar cliente: " + e.getMessage());
-            return null;
+            return Optional.empty();
         }
     }
 
@@ -140,22 +139,22 @@ public class ClienteRegularPersistencia implements Persistencia<ClienteRegular> 
         return clientes;
     }
 
-    public ClienteRegular buscarPorCorreo(String correo) {
+    public Optional<ClienteRegular> buscarPorCorreo(String correo) {
         String sql = "SELECT u.* FROM usuario u "
-                   + "JOIN cliente_regular c ON u.id_usuario = c.id_usuario WHERE u.correo = ?";
+                + "JOIN cliente_regular c ON u.id_usuario = c.id_usuario WHERE u.correo = ?";
         try (Connection conexion = conexionBase.obtenerConexion();
-             PreparedStatement ps = conexion.prepareStatement(sql)) {
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
 
             ps.setString(1, correo);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                return mapearCliente(rs);
+                return Optional.of(mapearCliente(rs));
             }
-            return null;
+            return Optional.empty();
 
         } catch (SQLException e) {
             System.err.println("Error al buscar cliente por correo: " + e.getMessage());
-            return null;
+            return Optional.empty();
         }
     }
 

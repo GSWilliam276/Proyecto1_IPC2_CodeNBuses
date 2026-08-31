@@ -7,6 +7,7 @@ package com.usac.buses.proyectocodenbuses.persistencia;
 import com.usac.buses.proyectocodenbuses.entidad.AdminSistema;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Optional;
 /**
  *
  * @author eduar
@@ -106,22 +107,20 @@ public class AdminsSistemaPersistencia implements Persistencia<AdminSistema> {
     }
 
     @Override
-    public AdminSistema buscarPorId(int id) {
+    public Optional<AdminSistema> buscarPorId(int id) {
         String sql = "SELECT u.* FROM usuario u "
-                   + "JOIN admin_sistema a ON u.id_usuario = a.id_usuario WHERE u.id_usuario = ?";
+                + "JOIN admin_sistema a ON u.id_usuario = a.id_usuario WHERE u.id_usuario = ?";
         try (Connection conexion = conexionBase.obtenerConexion();
-             PreparedStatement ps = conexion.prepareStatement(sql)) {
-
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                return mapearAdminSistema(rs);
+                return Optional.of(mapearAdminSistema(rs));
             }
-            return null;
-
+            return Optional.empty();
         } catch (SQLException e) {
             System.err.println("Error al buscar admin sistema: " + e.getMessage());
-            return null;
+            return Optional.empty();
         }
     }
 

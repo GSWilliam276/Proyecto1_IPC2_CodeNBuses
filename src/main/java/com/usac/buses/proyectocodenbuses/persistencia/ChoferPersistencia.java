@@ -9,6 +9,7 @@ import com.usac.buses.proyectocodenbuses.entidad.Sucursal;
 import com.usac.buses.proyectocodenbuses.entidad.TipoLicencia;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Optional;
 /**
  *
  * @author eduar
@@ -115,23 +116,21 @@ public class ChoferPersistencia implements Persistencia<Chofer> {
     }
 
     @Override
-    public Chofer buscarPorId(int id) {
+    public Optional<Chofer> buscarPorId(int id) {
         String sql = "SELECT u.*, c.numero_licencia, c.tipo_licencia, c.fecha_vencimiento, "
-                   + "c.salario_base, c.id_sucursal FROM usuario u "
-                   + "JOIN chofer c ON u.id_usuario = c.id_usuario WHERE u.id_usuario = ?";
+                + "c.salario_base, c.id_sucursal FROM usuario u "
+                + "JOIN chofer c ON u.id_usuario = c.id_usuario WHERE u.id_usuario = ?";
         try (Connection conexion = conexionBase.obtenerConexion();
-             PreparedStatement ps = conexion.prepareStatement(sql)) {
-
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                return mapearChofer(rs);
+                return Optional.of(mapearChofer(rs));
             }
-            return null;
-
+            return Optional.empty();
         } catch (SQLException e) {
             System.err.println("Error al buscar chofer: " + e.getMessage());
-            return null;
+            return Optional.empty();
         }
     }
 
@@ -208,7 +207,7 @@ public class ChoferPersistencia implements Persistencia<Chofer> {
         chofer.setTipoLicencia(TipoLicencia.valueOf(rs.getString("tipo_licencia")));
         chofer.setFechaVencimiento(rs.getDate("fecha_vencimiento"));
         chofer.setSalarioBase(rs.getDouble("salario_base"));
-        Sucursal sucursal = sucursalPersistencia.buscarPorId(rs.getInt("id_sucursal"));
+        Sucursal sucursal = sucursalPersistencia.buscarPorId(rs.getInt("id_sucursal")).orElse(null);
         chofer.setSucursal(sucursal);
         return chofer;
     }
