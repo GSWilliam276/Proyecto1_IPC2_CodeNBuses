@@ -4,8 +4,11 @@
  */
 package com.usac.buses.proyectocodenbuses.controlador;
 
+import com.usac.buses.proyectocodenbuses.entidad.AdminSucursal;
 import com.usac.buses.proyectocodenbuses.entidad.Bus;
 import com.usac.buses.proyectocodenbuses.entidad.Sucursal;
+import com.usac.buses.proyectocodenbuses.entidad.Usuario;
+import com.usac.buses.proyectocodenbuses.excepcion.ExcepcionFormatoInvalido;
 import com.usac.buses.proyectocodenbuses.persistencia.BusPersistencia;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,16 +17,36 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import com.usac.buses.proyectocodenbuses.excepcion.ExcepcionFormatoInvalido;
+import jakarta.servlet.http.HttpSession;
 
 @WebServlet(name = "ControladorBus", urlPatterns = {"/bus"})
 public class ControladorBus extends HttpServlet {
 
     private BusPersistencia busPersistencia = new BusPersistencia();
 
+    private boolean verificarAcceso(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+        HttpSession sesion = request.getSession();
+        Usuario usuario = (Usuario) sesion.getAttribute("usuario");
+
+        if (usuario == null) {
+            response.sendRedirect("usuario?accion=login");
+            return false;
+        }
+        if (!(usuario instanceof AdminSucursal)) {
+            response.sendRedirect("usuario?accion=perfil");
+            return false;
+        }
+        return true;
+    }
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        if (!verificarAcceso(request, response)) {
+            return;
+        }
 
         String accion = request.getParameter("accion");
         if (accion == null) {
@@ -48,6 +71,10 @@ public class ControladorBus extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        if (!verificarAcceso(request, response)) {
+            return;
+        }
 
         String accion = request.getParameter("accion");
 
