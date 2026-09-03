@@ -211,4 +211,22 @@ public class BoletoPersistencia implements Persistencia<Boleto> {
         boleto.setPrecio(rs.getDouble("precio"));
         return boleto;
     }
+    
+    public ArrayList<Boleto> listarPorCliente(int idCliente) {
+        ArrayList<Boleto> boletos = new ArrayList<>();
+        String sql = "SELECT * FROM boleto WHERE id_cliente = ?";
+        try (Connection conexion = conexionBase.obtenerConexion();
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setInt(1, idCliente);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                boletos.add(mapearBoleto(rs));
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al listar boletos por cliente: " + e.getMessage());
+        }
+        return boletos;
+    }
 }

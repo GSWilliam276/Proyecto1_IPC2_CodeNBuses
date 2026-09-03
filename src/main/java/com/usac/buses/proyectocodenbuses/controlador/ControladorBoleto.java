@@ -120,7 +120,7 @@ public class ControladorBoleto extends HttpServlet {
 
     private void listarMisBoletos(HttpServletRequest request, HttpServletResponse response, Usuario usuario)
             throws ServletException, IOException {
-        ArrayList<Boleto> boletos = boletoPersistencia.listarTodos();
+        ArrayList<Boleto> boletos = boletoPersistencia.listarPorCliente(usuario.getIdUsuario());
         request.setAttribute("boletos", boletos);
         request.getRequestDispatcher("/vistas/boleto/misBoletos.jsp").forward(request, response);
     }
