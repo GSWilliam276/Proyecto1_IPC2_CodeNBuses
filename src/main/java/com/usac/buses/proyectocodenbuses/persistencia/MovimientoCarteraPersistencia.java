@@ -15,7 +15,7 @@ import java.util.Optional;
  *
  * @author eduar
  */
-public class MovimientoCarteraPersitencia implements Persistencia<MovimientoCartera> {
+public class MovimientoCarteraPersistencia implements Persistencia<MovimientoCartera> {
     private ConexionBase conexionBase = new ConexionBase();
 
     @Override
