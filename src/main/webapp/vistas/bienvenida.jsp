@@ -19,11 +19,11 @@
         un mismo lugar.
     </p>
 
-    <a href="usuario?accion=login">
+    <a href="<%= request.getContextPath() %>/usuario?accion=login">
         <button>Iniciar Sesión</button>
     </a>
 
-    <a href="usuario?accion=crearCuenta">
+    <a href="<%= request.getContextPath() %>/usuario?accion=crearCuenta">
         <button>Crear Cuenta</button>
     </a>
 </body>
