@@ -229,4 +229,28 @@ public class BoletoPersistencia implements Persistencia<Boleto> {
         }
         return boletos;
     }
+    
+    public double obtenerIngresosPorSucursalYFecha(int idSucursal, Date desde, Date hasta) {
+        String sql = "SELECT COALESCE(SUM(b.precio), 0) AS total FROM boleto b "
+                + "JOIN viaje_regular vr ON b.id_viaje_regular = vr.id_viaje "
+                + "JOIN viaje v ON vr.id_viaje = v.id_viaje "
+                + "JOIN bus bu ON v.id_bus = bu.id_bus "
+                + "WHERE bu.id_sucursal = ? AND b.fecha_pago BETWEEN ? AND ?";
+        try (Connection conexion = conexionBase.obtenerConexion();
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setInt(1, idSucursal);
+            ps.setTimestamp(2, new Timestamp(desde.getTime()));
+            ps.setTimestamp(3, new Timestamp(hasta.getTime()));
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getDouble("total");
+            }
+            return 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error al obtener ingresos por sucursal: " + e.getMessage());
+            return 0;
+        }
+    }
 }

@@ -158,4 +158,50 @@ public class RegistroLlegadaPersistencia implements Persistencia<RegistroLlegada
         //sin recalcular la depreciacion
         return new RegistroLlegada(id, viaje, horaLlegada, km, combustible, depreciacion);
     }
+    
+    public double obtenerCombustiblePorSucursalYFecha(int idSucursal, Date desde, Date hasta) {
+        String sql = "SELECT COALESCE(SUM(rl.gasto_combustible), 0) AS total FROM registro_llegada rl "
+                + "JOIN viaje v ON rl.id_viaje = v.id_viaje "
+                + "JOIN bus bu ON v.id_bus = bu.id_bus "
+                + "WHERE bu.id_sucursal = ? AND v.fecha_hora_salida BETWEEN ? AND ?";
+        try (Connection conexion = conexionBase.obtenerConexion();
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setInt(1, idSucursal);
+            ps.setTimestamp(2, new Timestamp(desde.getTime()));
+            ps.setTimestamp(3, new Timestamp(hasta.getTime()));
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getDouble("total");
+            }
+            return 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error al obtener combustible por sucursal: " + e.getMessage());
+            return 0;
+        }
+    }   
+
+    public double obtenerDepreciacionPorSucursalYFecha(int idSucursal, Date desde, Date hasta) {
+        String sql = "SELECT COALESCE(SUM(rl.depreciacion_calculada), 0) AS total FROM registro_llegada rl "
+                + "JOIN viaje v ON rl.id_viaje = v.id_viaje "
+                + "JOIN bus bu ON v.id_bus = bu.id_bus "
+                + "WHERE bu.id_sucursal = ? AND v.fecha_hora_salida BETWEEN ? AND ?";
+        try (Connection conexion = conexionBase.obtenerConexion();
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setInt(1, idSucursal);
+            ps.setTimestamp(2, new Timestamp(desde.getTime()));
+            ps.setTimestamp(3, new Timestamp(hasta.getTime()));
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getDouble("total");
+            }
+            return 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error al obtener depreciación por sucursal: " + e.getMessage());
+            return 0;
+        }
+    }
 }

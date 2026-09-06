@@ -159,4 +159,26 @@ public class GastoPersistencia  implements Persistencia<Gasto>{
         gasto.setFecha(new Date(rs.getTimestamp("fecha").getTime()));
         return gasto;
     }
+    
+    public double obtenerTotalPorSucursalYFecha(int idSucursal, Date desde, Date hasta) {
+        String sql = "SELECT COALESCE(SUM(g.monto_mano_obra + g.monto_repuestos), 0) AS total FROM gasto g "
+                + "JOIN bus b ON g.id_bus = b.id_bus "
+                + "WHERE b.id_sucursal = ? AND g.fecha BETWEEN ? AND ?";
+        try (Connection conexion = conexionBase.obtenerConexion();
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setInt(1, idSucursal);
+            ps.setDate(2, new java.sql.Date(desde.getTime()));
+            ps.setDate(3, new java.sql.Date(hasta.getTime()));
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getDouble("total");
+            }
+            return 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error al obtener gastos de taller por sucursal: " + e.getMessage());
+            return 0;
+        }
+    }
 }

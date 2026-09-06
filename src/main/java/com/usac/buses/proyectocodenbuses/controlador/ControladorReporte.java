@@ -27,6 +27,9 @@ public class ControladorReporte extends HttpServlet {
     private ViajePrivadoPersistencia viajePrivadoPersistencia = new ViajePrivadoPersistencia();
     private GastoPersistencia gastoPersistencia = new GastoPersistencia();
     private ViajePersistencia viajePersistencia = new ViajePersistencia();
+    private RegistroLlegadaPersistencia registroLlegadaPersistencia = new RegistroLlegadaPersistencia();
+    private SucursalPersistencia sucursalPersistencia = new SucursalPersistencia();
+    private RutaPersistencia rutaPersistencia = new RutaPersistencia();
 
     private Usuario obtenerUsuarioSesion(HttpServletRequest request) {
         HttpSession sesion = request.getSession();
@@ -48,32 +51,48 @@ public class ControladorReporte extends HttpServlet {
             accion = "menu";
         }
 
-        switch (accion) {
-            case "menu":
-                request.getRequestDispatcher("/vistas/reporte/menuReportes.jsp").forward(request, response);
-                break;
-            case "listadoBuses":
-                reporteListadoBuses(request, response, usuario);
-                break;
-            case "listadoChoferes":
-                reporteListadoChoferes(request, response, usuario);
-                break;
-            case "ingresosBoletos":
-                reporteIngresosBoletos(request, response, usuario);
-                break;
-            case "ingresosAlquiler":
-                reporteIngresosAlquiler(request, response, usuario);
-                break;
-            case "depreciacionPorBus":
-                reporteDepreciacionPorBus(request, response, usuario);
-                break;
-            default:
-                response.sendRedirect("reporte?accion=menu");
+        try {
+            switch (accion) {
+                case "menu":
+                    request.getRequestDispatcher("/vistas/reporte/menuReportes.jsp").forward(request, response);
+                    break;
+                case "listadoBuses":
+                    reporteListadoBuses(request, response, usuario);
+                    break;
+                case "listadoChoferes":
+                    reporteListadoChoferes(request, response, usuario);
+                    break;
+                case "ingresosBoletos":
+                    reporteIngresosBoletos(request, response, usuario);
+                    break;
+                case "ingresosAlquiler":
+                    reporteIngresosAlquiler(request, response, usuario);
+                    break;
+                case "depreciacionPorBus":
+                    reporteDepreciacionPorBus(request, response, usuario);
+                    break;
+                case "ganancias":
+                    reporteGanancias(request, response, usuario);
+                    break;
+                case "rutasDemandadas":
+                    reporteRutasMasDemandadas(request, response, usuario);
+                    break;
+                case "costosOperativos":
+                    reporteCostosOperativos(request, response, usuario);
+                    break;
+                case "mapaRutas":
+                    reporteMapaRutas(request, response, usuario);
+                    break;
+                default:
+                    response.sendRedirect("reporte?accion=menu");
+            }
+        } catch (ParseException e) {
+            request.setAttribute("error", "Formato de fecha inválido");
+            request.getRequestDispatcher("/vistas/reporte/menuReportes.jsp").forward(request, response);
         }
     }
 
-    
-    //Listado general de buses, opcionalmente filtrado por estado
+    //Reportes de AdminSurcursal
     private void reporteListadoBuses(HttpServletRequest request, HttpServletResponse response, Usuario usuario)
             throws ServletException, IOException {
         if (!(usuario instanceof AdminSucursal)) {
@@ -81,13 +100,11 @@ public class ControladorReporte extends HttpServlet {
             return;
         }
         AdminSucursal admin = (AdminSucursal) usuario;
-
         ArrayList<Bus> buses = busPersistencia.listarPorSucursal(admin.getSucursal().getIdSucursal());
         request.setAttribute("buses", buses);
         request.getRequestDispatcher("/vistas/reporte/listadoBuses.jsp").forward(request, response);
     }
 
-    //Listado general de choferes de la sucursal del admin
     private void reporteListadoChoferes(HttpServletRequest request, HttpServletResponse response, Usuario usuario)
             throws ServletException, IOException {
         if (!(usuario instanceof AdminSucursal)) {
@@ -95,51 +112,33 @@ public class ControladorReporte extends HttpServlet {
             return;
         }
         AdminSucursal admin = (AdminSucursal) usuario;
-
         ArrayList<Chofer> choferes = choferPersistencia.listarPorSucursal(admin.getSucursal().getIdSucursal());
         request.setAttribute("choferes", choferes);
         request.getRequestDispatcher("/vistas/reporte/listadoChoferes.jsp").forward(request, response);
     }
 
-    //Reporte de ingresos por venta de boletos en un intervalo de tiempo
     private void reporteIngresosBoletos(HttpServletRequest request, HttpServletResponse response, Usuario usuario)
-            throws ServletException, IOException {
+            throws ServletException, IOException, ParseException {
         if (!(usuario instanceof AdminSucursal)) {
             response.sendRedirect("reporte?accion=menu");
             return;
         }
-
-        try {
-            Date desde = obtenerFechaOTodas(request, "desde", true);
-            Date hasta = obtenerFechaOTodas(request, "hasta", false);
-
-            ArrayList<Boleto> boletos = boletoPersistencia.listarTodos();
-            //Nota: idealmente un metodo listarPorFechaYSucursal() en BoletoPersistencia,
-            //filtrando tambien por sucursal a traves del viaje/ruta (mejora)
-
-            request.setAttribute("boletos", boletos);
-            request.getRequestDispatcher("/vistas/reporte/ingresosBoletos.jsp").forward(request, response);
-
-        } catch (ParseException e) {
-            request.setAttribute("error", "Formato de fecha inválido");
-            request.getRequestDispatcher("/vistas/reporte/menuReportes.jsp").forward(request, response);
-        }
+        ArrayList<Boleto> boletos = boletoPersistencia.listarTodos();
+        request.setAttribute("boletos", boletos);
+        request.getRequestDispatcher("/vistas/reporte/ingresosBoletos.jsp").forward(request, response);
     }
 
-    //Reporte de ingresos por alquiler de buses en un intervalo de tiempo.
     private void reporteIngresosAlquiler(HttpServletRequest request, HttpServletResponse response, Usuario usuario)
             throws ServletException, IOException {
         if (!(usuario instanceof AdminSucursal)) {
             response.sendRedirect("reporte?accion=menu");
             return;
         }
-
         ArrayList<ViajePrivado> alquileres = viajePrivadoPersistencia.listarTodos();
         request.setAttribute("alquileres", alquileres);
         request.getRequestDispatcher("/vistas/reporte/ingresosAlquiler.jsp").forward(request, response);
     }
-    
-    //Reporte de depreciación por bus.
+
     private void reporteDepreciacionPorBus(HttpServletRequest request, HttpServletResponse response, Usuario usuario)
             throws ServletException, IOException {
         if (!(usuario instanceof AdminSucursal)) {
@@ -147,16 +146,164 @@ public class ControladorReporte extends HttpServlet {
             return;
         }
         AdminSucursal admin = (AdminSucursal) usuario;
-
         ArrayList<Bus> buses = busPersistencia.listarPorSucursal(admin.getSucursal().getIdSucursal());
         request.setAttribute("buses", buses);
         request.getRequestDispatcher("/vistas/reporte/depreciacionPorBus.jsp").forward(request, response);
     }
 
+    //Reportes de AdminSistema
+
+    //Reporte de ganancias: combina ingresos de boletos, ingresos de alquiler
+    //y costos operativos (combustible + taller + depreciación) por sucursal,
+    //ordenadas alfabeticamente. Opcionalmente filtrado por sucursal especifica
+    private void reporteGanancias(HttpServletRequest request, HttpServletResponse response, Usuario usuario)
+            throws ServletException, IOException, ParseException {
+        if (!(usuario instanceof AdminSistema)) {
+            response.sendRedirect("reporte?accion=menu");
+            return;
+        }
+
+        Date desde = obtenerFechaOTodas(request, "desde", true);
+        Date hasta = obtenerFechaOTodas(request, "hasta", false);
+        String idSucursalParam = request.getParameter("idSucursal");
+
+        ArrayList<Sucursal> sucursales;
+        if (idSucursalParam != null && !idSucursalParam.trim().isEmpty()) {
+            ArrayList<Sucursal> filtro = new ArrayList<>();
+            sucursalPersistencia.buscarPorId(Integer.parseInt(idSucursalParam)).ifPresent(filtro::add);
+            sucursales = filtro;
+        } else {
+            sucursales = sucursalPersistencia.listarTodos();
+        }
+
+        //Ordenar alfabeticamente por nombre
+        sucursales.sort((a, b) -> a.getNombre().compareToIgnoreCase(b.getNombre()));
+
+        ArrayList<Object[]> filasReporte = new ArrayList<>();
+        double totalIngresos = 0;
+        double totalCostos = 0;
+
+        for (Sucursal sucursal : sucursales) {
+            int idSucursal = sucursal.getIdSucursal();
+
+            double ingresosBoletos = boletoPersistencia.obtenerIngresosPorSucursalYFecha(idSucursal, desde, hasta);
+            double ingresosAlquiler = viajePrivadoPersistencia.obtenerIngresosPorSucursalYFecha(idSucursal, desde, hasta);
+            double costoCombustible = registroLlegadaPersistencia.obtenerCombustiblePorSucursalYFecha(idSucursal, desde, hasta);
+            double costoTaller = gastoPersistencia.obtenerTotalPorSucursalYFecha(idSucursal, desde, hasta);
+            double costoDepreciacion = registroLlegadaPersistencia.obtenerDepreciacionPorSucursalYFecha(idSucursal, desde, hasta);
+
+            double ingresosTotales = ingresosBoletos + ingresosAlquiler;
+            double costosTotales = costoCombustible + costoTaller + costoDepreciacion;
+            double gananciaNeta = ingresosTotales - costosTotales;
+
+            totalIngresos += ingresosTotales;
+            totalCostos += costosTotales;
+
+            filasReporte.add(new Object[]{
+                sucursal.getNombre(), ingresosBoletos, ingresosAlquiler,
+                costosTotales, gananciaNeta
+            });
+        }
+
+        request.setAttribute("filasReporte", filasReporte);
+        request.setAttribute("totalIngresos", totalIngresos);
+        request.setAttribute("totalCostos", totalCostos);
+        request.setAttribute("totalGanancia", totalIngresos - totalCostos);
+        request.getRequestDispatcher("/vistas/reporte/ganancias.jsp").forward(request, response);
+    }
+
+    
+    //Reporte de rutas mas demandadas en un intervalo de tiempo,
+    //ordenadas de mayor a menor, cantidad de boletos vendidos
+    private void reporteRutasMasDemandadas(HttpServletRequest request, HttpServletResponse response, Usuario usuario)
+            throws ServletException, IOException, ParseException {
+        if (!(usuario instanceof AdminSistema)) {
+            response.sendRedirect("reporte?accion=menu");
+            return;
+        }
+
+        Date desde = obtenerFechaOTodas(request, "desde", true);
+        Date hasta = obtenerFechaOTodas(request, "hasta", false);
+
+        ArrayList<Object[]> rutasDemandadas = viajePersistencia.listarRutasMasDemandadas(desde, hasta);
+        request.setAttribute("rutasDemandadas", rutasDemandadas);
+        request.getRequestDispatcher("/vistas/reporte/rutasDemandadas.jsp").forward(request, response);
+    }
+
+    
+    //Reporte de costos operativos por sucursal: combustible, taller/repuestos
+    //y depreciacion acumulada, con totales por categoria y gran total
+    private void reporteCostosOperativos(HttpServletRequest request, HttpServletResponse response, Usuario usuario)
+            throws ServletException, IOException, ParseException {
+        if (!(usuario instanceof AdminSistema)) {
+            response.sendRedirect("reporte?accion=menu");
+            return;
+        }
+
+        Date desde = obtenerFechaOTodas(request, "desde", true);
+        Date hasta = obtenerFechaOTodas(request, "hasta", false);
+        String idSucursalParam = request.getParameter("idSucursal");
+
+        ArrayList<Sucursal> sucursales;
+        if (idSucursalParam != null && !idSucursalParam.trim().isEmpty()) {
+            ArrayList<Sucursal> filtro = new ArrayList<>();
+            sucursalPersistencia.buscarPorId(Integer.parseInt(idSucursalParam)).ifPresent(filtro::add);
+            sucursales = filtro;
+        } else {
+            sucursales = sucursalPersistencia.listarTodos();
+        }
+
+        ArrayList<Object[]> filasReporte = new ArrayList<>();
+        double totalCombustible = 0;
+        double totalTaller = 0;
+        double totalDepreciacion = 0;
+
+        for (Sucursal sucursal : sucursales) {
+            int idSucursal = sucursal.getIdSucursal();
+            double combustible = registroLlegadaPersistencia.obtenerCombustiblePorSucursalYFecha(idSucursal, desde, hasta);
+            double taller = gastoPersistencia.obtenerTotalPorSucursalYFecha(idSucursal, desde, hasta);
+            double depreciacion = registroLlegadaPersistencia.obtenerDepreciacionPorSucursalYFecha(idSucursal, desde, hasta);
+
+            totalCombustible += combustible;
+            totalTaller += taller;
+            totalDepreciacion += depreciacion;
+
+            filasReporte.add(new Object[]{sucursal.getNombre(), combustible, taller, depreciacion});
+        }
+
+        request.setAttribute("filasReporte", filasReporte);
+        request.setAttribute("totalCombustible", totalCombustible);
+        request.setAttribute("totalTaller", totalTaller);
+        request.setAttribute("totalDepreciacion", totalDepreciacion);
+        request.setAttribute("granTotal", totalCombustible + totalTaller + totalDepreciacion);
+        request.getRequestDispatcher("/vistas/reporte/costosOperativos.jsp").forward(request, response);
+    }
+
+    
+    //Mapa de rutas filtrado por sucursal de origen (se grafica en el JSP)
+    private void reporteMapaRutas(HttpServletRequest request, HttpServletResponse response, Usuario usuario)
+            throws ServletException, IOException {
+        if (!(usuario instanceof AdminSistema)) {
+            response.sendRedirect("reporte?accion=menu");
+            return;
+        }
+
+        String idSucursalParam = request.getParameter("idSucursal");
+        ArrayList<Sucursal> sucursales = sucursalPersistencia.listarTodos();
+        request.setAttribute("sucursales", sucursales);
+
+        if (idSucursalParam != null && !idSucursalParam.trim().isEmpty()) {
+            int idSucursal = Integer.parseInt(idSucursalParam);
+            ArrayList<Ruta> rutas = rutaPersistencia.listarPorSucursal(idSucursal);
+            request.setAttribute("rutas", rutas);
+        }
+
+        request.getRequestDispatcher("/vistas/reporte/mapaRutas.jsp").forward(request, response);
+    }
+
     private Date obtenerFechaOTodas(HttpServletRequest request, String parametro, boolean esInicio) throws ParseException {
         String fechaStr = request.getParameter(parametro);
         if (fechaStr == null || fechaStr.trim().isEmpty()) {
-            //Si no se especifica, se toman en cuenta todos los registros 
             return esInicio ? new Date(0) : new Date();
         }
         SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");

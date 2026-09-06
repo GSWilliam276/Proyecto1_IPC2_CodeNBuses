@@ -32,7 +32,7 @@ public class ViajePrivadoPersistencia implements Persistencia<ViajePrivado> {
             conexion = conexionBase.obtenerConexion();
             conexion.setAutoCommit(false); //Inicia Transaccion: 2 tablas involucradas (viaje + viaje_privado)
 
-            // 1. Insertar en la tabla viaje (datos comunes)
+            //Insertar en la tabla viaje (datos comunes)
             PreparedStatement psViaje = conexion.prepareStatement(sqlViaje, Statement.RETURN_GENERATED_KEYS);
             psViaje.setInt(1, viaje.getBus().getIdBus());
             psViaje.setInt(2, viaje.getChofer().getIdUsuario());
@@ -211,5 +211,28 @@ public class ViajePrivadoPersistencia implements Persistencia<ViajePrivado> {
         viaje.setPrecioEstimado(rs.getDouble("precio_estimado"));
         viaje.setPrecioConfirmado(rs.getDouble("precio_confirmado"));
         return viaje;
+    }
+    
+    public double obtenerIngresosPorSucursalYFecha(int idSucursal, Date desde, Date hasta) {
+        String sql = "SELECT COALESCE(SUM(vp.precio_confirmado), 0) AS total FROM viaje_privado vp "
+                + "JOIN viaje v ON vp.id_viaje = v.id_viaje "
+                + "JOIN bus bu ON v.id_bus = bu.id_bus "
+                + "WHERE bu.id_sucursal = ? AND v.fecha_hora_salida BETWEEN ? AND ?";
+        try (Connection conexion = conexionBase.obtenerConexion();
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setInt(1, idSucursal);
+            ps.setTimestamp(2, new Timestamp(desde.getTime()));
+            ps.setTimestamp(3, new Timestamp(hasta.getTime()));
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getDouble("total");
+            }
+            return 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error al obtener ingresos de alquiler por sucursal: " + e.getMessage());
+            return 0;
+        }
     }
 }
