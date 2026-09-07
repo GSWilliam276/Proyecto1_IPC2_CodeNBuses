@@ -18,6 +18,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import com.usac.buses.proyectocodenbuses.persistencia.SucursalPersistencia;
 
 @WebServlet(name = "ControladorBus", urlPatterns = {"/bus"})
 public class ControladorBus extends HttpServlet {
@@ -58,8 +59,8 @@ public class ControladorBus extends HttpServlet {
                 listarBuses(request, response);
                 break;
             case "nuevo":
+                request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
                 request.getRequestDispatcher("/vistas/bus/registrarBus.jsp").forward(request, response);
-                break;
             case "editar":
                 mostrarFormularioEditar(request, response);
                 break;
@@ -106,6 +107,7 @@ public class ControladorBus extends HttpServlet {
         busPersistencia.buscarPorId(id).ifPresentOrElse(
             bus -> {
                 request.setAttribute("bus", bus);
+                request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
                 try {
                     request.getRequestDispatcher("/vistas/bus/editarBus.jsp").forward(request, response);
                 } catch (ServletException | IOException e) {
