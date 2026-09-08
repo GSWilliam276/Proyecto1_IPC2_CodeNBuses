@@ -22,6 +22,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import com.usac.buses.proyectocodenbuses.entidad.AdminSucursal;
 import com.usac.buses.proyectocodenbuses.entidad.Usuario;
 import jakarta.servlet.http.HttpSession;
+import com.usac.buses.proyectocodenbuses.persistencia.SucursalPersistencia;
 
 @WebServlet(name = "ControladorChofer", urlPatterns = {"/chofer"})
 public class ControladorChofer extends HttpServlet {
@@ -62,6 +63,7 @@ public class ControladorChofer extends HttpServlet {
                 listarChoferes(request, response);
                 break;
             case "nuevo":
+                request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
                 request.getRequestDispatcher("/vistas/chofer/registrarChofer.jsp").forward(request, response);
                 break;
             case "editar":
@@ -110,6 +112,7 @@ public class ControladorChofer extends HttpServlet {
         choferPersistencia.buscarPorId(id).ifPresentOrElse(
             chofer -> {
                 request.setAttribute("chofer", chofer);
+                request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
                 try {
                     request.getRequestDispatcher("/vistas/chofer/editarChofer.jsp").forward(request, response);
                 } catch (ServletException | IOException e) {
