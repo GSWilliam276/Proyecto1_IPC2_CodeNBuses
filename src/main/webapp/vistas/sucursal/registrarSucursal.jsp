@@ -5,34 +5,30 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Registrar Sucursal - CodeNBuses</title>
-</head>
-<body>
-    <h1>Registrar Nueva Sucursal</h1>
+<%@ include file="/vistas/comunes/header.jsp" %>
 
-    <% if (request.getAttribute("error") != null) { %>
-        <p style="color: red;"><%= request.getAttribute("error") %></p>
-    <% } %>
+<h1>Registrar Nueva Sucursal</h1>
 
-    <form method="POST" action="<%= request.getContextPath() %>/sucursal">
-        <input type="hidden" name="accion" value="registrar"/>
+<% if (request.getAttribute("error") != null) { %>
+    <p style="color: red;"><%= request.getAttribute("error") %></p>
+<% } %>
 
-        <label>Nombre:</label>
-        <br>
-        <input type="text" name="nombre" required/>
-        <br>
+<form method="POST" action="<%= request.getContextPath() %>/sucursal">
+    <input type="hidden" name="accion" value="registrar"/>
 
-        <label>Ubicación:</label>
-        <br>
-        <input type="text" name="ubicacion" required/>
-        <br>
+    <label>Nombre:</label>
+    <br>
+    <input type="text" name="nombre" class="form-control" required/>
+    <br>
 
-        <button type="submit">Registrar Sucursal</button>
-    </form>
+    <label>Ubicación:</label>
+    <br>
+    <input type="text" name="ubicacion" class="form-control" required/>
+    <br>
 
-    <a href="<%= request.getContextPath() %>/sucursal?accion=listar">Volver al listado</a>
-</body>
-</html>
+    <button type="submit" class="btn btn-primary">Registrar Sucursal</button>
+</form>
+
+<a href="<%= request.getContextPath() %>/sucursal?accion=listar">Volver al listado</a>
+
+<%@ include file="/vistas/comunes/footer.jsp" %>

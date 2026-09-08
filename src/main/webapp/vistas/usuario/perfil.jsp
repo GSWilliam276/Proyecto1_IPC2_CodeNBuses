@@ -6,26 +6,20 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="com.usac.buses.proyectocodenbuses.entidad.Usuario"%>
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Mi Perfil - CodeNBuses</title>
-</head>
-<body>
-    <%
-        Usuario usuario = (Usuario) session.getAttribute("usuario");
-    %>
+<%@ include file="/vistas/comunes/header.jsp" %>
 
-    <h1>Bienvenido, <%= usuario.getCorreo() %></h1>
+<%
+    Usuario usuario = (Usuario) session.getAttribute("usuario");
+%>
 
-    <p>Tipo de usuario: <%= usuario.getClass().getSimpleName() %></p>
+<h1>Bienvenido, <%= usuario.getCorreo() %></h1>
 
-    <h2>Mis datos</h2>
-    <p>NIT: <%= usuario.getNit() %></p>
-    <p>DPI: <%= usuario.getDpi() %></p>
-    <p>Teléfono: <%= usuario.getTelefono() %></p>
-    <p>Dirección: <%= usuario.getDireccion() %></p>
+<p>Tipo de usuario: <%= usuario.getClass().getSimpleName() %></p>
 
-    <a href="<%= request.getContextPath() %>/usuario?accion=logout">Cerrar sesión</a>
-</body>
-</html>
+<h2>Mis datos</h2>
+<p>NIT: <%= usuario.getNit() %></p>
+<p>DPI: <%= usuario.getDpi() %></p>
+<p>Teléfono: <%= usuario.getTelefono() %></p>
+<p>Dirección: <%= usuario.getDireccion() %></p>
+
+<%@ include file="/vistas/comunes/footer.jsp" %>

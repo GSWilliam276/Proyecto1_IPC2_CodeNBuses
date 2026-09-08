@@ -5,34 +5,30 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Iniciar Sesión - CodeNBuses</title>
-</head>
-<body>
-    <h1>Iniciar Sesión</h1>
+<%@ include file="/vistas/comunes/header.jsp" %>
 
-    <% if (request.getAttribute("error") != null) { %>
-        <p style="color: red;"><%= request.getAttribute("error") %></p>
-    <% } %>
+<h1>Iniciar Sesión</h1>
 
-    <form method="POST" action="<%= request.getContextPath() %>/usuario">
-        <input type="hidden" name="accion" value="login"/>
+<% if (request.getAttribute("error") != null) { %>
+    <p style="color: red;"><%= request.getAttribute("error") %></p>
+<% } %>
 
-        <label>Correo:</label>
-        <br>
-        <input type="email" name="correo" required/>
-        <br>
+<form method="POST" action="<%= request.getContextPath() %>/usuario">
+    <input type="hidden" name="accion" value="login"/>
 
-        <label>Contraseña:</label>
-        <br>
-        <input type="password" name="contraseña" required/>
-        <br>
+    <label>Correo:</label>
+    <br>
+    <input type="email" name="correo" class="form-control" required/>
+    <br>
 
-        <button type="submit">Ingresar</button>
-    </form>
+    <label>Contraseña:</label>
+    <br>
+    <input type="password" name="contrasena" class="form-control" required/>
+    <br>
 
-    <p>¿No tienes cuenta? <a href="<%= request.getContextPath() %>/usuario?accion=crearCuenta">Crea una aquí</a></p>
-</body>
-</html
+    <button type="submit" class="btn btn-primary">Ingresar</button>
+</form>
+
+<p>¿No tienes cuenta? <a href="<%= request.getContextPath() %>/usuario?accion=crearCuenta">Crea una aquí</a></p>
+
+<%@ include file="/vistas/comunes/footer.jsp" %>

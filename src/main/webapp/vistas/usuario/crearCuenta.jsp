@@ -5,54 +5,50 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Crear Cuenta - CodeNBuses</title>
-</head>
-<body>
-    <h1>Crear Cuenta</h1>
+<%@ include file="/vistas/comunes/header.jsp" %>
 
-    <% if (request.getAttribute("error") != null) { %>
-        <p style="color: red;"><%= request.getAttribute("error") %></p>
-    <% } %>
+<h1>Crear Cuenta</h1>
 
-    <form method="POST" action="usuario">
-        <input type="hidden" name="accion" value="crearCuenta"/>
+<% if (request.getAttribute("error") != null) { %>
+    <p style="color: red;"><%= request.getAttribute("error") %></p>
+<% } %>
 
-        <label>NIT:</label>
-        <br>
-        <input type="text" name="nit"/>
-        <br>
+<form method="POST" action="<%= request.getContextPath() %>/usuario">
+    <input type="hidden" name="accion" value="crearCuenta"/>
 
-        <label>DPI:</label>
-        <br>
-        <input type="text" name="dpi" required/>
-        <br>
+    <label>NIT:</label>
+    <br>
+    <input type="text" name="nit" class="form-control"/>
+    <br>
 
-        <label>Teléfono:</label>
-        <br>
-        <input type="text" name="telefono"/>
-        <br>
+    <label>DPI:</label>
+    <br>
+    <input type="text" name="dpi" class="form-control" required/>
+    <br>
 
-        <label>Dirección:</label>
-        <br>
-        <input type="text" name="direccion"/>
-        <br>
+    <label>Teléfono:</label>
+    <br>
+    <input type="text" name="telefono" class="form-control"/>
+    <br>
 
-        <label>Correo:</label>
-        <br>
-        <input type="email" name="correo" required/>
-        <br>
+    <label>Dirección:</label>
+    <br>
+    <input type="text" name="direccion" class="form-control"/>
+    <br>
 
-        <label>Contraseña:</label>
-        <br>
-        <input type="password" name="contrasena" required/>
-        <br>
+    <label>Correo:</label>
+    <br>
+    <input type="email" name="correo" class="form-control" required/>
+    <br>
 
-        <button type="submit">Crear cuenta</button>
-    </form>
+    <label>Contraseña:</label>
+    <br>
+    <input type="password" name="contrasena" class="form-control" required/>
+    <br>
 
-    <p>¿Ya tienes cuenta? <a href="usuario?accion=login">Inicia sesión aquí</a></p>
-</body>
-</html>
+    <button type="submit" class="btn btn-primary">Crear cuenta</button>
+</form>
+
+<p>¿Ya tienes cuenta? <a href="<%= request.getContextPath() %>/usuario?accion=login">Inicia sesión aquí</a></p>
+
+<%@ include file="/vistas/comunes/footer.jsp" %>
