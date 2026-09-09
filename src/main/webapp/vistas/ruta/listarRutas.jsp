@@ -6,6 +6,8 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="com.usac.buses.proyectocodenbuses.entidad.Ruta"%>
+<%@page import="com.usac.buses.proyectocodenbuses.entidad.AdminSucursal"%>
+<%@page import="com.usac.buses.proyectocodenbuses.entidad.Usuario"%>
 <%@page import="java.util.ArrayList"%>
 <%@ include file="/vistas/comunes/header.jsp" %>
 
@@ -13,14 +15,24 @@
 <% if (request.getAttribute("error") != null) { %>
     <p style="color: red;"><%= request.getAttribute("error") %></p>
 <% } %>
-<a href="<%= request.getContextPath() %>/ruta?accion=nuevo" class="btn btn-primary mb-3">Registrar nueva ruta</a>
+<%
+    //Se verifica el rol del usuario en sesion para decidir si
+    //mostrar las acciones de gestion, exclusivas de AdminSucursal
+    Usuario usuarioActual = (Usuario) session.getAttribute("usuario");
+    boolean esAdminSucursal = usuarioActual instanceof AdminSucursal;
+%>
+<% if (esAdminSucursal) { %>
+    <a href="<%= request.getContextPath() %>/ruta?accion=nuevo" class="btn btn-primary mb-3">Registrar nueva ruta</a>
+<% } %>
 <table class="table table-striped">
     <tr>
         <th>Origen</th>
         <th>Destino</th>
         <th>Distancia (km)</th>
         <th>Precio Boleto</th>
-        <th>Acciones</th>
+        <% if (esAdminSucursal) { %>
+            <th>Acciones</th>
+        <% } %>
     </tr>
     <%
         //Se recorre la lista de rutas que el Controlador
@@ -34,10 +46,14 @@
         <td><%= ruta.getSucursalDestino().getNombre() %></td>
         <td><%= ruta.getDistanciaKm() %></td>
         <td><%= ruta.getPrecioBoleto() %></td>
+        <%
+            if (esAdminSucursal) {
+        %>
         <td>
             <a href="<%= request.getContextPath() %>/ruta?accion=editar&id=<%= ruta.getIdRuta() %>" class="btn btn-sm btn-outline-primary">Editar</a>
             <a href="#" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar(<%= ruta.getIdRuta() %>)">Eliminar</a>
         </td>
+        <% } %>
     </tr>
     <%
             }

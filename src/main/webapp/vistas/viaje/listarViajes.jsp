@@ -6,6 +6,8 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="com.usac.buses.proyectocodenbuses.entidad.ViajeRegular"%>
+<%@page import="com.usac.buses.proyectocodenbuses.entidad.AdminSucursal"%>
+<%@page import="com.usac.buses.proyectocodenbuses.entidad.Usuario"%>
 <%@page import="java.util.ArrayList"%>
 <%@ include file="/vistas/comunes/header.jsp" %>
 
@@ -13,7 +15,15 @@
 <% if (request.getAttribute("error") != null) { %>
     <p style="color: red;"><%= request.getAttribute("error") %></p>
 <% } %>
-<a href="<%= request.getContextPath() %>/viaje?accion=nuevo" class="btn btn-primary mb-3">Registrar nuevo viaje</a>
+<%
+    //Se verifica el rol para decidir que acciones mostrar:
+    //AdminSucursal puede editar/eliminar, ademas de registrar salida y llegada
+    Usuario usuarioActual = (Usuario) session.getAttribute("usuario");
+    boolean esAdminSucursal = usuarioActual instanceof AdminSucursal;
+%>
+<% if (esAdminSucursal) { %>
+    <a href="<%= request.getContextPath() %>/viaje?accion=nuevo" class="btn btn-primary mb-3">Registrar nuevo viaje</a>
+<% } %>
 <table class="table table-striped">
     <tr>
         <th>Ruta</th>
@@ -37,10 +47,19 @@
         <td><%= viaje.getFechaHoraSalida() %></td>
         <td><%= viaje.getFechaHoraLlegadaEstimada() %></td>
         <td>
-            <a href="<%= request.getContextPath() %>/viaje?accion=editar&id=<%= viaje.getIdViaje() %>" class="btn btn-sm btn-outline-primary">Editar</a>
+            <%
+                //Editar y eliminar son exclusivos del AdminSucursal
+                if (esAdminSucursal) {
+            %>
+                <a href="<%= request.getContextPath() %>/viaje?accion=editar&id=<%= viaje.getIdViaje() %>" class="btn btn-sm btn-outline-primary">Editar</a>
+            <% } %>
             <a href="<%= request.getContextPath() %>/viaje?accion=registrarSalida&idViaje=<%= viaje.getIdViaje() %>" class="btn btn-sm btn-outline-success">Salida</a>
             <a href="<%= request.getContextPath() %>/viaje?accion=registrarLlegada&idViaje=<%= viaje.getIdViaje() %>" class="btn btn-sm btn-outline-warning">Llegada</a>
-            <a href="#" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar(<%= viaje.getIdViaje() %>)">Eliminar</a>
+            <%
+                if (esAdminSucursal) {
+            %>
+                <a href="#" class="btn btn-sm btn-outline-danger" onclick="confirmarEliminar(<%= viaje.getIdViaje() %>)">Eliminar</a>
+            <% } %>
         </td>
     </tr>
     <%
