@@ -18,6 +18,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import com.usac.buses.proyectocodenbuses.persistencia.BusPersistencia;
 
 @WebServlet(name = "ControladorGasto", urlPatterns = {"/gasto"})
 public class ControladorGasto extends HttpServlet {
@@ -58,6 +59,7 @@ public class ControladorGasto extends HttpServlet {
                 listarGastosPorBus(request, response);
                 break;
             case "nuevo":
+                request.setAttribute("buses", new BusPersistencia().listarTodos());
                 request.getRequestDispatcher("/vistas/gasto/registrarGasto.jsp").forward(request, response);
                 break;
             default:
