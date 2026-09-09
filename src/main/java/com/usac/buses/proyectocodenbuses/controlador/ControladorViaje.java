@@ -63,15 +63,20 @@ public class ControladorViaje extends HttpServlet {
                 listarViajes(request, response);
                 break;
             case "nuevo":
+                request.setAttribute("buses", new BusPersistencia().listarTodos());
+                request.setAttribute("choferes", new ChoferPersistencia().listarTodos());
+                request.setAttribute("rutas", new RutaPersistencia().listarTodos());
                 request.getRequestDispatcher("/vistas/viaje/registrarViaje.jsp").forward(request, response);
                 break;
             case "editar":
                 mostrarFormularioEditar(request, response);
                 break;
             case "registrarSalida":
+                request.setAttribute("idViaje", request.getParameter("idViaje"));
                 request.getRequestDispatcher("/vistas/viaje/registrarSalida.jsp").forward(request, response);
                 break;
             case "registrarLlegada":
+                request.setAttribute("idViaje", request.getParameter("idViaje"));
                 request.getRequestDispatcher("/vistas/viaje/registrarLlegada.jsp").forward(request, response);
                 break;
             default:
@@ -123,6 +128,9 @@ public class ControladorViaje extends HttpServlet {
         viajeRegularPersistencia.buscarPorId(id).ifPresentOrElse(
             viaje -> {
                 request.setAttribute("viaje", viaje);
+                request.setAttribute("buses", new BusPersistencia().listarTodos());
+                request.setAttribute("choferes", new ChoferPersistencia().listarTodos());
+                request.setAttribute("rutas", new RutaPersistencia().listarTodos());
                 try {
                     request.getRequestDispatcher("/vistas/viaje/editarViaje.jsp").forward(request, response);
                 } catch (ServletException | IOException e) {
