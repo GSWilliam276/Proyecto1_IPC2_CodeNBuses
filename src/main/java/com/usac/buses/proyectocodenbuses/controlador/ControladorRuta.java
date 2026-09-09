@@ -19,6 +19,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import com.usac.buses.proyectocodenbuses.entidad.AdminSucursal;
 import com.usac.buses.proyectocodenbuses.entidad.Usuario;
 import jakarta.servlet.http.HttpSession;
+import com.usac.buses.proyectocodenbuses.persistencia.SucursalPersistencia;
 
 @WebServlet(name = "ControladorRuta", urlPatterns = {"/ruta"})
 public class ControladorRuta extends HttpServlet {
@@ -59,6 +60,7 @@ public class ControladorRuta extends HttpServlet {
                 listarRutas(request, response);
                 break;
             case "nuevo":
+                request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
                 request.getRequestDispatcher("/vistas/ruta/registrarRuta.jsp").forward(request, response);
                 break;
             case "editar":
@@ -106,6 +108,9 @@ public class ControladorRuta extends HttpServlet {
         rutaPersistencia.buscarPorId(id).ifPresentOrElse(
             ruta -> {
                 request.setAttribute("ruta", ruta);
+                //Se pasa tambien la lista de sucursales, necesaria para
+                //armar los combobox de origen y destino en el JSP de edicion
+                request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
                 try {
                     request.getRequestDispatcher("/vistas/ruta/editarRuta.jsp").forward(request, response);
                 } catch (ServletException | IOException e) {
@@ -129,6 +134,16 @@ public class ControladorRuta extends HttpServlet {
             int idSucursalDestino = Integer.parseInt(request.getParameter("idSucursalDestino"));
             double distanciaKm = Double.parseDouble(request.getParameter("distanciaKm"));
             double precioBoleto = Double.parseDouble(request.getParameter("precioBoleto"));
+
+            //Validacion de que una ruta no puede tener el mismo origen y destino
+            if (idSucursalOrigen == idSucursalDestino) {
+                ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido(
+                    "idSucursalDestino", "La sucursal de destino debe ser distinta a la de origen");
+                request.setAttribute("error", excepcion.getMessage() + " (Campo: " + excepcion.getCampo() + ")");
+                request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
+                request.getRequestDispatcher("/vistas/ruta/registrarRuta.jsp").forward(request, response);
+                return;
+            }
 
             Sucursal origen = new Sucursal();
             origen.setIdSucursal(idSucursalOrigen);
@@ -155,6 +170,20 @@ public class ControladorRuta extends HttpServlet {
             int idSucursalDestino = Integer.parseInt(request.getParameter("idSucursalDestino"));
             double distanciaKm = Double.parseDouble(request.getParameter("distanciaKm"));
             double precioBoleto = Double.parseDouble(request.getParameter("precioBoleto"));
+
+            //Misma validacion que en registrarRuta()
+            if (idSucursalOrigen == idSucursalDestino) {
+                ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido(
+                    "idSucursalDestino", "La sucursal de destino debe ser distinta a la de origen");
+                request.setAttribute("error", excepcion.getMessage() + " (Campo: " + excepcion.getCampo() + ")");
+                //Se vuelve a cargar la ruta y las sucursales para no dejar
+                //el formulario de edicion vacio al mostrar el error
+                rutaPersistencia.buscarPorId(idRuta).ifPresent(r -> request.setAttribute("ruta", r));
+                request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
+                request.getRequestDispatcher("/vistas/ruta/editarRuta.jsp").forward(request, response);
+                return;
+            }
+
             Sucursal origen = new Sucursal();
             origen.setIdSucursal(idSucursalOrigen);
             Sucursal destino = new Sucursal();
@@ -163,6 +192,7 @@ public class ControladorRuta extends HttpServlet {
             ruta.setIdRuta(idRuta);
             rutaPersistencia.actualizar(ruta);
             response.sendRedirect("ruta?accion=listar");
+
         } catch (NumberFormatException e) {
             ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido("distanciaKm/precioBoleto", "Debe ingresar valores numéricos válidos");
             request.setAttribute("error", excepcion.getMessage() + " (Campo: " + excepcion.getCampo() + ")");
