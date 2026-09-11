@@ -253,4 +253,28 @@ public class BoletoPersistencia implements Persistencia<Boleto> {
             return 0;
         }
     }
+    
+    public ArrayList<Boleto> listarPorSucursalYFecha(int idSucursal, Date desde, Date hasta) {
+        ArrayList<Boleto> boletos = new ArrayList<>();
+        String sql = "SELECT b.* FROM boleto b "
+                + "JOIN viaje_regular vr ON b.id_viaje_regular = vr.id_viaje "
+                + "JOIN viaje v ON vr.id_viaje = v.id_viaje "
+                + "JOIN bus bu ON v.id_bus = bu.id_bus "
+                + "WHERE bu.id_sucursal = ? AND b.fecha_pago BETWEEN ? AND ?";
+        try (Connection conexion = conexionBase.obtenerConexion();
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setInt(1, idSucursal);
+            ps.setTimestamp(2, new Timestamp(desde.getTime()));
+            ps.setTimestamp(3, new Timestamp(hasta.getTime()));
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                boletos.add(mapearBoleto(rs));
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al listar boletos por sucursal y fecha: " + e.getMessage());
+        }
+        return boletos;
+    }
 }

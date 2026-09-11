@@ -123,18 +123,28 @@ public class ControladorReporte extends HttpServlet {
             response.sendRedirect("reporte?accion=menu");
             return;
         }
-        ArrayList<Boleto> boletos = boletoPersistencia.listarTodos();
+        AdminSucursal admin = (AdminSucursal) usuario;
+        Date desde = obtenerFechaOTodas(request, "desde", true);
+        Date hasta = obtenerFechaOTodas(request, "hasta", false);
+
+        ArrayList<Boleto> boletos = boletoPersistencia.listarPorSucursalYFecha(
+            admin.getSucursal().getIdSucursal(), desde, hasta);
         request.setAttribute("boletos", boletos);
         request.getRequestDispatcher("/vistas/reporte/ingresosBoletos.jsp").forward(request, response);
     }
 
     private void reporteIngresosAlquiler(HttpServletRequest request, HttpServletResponse response, Usuario usuario)
-            throws ServletException, IOException {
+            throws ServletException, IOException, ParseException {
         if (!(usuario instanceof AdminSucursal)) {
             response.sendRedirect("reporte?accion=menu");
             return;
         }
-        ArrayList<ViajePrivado> alquileres = viajePrivadoPersistencia.listarTodos();
+        AdminSucursal admin = (AdminSucursal) usuario;
+        Date desde = obtenerFechaOTodas(request, "desde", true);
+        Date hasta = obtenerFechaOTodas(request, "hasta", false);
+
+        ArrayList<ViajePrivado> alquileres = viajePrivadoPersistencia.listarPorSucursalYFecha(
+            admin.getSucursal().getIdSucursal(), desde, hasta);
         request.setAttribute("alquileres", alquileres);
         request.getRequestDispatcher("/vistas/reporte/ingresosAlquiler.jsp").forward(request, response);
     }

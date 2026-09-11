@@ -235,4 +235,28 @@ public class ViajePrivadoPersistencia implements Persistencia<ViajePrivado> {
             return 0;
         }
     }
+    
+    public ArrayList<ViajePrivado> listarPorSucursalYFecha(int idSucursal, Date desde, Date hasta) {
+        ArrayList<ViajePrivado> viajes = new ArrayList<>();
+        String sql = "SELECT v.*, vp.origen, vp.destino, vp.pasajeros, vp.precio_estimado, "
+                + "vp.precio_confirmado FROM viaje v "
+                + "JOIN viaje_privado vp ON v.id_viaje = vp.id_viaje "
+                + "JOIN bus bu ON v.id_bus = bu.id_bus "
+                + "WHERE bu.id_sucursal = ? AND v.fecha_hora_salida BETWEEN ? AND ?";
+        try (Connection conexion = conexionBase.obtenerConexion();
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setInt(1, idSucursal);
+            ps.setTimestamp(2, new Timestamp(desde.getTime()));
+            ps.setTimestamp(3, new Timestamp(hasta.getTime()));
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                viajes.add(mapearViajePrivado(rs));
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al listar alquileres por sucursal y fecha: " + e.getMessage());
+        }
+        return viajes;
+    }
 }
