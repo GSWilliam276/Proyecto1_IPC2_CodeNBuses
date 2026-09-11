@@ -18,7 +18,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-
+import com.usac.buses.proyectocodenbuses.persistencia.SucursalPersistencia;
+        
 @WebServlet(name = "ControladorAdmin", urlPatterns = {"/admin"})
 public class ControladorAdmin extends HttpServlet {
 
@@ -58,6 +59,7 @@ public class ControladorAdmin extends HttpServlet {
                 listarAdminsSucursal(request, response);
                 break;
             case "nuevo":
+                request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
                 request.getRequestDispatcher("/vistas/admin/registrarAdminSucursal.jsp").forward(request, response);
                 break;
             default:
