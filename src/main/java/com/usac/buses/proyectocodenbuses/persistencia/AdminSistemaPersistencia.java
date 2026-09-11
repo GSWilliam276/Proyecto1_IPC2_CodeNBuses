@@ -12,7 +12,7 @@ import java.util.Optional;
  *
  * @author eduar
  */
-public class AdminsSistemaPersistencia implements Persistencia<AdminSistema> {
+public class AdminSistemaPersistencia implements Persistencia<AdminSistema> {
     private ConexionBase conexionBase = new ConexionBase();
 
     @Override
@@ -154,5 +154,24 @@ public class AdminsSistemaPersistencia implements Persistencia<AdminSistema> {
         admin.setContrasena(rs.getString("contrasena"));
         admin.setActivo(rs.getBoolean("activo"));
         return admin;
+    }
+    
+    public Optional<AdminSistema> buscarPorCorreo(String correo) {
+        String sql = "SELECT u.* FROM usuario u "
+                + "JOIN admin_sistema a ON u.id_usuario = a.id_usuario WHERE u.correo = ?";
+        try (Connection conexion = conexionBase.obtenerConexion();
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setString(1, correo);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return Optional.of(mapearAdminSistema(rs));
+            }
+            return Optional.empty();
+
+        } catch (SQLException e) {
+            System.err.println("Error al buscar admin sistema por correo: " + e.getMessage());
+            return Optional.empty();
+        }
     }
 }

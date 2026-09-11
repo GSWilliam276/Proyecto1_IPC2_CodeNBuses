@@ -211,4 +211,24 @@ public class ChoferPersistencia implements Persistencia<Chofer> {
         chofer.setSucursal(sucursal);
         return chofer;
     }
+    
+    public Optional<Chofer> buscarPorCorreo(String correo) {
+        String sql = "SELECT u.*, c.numero_licencia, c.tipo_licencia, c.fecha_vencimiento, "
+                + "c.salario_base, c.id_sucursal FROM usuario u "
+                + "JOIN chofer c ON u.id_usuario = c.id_usuario WHERE u.correo = ?";
+        try (Connection conexion = conexionBase.obtenerConexion();
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setString(1, correo);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return Optional.of(mapearChofer(rs));
+            }
+            return Optional.empty();
+
+        } catch (SQLException e) {
+            System.err.println("Error al buscar chofer por correo: " + e.getMessage());
+            return Optional.empty();
+        }
+    }
 }

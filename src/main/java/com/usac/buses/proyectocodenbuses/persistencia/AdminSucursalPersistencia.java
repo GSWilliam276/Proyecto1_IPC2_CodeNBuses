@@ -201,4 +201,23 @@ public class AdminSucursalPersistencia implements Persistencia<AdminSucursal> {
         admin.setSucursal(sucursal);
         return admin;
     }
+   
+   public Optional<AdminSucursal> buscarPorCorreo(String correo) {
+        String sql = "SELECT u.*, a.id_sucursal FROM usuario u "
+                + "JOIN admin_sucursal a ON u.id_usuario = a.id_usuario WHERE u.correo = ?";
+        try (Connection conexion = conexionBase.obtenerConexion();
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setString(1, correo);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return Optional.of(mapearAdminSucursal(rs));
+            }
+            return Optional.empty();
+
+        } catch (SQLException e) {
+            System.err.println("Error al buscar admin sucursal por correo: " + e.getMessage());
+            return Optional.empty();
+        }
+    }
 }

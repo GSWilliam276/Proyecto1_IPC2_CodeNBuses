@@ -56,15 +56,30 @@ public class UsuarioPersistencia {
     }
 
     public Optional<Usuario> autenticar(String correo, String contrasena) {
-        String sql = "SELECT * FROM usuario WHERE correo = ? AND contrasena = ? AND activo = true";
+        String sql = "SELECT tipo FROM usuario WHERE correo = ? AND contrasena = ? AND activo = true";
         try (Connection conexion = conexionBase.obtenerConexion();
-             PreparedStatement ps = conexion.prepareStatement(sql)) {
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
 
             ps.setString(1, correo);
             ps.setString(2, contrasena);
             ResultSet rs = ps.executeQuery();
+
             if (rs.next()) {
-                return Optional.of(mapearUsuario(rs));
+                String tipo = rs.getString("tipo");
+                //Se despacha hacia la clase especifica correcta, aprovechando
+                //que cada Persistencia ya sabe construir su propio objeto completo
+                switch (tipo) {
+                    case "ADMIN_SISTEMA":
+                        return new AdminSistemaPersistencia().buscarPorCorreo(correo).map(u -> (Usuario) u);
+                    case "ADMIN_SUCURSAL":
+                        return new AdminSucursalPersistencia().buscarPorCorreo(correo).map(u -> (Usuario) u);
+                    case "CHOFER":
+                        return new ChoferPersistencia().buscarPorCorreo(correo).map(u -> (Usuario) u);
+                    case "CLIENTE":
+                        return new ClienteRegularPersistencia().buscarPorCorreo(correo).map(u -> (Usuario) u);
+                    default:
+                        return Optional.empty();
+                }
             }
             return Optional.empty();
 
