@@ -204,4 +204,24 @@ public class RegistroLlegadaPersistencia implements Persistencia<RegistroLlegada
             return 0;
         }
     }
+    
+    public double obtenerDepreciacionAcumuladaPorBus(int idBus) {
+        String sql = "SELECT COALESCE(SUM(rl.depreciacion_calculada), 0) AS total FROM registro_llegada rl "
+                + "JOIN viaje v ON rl.id_viaje = v.id_viaje "
+                + "WHERE v.id_bus = ?";
+        try (Connection conexion = conexionBase.obtenerConexion();
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setInt(1, idBus);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getDouble("total");
+            }
+            return 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error al obtener depreciación acumulada por bus: " + e.getMessage());
+            return 0;
+        }
+    }
 }

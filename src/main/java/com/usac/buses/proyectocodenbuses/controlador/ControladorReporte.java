@@ -157,7 +157,18 @@ public class ControladorReporte extends HttpServlet {
         }
         AdminSucursal admin = (AdminSucursal) usuario;
         ArrayList<Bus> buses = busPersistencia.listarPorSucursal(admin.getSucursal().getIdSucursal());
-        request.setAttribute("buses", buses);
+
+        //Se calcula la depreciacion real acumulada de cada bus, sumando
+        //lo que ya quedo guardado en cada RegistroLlegada (cada uno con
+        //el monto que estaba vigente en su momento), no es una aproximacion
+        //con el monto actual
+        ArrayList<Object[]> filasReporte = new ArrayList<>();
+        for (Bus bus : buses) {
+            double depreciacionAcumulada = registroLlegadaPersistencia.obtenerDepreciacionAcumuladaPorBus(bus.getIdBus());
+            filasReporte.add(new Object[]{bus.getPlaca(), bus.getKilometraje(), depreciacionAcumulada});
+        }
+
+        request.setAttribute("filasReporte", filasReporte);
         request.getRequestDispatcher("/vistas/reporte/depreciacionPorBus.jsp").forward(request, response);
     }
 
@@ -177,23 +188,25 @@ public class ControladorReporte extends HttpServlet {
         Date hasta = obtenerFechaOTodas(request, "hasta", false);
         String idSucursalParam = request.getParameter("idSucursal");
 
-        ArrayList<Sucursal> sucursales;
+        //Lista COMPLETA de sucursales, siempre, para armar el combobox del filtro
+        ArrayList<Sucursal> todasLasSucursales = sucursalPersistencia.listarTodos();
+        todasLasSucursales.sort((a, b) -> a.getNombre().compareToIgnoreCase(b.getNombre()));
+
+        //Lista para el REPORTE en si: si hay filtro, solo esa sucursal
+        ArrayList<Sucursal> sucursalesParaReporte;
         if (idSucursalParam != null && !idSucursalParam.trim().isEmpty()) {
             ArrayList<Sucursal> filtro = new ArrayList<>();
             sucursalPersistencia.buscarPorId(Integer.parseInt(idSucursalParam)).ifPresent(filtro::add);
-            sucursales = filtro;
+            sucursalesParaReporte = filtro;
         } else {
-            sucursales = sucursalPersistencia.listarTodos();
+            sucursalesParaReporte = todasLasSucursales;
         }
-
-        //Ordenar alfabeticamente por nombre
-        sucursales.sort((a, b) -> a.getNombre().compareToIgnoreCase(b.getNombre()));
 
         ArrayList<Object[]> filasReporte = new ArrayList<>();
         double totalIngresos = 0;
         double totalCostos = 0;
 
-        for (Sucursal sucursal : sucursales) {
+        for (Sucursal sucursal : sucursalesParaReporte) {
             int idSucursal = sucursal.getIdSucursal();
 
             double ingresosBoletos = boletoPersistencia.obtenerIngresosPorSucursalYFecha(idSucursal, desde, hasta);
@@ -216,6 +229,7 @@ public class ControladorReporte extends HttpServlet {
         }
 
         request.setAttribute("filasReporte", filasReporte);
+        request.setAttribute("sucursales", todasLasSucursales);
         request.setAttribute("totalIngresos", totalIngresos);
         request.setAttribute("totalCostos", totalCostos);
         request.setAttribute("totalGanancia", totalIngresos - totalCostos);

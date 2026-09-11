@@ -64,21 +64,30 @@ public class ViajePersistencia {
 
     public ArrayList<Object[]> listarRutasMasDemandadas(Date desde, Date hasta) {
         ArrayList<Object[]> resultado = new ArrayList<>();
-        String sql = "SELECT vr.id_ruta, COUNT(b.id_boleto) AS total_boletos "
-                   + "FROM viaje_regular vr "
-                   + "JOIN viaje v ON vr.id_viaje = v.id_viaje "
-                   + "JOIN boleto b ON vr.id_viaje = b.id_viaje_regular "
-                   + "WHERE v.fecha_hora_salida BETWEEN ? AND ? "
-                   + "GROUP BY vr.id_ruta ORDER BY total_boletos DESC";
+        String sql = "SELECT so.nombre AS origen, sd.nombre AS destino, "
+                + "COUNT(b.id_boleto) AS total_boletos "
+                + "FROM viaje_regular vr "
+                + "JOIN viaje v ON vr.id_viaje = v.id_viaje "
+                + "JOIN ruta r ON vr.id_ruta = r.id_ruta "
+                + "JOIN sucursal so ON r.id_sucursal_origen = so.id_sucursal "
+                + "JOIN sucursal sd ON r.id_sucursal_destino = sd.id_sucursal "
+                + "JOIN boleto b ON vr.id_viaje = b.id_viaje_regular "
+                + "WHERE v.fecha_hora_salida BETWEEN ? AND ? "
+                + "GROUP BY r.id_ruta, so.nombre, sd.nombre "
+                + "ORDER BY total_boletos DESC";
         try (Connection conexion = conexionBase.obtenerConexion();
-             PreparedStatement ps = conexion.prepareStatement(sql)) {
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
 
             ps.setTimestamp(1, new Timestamp(desde.getTime()));
             ps.setTimestamp(2, new Timestamp(hasta.getTime()));
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                resultado.add(new Object[]{rs.getInt("id_ruta"), rs.getInt("total_boletos")});
+                resultado.add(new Object[]{
+                    rs.getString("origen"),
+                    rs.getString("destino"),
+                    rs.getInt("total_boletos")
+                });
             }
 
         } catch (SQLException e) {
