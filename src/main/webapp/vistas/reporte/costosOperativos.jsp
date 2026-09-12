@@ -6,6 +6,7 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="java.util.ArrayList"%>
+<%@page import="com.usac.buses.proyectocodenbuses.entidad.Sucursal"%>
 <%@ include file="/vistas/comunes/header.jsp" %>
 
 <h1>Reporte: Costos Operativos</h1>
@@ -19,6 +20,20 @@
     <input type="date" name="desde"/>
     <label>Hasta:</label>
     <input type="date" name="hasta"/>
+    <label>Sucursal (opcional):</label>
+    <select name="idSucursal">
+        <option value="">Todas</option>
+        <%
+            ArrayList<Sucursal> sucursales = (ArrayList<Sucursal>) request.getAttribute("sucursales");
+            if (sucursales != null) {
+                for (Sucursal sucursal : sucursales) {
+        %>
+            <option value="<%= sucursal.getIdSucursal() %>"><%= sucursal.getNombre() %></option>
+        <%
+                }
+            }
+        %>
+    </select>
     <button type="submit" class="btn btn-secondary">Filtrar</button>
 </form>
 <br>

@@ -268,13 +268,18 @@ public class ControladorReporte extends HttpServlet {
         Date hasta = obtenerFechaOTodas(request, "hasta", false);
         String idSucursalParam = request.getParameter("idSucursal");
 
-        ArrayList<Sucursal> sucursales;
+        //Lista COMPLETA para armar el combobox del filtro
+        ArrayList<Sucursal> todasLasSucursales = sucursalPersistencia.listarTodos();
+        todasLasSucursales.sort((a, b) -> a.getNombre().compareToIgnoreCase(b.getNombre()));
+
+        //Lista para el REPORTE en si: si hay filtro, solo esa sucursal
+        ArrayList<Sucursal> sucursalesParaReporte;
         if (idSucursalParam != null && !idSucursalParam.trim().isEmpty()) {
             ArrayList<Sucursal> filtro = new ArrayList<>();
             sucursalPersistencia.buscarPorId(Integer.parseInt(idSucursalParam)).ifPresent(filtro::add);
-            sucursales = filtro;
+            sucursalesParaReporte = filtro;
         } else {
-            sucursales = sucursalPersistencia.listarTodos();
+            sucursalesParaReporte = todasLasSucursales;
         }
 
         ArrayList<Object[]> filasReporte = new ArrayList<>();
@@ -282,7 +287,7 @@ public class ControladorReporte extends HttpServlet {
         double totalTaller = 0;
         double totalDepreciacion = 0;
 
-        for (Sucursal sucursal : sucursales) {
+        for (Sucursal sucursal : sucursalesParaReporte) {
             int idSucursal = sucursal.getIdSucursal();
             double combustible = registroLlegadaPersistencia.obtenerCombustiblePorSucursalYFecha(idSucursal, desde, hasta);
             double taller = gastoPersistencia.obtenerTotalPorSucursalYFecha(idSucursal, desde, hasta);
@@ -296,6 +301,7 @@ public class ControladorReporte extends HttpServlet {
         }
 
         request.setAttribute("filasReporte", filasReporte);
+        request.setAttribute("sucursales", todasLasSucursales);
         request.setAttribute("totalCombustible", totalCombustible);
         request.setAttribute("totalTaller", totalTaller);
         request.setAttribute("totalDepreciacion", totalDepreciacion);
@@ -303,7 +309,6 @@ public class ControladorReporte extends HttpServlet {
         request.getRequestDispatcher("/vistas/reporte/costosOperativos.jsp").forward(request, response);
     }
 
-    
     //Mapa de rutas filtrado por sucursal de origen (se grafica en el JSP)
     private void reporteMapaRutas(HttpServletRequest request, HttpServletResponse response, Usuario usuario)
             throws ServletException, IOException {
