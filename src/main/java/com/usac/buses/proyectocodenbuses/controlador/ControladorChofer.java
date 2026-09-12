@@ -23,11 +23,13 @@ import com.usac.buses.proyectocodenbuses.entidad.AdminSucursal;
 import com.usac.buses.proyectocodenbuses.entidad.Usuario;
 import jakarta.servlet.http.HttpSession;
 import com.usac.buses.proyectocodenbuses.persistencia.SucursalPersistencia;
+import com.usac.buses.proyectocodenbuses.persistencia.UsuarioPersistencia;
 
 @WebServlet(name = "ControladorChofer", urlPatterns = {"/chofer"})
 public class ControladorChofer extends HttpServlet {
 
     private ChoferPersistencia choferPersistencia = new ChoferPersistencia();
+    private UsuarioPersistencia usuarioPersistencia = new UsuarioPersistencia();
     
     private boolean verificarAcceso(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
@@ -144,14 +146,13 @@ public class ControladorChofer extends HttpServlet {
             double salarioBase = Double.parseDouble(request.getParameter("salarioBase"));
             int idSucursal = Integer.parseInt(request.getParameter("idSucursal"));
 
-            
             //Validacion de NIT: opcional, pero si se llena debe ser solo numeros
             if (nit != null && !nit.trim().isEmpty() && !nit.matches("\\d+")) {
                 ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido("nit", "El NIT debe contener solo números");
                 request.setAttribute("error", excepcion.getMessage() + " (Campo: " + excepcion.getCampo() + ")");
                 request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
                 request.getRequestDispatcher("/vistas/chofer/registrarChofer.jsp").forward(request, response);
-            return;
+                return;
             }
             //Validacion de DPI: obligatorio y solo numeros
             if (dpi == null || dpi.trim().isEmpty()) {
@@ -159,10 +160,28 @@ public class ControladorChofer extends HttpServlet {
                 request.setAttribute("error", excepcion.getMessage() + " (Campo: " + excepcion.getCampo() + ")");
                 request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
                 request.getRequestDispatcher("/vistas/chofer/registrarChofer.jsp").forward(request, response);
-            return;
+                return;
             }
             if (!dpi.matches("\\d{13}")) {
                 ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido("dpi", "El DPI debe contener exactamente 13 números");
+                request.setAttribute("error", excepcion.getMessage() + " (Campo: " + excepcion.getCampo() + ")");
+                request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
+                request.getRequestDispatcher("/vistas/chofer/registrarChofer.jsp").forward(request, response);
+                return;
+            }
+
+            //Validacion de correo duplicado
+            if (usuarioPersistencia.existeUsuarioConCorreo(correo)) {
+                ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido("correo", "Ya existe una cuenta registrada con ese correo");
+                request.setAttribute("error", excepcion.getMessage() + " (Campo: " + excepcion.getCampo() + ")");
+                request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
+                request.getRequestDispatcher("/vistas/chofer/registrarChofer.jsp").forward(request, response);
+                return;
+            }
+            
+            //Validacion de DPI duplicado
+            if (usuarioPersistencia.existeUsuarioConDpi(dpi)) {
+                ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido("dpi", "Ya existe una cuenta registrada con ese DPI");
                 request.setAttribute("error", excepcion.getMessage() + " (Campo: " + excepcion.getCampo() + ")");
                 request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
                 request.getRequestDispatcher("/vistas/chofer/registrarChofer.jsp").forward(request, response);
@@ -184,7 +203,7 @@ public class ControladorChofer extends HttpServlet {
                 request.getRequestDispatcher("/vistas/chofer/registrarChofer.jsp").forward(request, response);
                 return;
             }
-        
+    
             TipoLicencia tipoLicencia = TipoLicencia.valueOf(tipoLicenciaStr);
 
             //Validacion de regla de negocio: solo licencias A o B pueden conducir bus extraurbano

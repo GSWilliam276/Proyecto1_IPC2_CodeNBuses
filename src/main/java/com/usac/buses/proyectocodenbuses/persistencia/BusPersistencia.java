@@ -176,4 +176,22 @@ public class BusPersistencia implements Persistencia<Bus> {
         bus.setActivo(rs.getBoolean("activo"));
         return bus;
     }
+    
+    public boolean existeBusConPlaca(String placa) {
+        String sql = "SELECT COUNT(*) AS total FROM bus WHERE placa = ?";
+        try (Connection conexion = conexionBase.obtenerConexion();
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setString(1, placa);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total") > 0;
+            }
+            return false;
+
+        } catch (SQLException e) {
+            System.err.println("Error al verificar placa de bus: " + e.getMessage());
+            return false;
+        }
+    }
 }

@@ -19,12 +19,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import com.usac.buses.proyectocodenbuses.persistencia.SucursalPersistencia;
+import com.usac.buses.proyectocodenbuses.persistencia.UsuarioPersistencia;
         
 @WebServlet(name = "ControladorAdmin", urlPatterns = {"/admin"})
 public class ControladorAdmin extends HttpServlet {
 
     private AdminSucursalPersistencia adminSucursalPersistencia = new AdminSucursalPersistencia();
-
+    private UsuarioPersistencia usuarioPersistencia = new UsuarioPersistencia();
+    
     private boolean verificarAcceso(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         HttpSession sesion = request.getSession();
@@ -113,15 +115,19 @@ public class ControladorAdmin extends HttpServlet {
             if (dpi == null || dpi.trim().isEmpty()) {
                 throw new ExcepcionFormatoInvalido("dpi", "El DPI es obligatorio");
             }
-            
-            if (dpi == null || dpi.trim().isEmpty()) {
-                throw new ExcepcionFormatoInvalido("dpi", "El DPI es obligatorio");
-            }
             if (!dpi.matches("\\d{13}")) {
                 throw new ExcepcionFormatoInvalido("dpi", "El DPI debe contener exactamente 13 números");
             }
+            if (usuarioPersistencia.existeUsuarioConDpi(dpi)) {
+                throw new ExcepcionFormatoInvalido("dpi", "Ya existe una cuenta registrada con ese DPI");
+            }
             if (!nit.trim().isEmpty() && !nit.matches("\\d+")) {
                 throw new ExcepcionFormatoInvalido("nit", "El NIT debe contener solo números");
+            }
+
+            //Validacion de correo duplicado
+            if (usuarioPersistencia.existeUsuarioConCorreo(correo)) {
+                throw new ExcepcionFormatoInvalido("correo", "Ya existe una cuenta registrada con ese correo");
             }
 
             Sucursal sucursal = new Sucursal();

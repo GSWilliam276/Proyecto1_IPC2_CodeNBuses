@@ -13,8 +13,9 @@
 <% if (request.getAttribute("error") != null) { %>
     <p style="color: red;"><%= request.getAttribute("error") %></p>
 <% } %>
-<form method="POST" action="<%= request.getContextPath() %>/bus">
+<form method="POST" action="<%= request.getContextPath() %>/bus" enctype="multipart/form-data">
     <input type="hidden" name="accion" value="registrar"/>
+
     <label>Placa:</label>
     <br>
     <input type="text" name="placa" class="form-control" required/>
@@ -35,11 +36,12 @@
     <br>
     <input type="number" name="capacidad" class="form-control" required/>
     <br>
-    <%-- Por el momento se deja colocar la ruta de la imagen, luego se implementara la seleccion de imagenes --%> 
-    <label>Foto (URL o nombre de archivo):</label>
+
+    <label>Foto:</label>
     <br>
-    <input type="text" name="foto" class="form-control"/>
+    <input type="file" name="foto" accept="image/*" class="form-control"/>
     <br>
+
     <label>Sucursal:</label>
     <br>
     <%
@@ -49,15 +51,10 @@
         ArrayList<Sucursal> sucursales = (ArrayList<Sucursal>) request.getAttribute("sucursales");
     %>
     <% if (sucursales == null || sucursales.isEmpty()) { %>
-        <%-- Caso borde: si todavia no existe ninguna sucursal registrada,
-             no tiene sentido mostrar un combobox vacio. Avisamos al usuario
-             en vez de dejarlo con una lista sin opciones. --%>
         <p style="color: red;">No hay sucursales registradas. Contacta al administrador del sistema.</p>
     <% } else { %>
         <select name="idSucursal" class="form-control" required>
             <%
-                //Se recorre la lista y se genera una <option> por cada
-                //sucursal, mostrando el nombre pero enviando el ID real
                 for (Sucursal sucursal : sucursales) {
             %>
                 <option value="<%= sucursal.getIdSucursal() %>"><%= sucursal.getNombre() %></option>

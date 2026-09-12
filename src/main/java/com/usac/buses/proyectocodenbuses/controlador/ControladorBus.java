@@ -19,8 +19,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import com.usac.buses.proyectocodenbuses.persistencia.SucursalPersistencia;
+import jakarta.servlet.annotation.MultipartConfig;
+import jakarta.servlet.http.Part;
 
 @WebServlet(name = "ControladorBus", urlPatterns = {"/bus"})
+@MultipartConfig(maxFileSize = 5242880) //limite de 5MB por archivo
 public class ControladorBus extends HttpServlet {
 
     private BusPersistencia busPersistencia = new BusPersistencia();
@@ -125,11 +128,21 @@ public class ControladorBus extends HttpServlet {
     }
 
     private void registrarBus(HttpServletRequest request, HttpServletResponse response)
-        throws IOException, ServletException {
+            throws IOException, ServletException {
         try {
             String placa = request.getParameter("placa");
             String marca = request.getParameter("marca");
             String modelo = request.getParameter("modelo");
+
+            //Validacion de placa duplicada
+            if (busPersistencia.existeBusConPlaca(placa)) {
+                ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido("placa", "Ya existe un bus registrado con esa placa");
+                request.setAttribute("error", excepcion.getMessage() + " (Campo: " + excepcion.getCampo() + ")");
+                request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
+                request.getRequestDispatcher("/vistas/bus/registrarBus.jsp").forward(request, response);
+                return;
+            }
+
             int anio;
             int capacidad;
 
@@ -140,7 +153,16 @@ public class ControladorBus extends HttpServlet {
                 throw new ExcepcionFormatoInvalido("anio/capacidad", "Debe ingresar valores numéricos válidos");
             }
 
-            String foto = request.getParameter("foto");
+            //Se procesa el archivo de imagen subido, si el usuario selecciono uno
+            String foto = guardarFoto(request);
+            if ("FORMATO_INVALIDO".equals(foto)) {
+                ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido("foto", "El archivo debe ser una imagen (jpg, jpeg, png o gif)");
+                request.setAttribute("error", excepcion.getMessage() + " (Campo: " + excepcion.getCampo() + ")");
+                request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
+                request.getRequestDispatcher("/vistas/bus/registrarBus.jsp").forward(request, response);
+                return;
+            }
+
             int idSucursal = Integer.parseInt(request.getParameter("idSucursal"));
 
             Sucursal sucursal = new Sucursal();
@@ -155,6 +177,38 @@ public class ControladorBus extends HttpServlet {
             request.setAttribute("error", e.getMessage() + " (Campo: " + e.getCampo() + ")");
             request.getRequestDispatcher("/vistas/bus/registrarBus.jsp").forward(request, response);
         }
+    }
+    
+    //Lee el archivo de imagen del formulario multipart y lo guarda en el
+    //servidor, dentro de la carpeta recursos/imagenes. Devuelve el nombre
+    //generado para guardarlo en la base de datos, o null si no se subio nada.
+    private String guardarFoto(HttpServletRequest request) throws IOException, ServletException {
+        Part part = request.getPart("foto");
+        if (part == null || part.getSize() == 0) {
+            return null; // el usuario no selecciono ninguna imagen
+        }
+
+        String nombreOriginal = part.getSubmittedFileName();
+        String extension = nombreOriginal.substring(nombreOriginal.lastIndexOf(".")).toLowerCase();
+
+        //Validacion real del lado del servidor: solo se aceptan imagenes,
+        //sin depender solo del atributo accept del input (que es solo
+        //una sugerencia visual y se puede saltar facilmente)
+        if (!extension.equals(".jpg") && !extension.equals(".jpeg")
+                && !extension.equals(".png") && !extension.equals(".gif")) {
+            return "FORMATO_INVALIDO"; //Señal especial para que el Controlador la detecte
+        }
+
+        String nombreUnico = java.util.UUID.randomUUID().toString() + extension;
+
+        String rutaCarpeta = request.getServletContext().getRealPath("/recursos/imagenes");
+        java.io.File carpeta = new java.io.File(rutaCarpeta);
+        if (!carpeta.exists()) {
+            carpeta.mkdirs();
+        }
+
+        part.write(rutaCarpeta + java.io.File.separator + nombreUnico);
+        return nombreUnico;
     }
 
     private void actualizarBus(HttpServletRequest request, HttpServletResponse response)

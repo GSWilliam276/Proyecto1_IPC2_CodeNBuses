@@ -101,4 +101,40 @@ public class UsuarioPersistencia {
         usuario.setActivo(rs.getBoolean("activo"));
         return usuario;
     }
+    
+    public boolean existeUsuarioConCorreo(String correo) {
+        String sql = "SELECT COUNT(*) AS total FROM usuario WHERE correo = ?";
+        try (Connection conexion = conexionBase.obtenerConexion();
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setString(1, correo);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total") > 0;
+            }
+            return false;
+
+        } catch (SQLException e) {
+            System.err.println("Error al verificar correo: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    public boolean existeUsuarioConDpi(String dpi) {
+        String sql = "SELECT COUNT(*) AS total FROM usuario WHERE dpi = ?";
+        try (Connection conexion = conexionBase.obtenerConexion();
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setString(1, dpi);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total") > 0;
+            }
+            return false;
+
+        } catch (SQLException e) {
+            System.err.println("Error al verificar DPI: " + e.getMessage());
+            return false;
+        }
+    }
 }

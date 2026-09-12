@@ -116,11 +116,20 @@ public class ControladorUsuario extends HttpServlet {
             if (!dpi.matches("\\d{13}")) {
                 throw new ExcepcionFormatoInvalido("dpi", "El DPI debe contener exactamente 13 números");
             }
+            //Validacion de DPI duplicado
+            if (usuarioPersistencia.existeUsuarioConDpi(dpi)) {
+                throw new ExcepcionFormatoInvalido("dpi", "Ya existe una cuenta registrada con ese DPI");
+            }
             if (correo == null || correo.trim().isEmpty()) {
                 throw new ExcepcionFormatoInvalido("correo", "El correo es obligatorio");
             }
             if (!nit.trim().isEmpty() && !nit.matches("\\d+")) {
                 throw new ExcepcionFormatoInvalido("nit", "El NIT debe contener solo números");
+            }
+
+            //Validacion de correo duplicado
+            if (usuarioPersistencia.existeUsuarioConCorreo(correo)) {
+                throw new ExcepcionFormatoInvalido("correo", "Ya existe una cuenta registrada con ese correo");
             }
 
             ClienteRegular cliente = new ClienteRegular(nit, dpi, telefono, direccion, correo, contrasena);
