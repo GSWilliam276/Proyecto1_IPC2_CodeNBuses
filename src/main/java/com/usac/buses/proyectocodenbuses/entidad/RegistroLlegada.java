@@ -20,13 +20,14 @@ public class RegistroLlegada { //Inmutable
 
     //Constructor para crear un registro nuevo: calcula la depreciacion automaticamente
     public RegistroLlegada(Viaje viaje, Date horaLlegadaReal, double kilometrajeLlegada,
-                            double gastoCombustible, double montoDepreciacionPorKm) {
+            double kilometrajeSalida, double gastoCombustible, double montoDepreciacionPorKm) {
         this.idRegistroLlegada = 0;
         this.viaje = viaje;
         this.horaLlegadaReal = horaLlegadaReal;
         this.kilometrajeLlegada = kilometrajeLlegada;
         this.gastoCombustible = gastoCombustible;
-        this.depreciacionCalculada = calcularDepreciacion(kilometrajeLlegada, montoDepreciacionPorKm);
+        double kilometrosRecorridos = kilometrajeLlegada - kilometrajeSalida;
+        this.depreciacionCalculada = calcularDepreciacion(kilometrosRecorridos, montoDepreciacionPorKm);
     }
 
     //Constructor para reconstruir un registro que ya existe en la base de datos:

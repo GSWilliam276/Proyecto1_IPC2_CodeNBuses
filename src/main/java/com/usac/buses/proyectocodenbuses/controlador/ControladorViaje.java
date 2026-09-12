@@ -285,10 +285,19 @@ public class ControladorViaje extends HttpServlet {
                 return;
             }
 
+            //Se necesita el kilometraje de salida para calcular correctamente
+            //los kilometros recorridos en ESTE viaje especifico
+            RegistroSalida salida = registroSalidaPersistencia.buscarPorViaje(idViaje).orElse(null);
+            if (salida == null) {
+                request.setAttribute("error", "Este viaje no tiene registrada su salida todavía");
+                response.sendRedirect("viaje?accion=listar");
+                return;
+            }
+
             double montoDepreciacionPorKm = configuracionPersistencia.obtenerMontoDepreciacionActual();
 
             RegistroLlegada registro = new RegistroLlegada(viaje, new Date(), kilometrajeLlegada,
-                    gastoCombustible, montoDepreciacionPorKm);
+                    salida.getKilometrajeSalida(), gastoCombustible, montoDepreciacionPorKm);
 
             registroLlegadaPersistencia.registrarLlegada(registro, viaje.getBus().getIdBus());
 

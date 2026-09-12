@@ -20,12 +20,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import com.usac.buses.proyectocodenbuses.persistencia.SucursalPersistencia;
 import com.usac.buses.proyectocodenbuses.persistencia.UsuarioPersistencia;
+import com.usac.buses.proyectocodenbuses.persistencia.ConfiguracionPersistencia;
         
 @WebServlet(name = "ControladorAdmin", urlPatterns = {"/admin"})
 public class ControladorAdmin extends HttpServlet {
 
     private AdminSucursalPersistencia adminSucursalPersistencia = new AdminSucursalPersistencia();
     private UsuarioPersistencia usuarioPersistencia = new UsuarioPersistencia();
+    private ConfiguracionPersistencia configuracionPersistencia = new ConfiguracionPersistencia();
     
     private boolean verificarAcceso(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
@@ -67,6 +69,9 @@ public class ControladorAdmin extends HttpServlet {
             case "editar":
                 mostrarFormularioEditar(request, response);
                 break;
+            case "configurarDepreciacion":
+                mostrarConfiguracionDepreciacion(request, response);
+                break;
             default:
                 response.sendRedirect("admin?accion=listar");
         }
@@ -88,6 +93,9 @@ public class ControladorAdmin extends HttpServlet {
                 break;
             case "actualizar":
                 actualizarAdminSucursal(request, response);
+                break;
+            case "guardarDepreciacion":
+                guardarConfiguracionDepreciacion(request, response);
                 break;
             default:
                 response.sendRedirect("admin?accion=listar");
@@ -222,5 +230,25 @@ public class ControladorAdmin extends HttpServlet {
                 }
             }
         );
+    }
+    
+    private void mostrarConfiguracionDepreciacion(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        double montoActual = configuracionPersistencia.obtenerMontoDepreciacionActual();
+        request.setAttribute("montoActual", montoActual);
+        request.getRequestDispatcher("/vistas/admin/configurarDepreciacion.jsp").forward(request, response);
+    }
+
+    private void guardarConfiguracionDepreciacion(HttpServletRequest request, HttpServletResponse response)
+            throws IOException, ServletException {
+        try {
+            double monto = Double.parseDouble(request.getParameter("monto"));
+            configuracionPersistencia.actualizarMontoDepreciacion(monto);
+            response.sendRedirect("admin?accion=configurarDepreciacion");
+
+        } catch (NumberFormatException e) {
+            request.setAttribute("error", "Debe ingresar un valor numérico válido");
+            request.getRequestDispatcher("/vistas/admin/configurarDepreciacion.jsp").forward(request, response);
+        }
     }
 }

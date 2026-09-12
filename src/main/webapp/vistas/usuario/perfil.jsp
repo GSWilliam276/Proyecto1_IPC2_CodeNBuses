@@ -32,6 +32,7 @@
     <h3>Administración del Sistema</h3>
     <a href="<%= request.getContextPath() %>/sucursal?accion=listar" class="btn btn-outline-primary">Gestionar Sucursales</a>
     <a href="<%= request.getContextPath() %>/admin?accion=listar" class="btn btn-outline-primary">Administradores de Sucursal</a>
+    <a href="<%= request.getContextPath() %>/admin?accion=configurarDepreciacion" class="btn btn-outline-primary">Configurar Depreciación</a>
     <a href="<%= request.getContextPath() %>/reporte?accion=menu" class="btn btn-outline-primary">Reportes</a>
 <% } %>
 
