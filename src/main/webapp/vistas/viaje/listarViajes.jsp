@@ -8,6 +8,8 @@
 <%@page import="com.usac.buses.proyectocodenbuses.entidad.ViajeRegular"%>
 <%@page import="com.usac.buses.proyectocodenbuses.entidad.AdminSucursal"%>
 <%@page import="com.usac.buses.proyectocodenbuses.entidad.Usuario"%>
+<%@page import="com.usac.buses.proyectocodenbuses.persistencia.RegistroSalidaPersistencia"%>
+<%@page import="com.usac.buses.proyectocodenbuses.persistencia.RegistroLlegadaPersistencia"%>
 <%@page import="java.util.ArrayList"%>
 <%@ include file="/vistas/comunes/header.jsp" %>
 
@@ -20,6 +22,11 @@
     //AdminSucursal puede editar/eliminar, ademas de registrar salida y llegada
     Usuario usuarioActual = (Usuario) session.getAttribute("usuario");
     boolean esAdminSucursal = usuarioActual instanceof AdminSucursal;
+
+    //Se usan para consultar, por cada viaje, si ya tiene registro
+    //de salida y/o llegada, y asi ocultar los botones que ya no aplican
+    RegistroSalidaPersistencia registroSalidaPersistencia = new RegistroSalidaPersistencia();
+    RegistroLlegadaPersistencia registroLlegadaPersistencia = new RegistroLlegadaPersistencia();
 %>
 <% if (esAdminSucursal) { %>
     <a href="<%= request.getContextPath() %>/viaje?accion=nuevo" class="btn btn-primary mb-3">Registrar nuevo viaje</a>
@@ -39,6 +46,8 @@
         ArrayList<ViajeRegular> viajes = (ArrayList<ViajeRegular>) request.getAttribute("viajes");
         if (viajes != null) {
             for (ViajeRegular viaje : viajes) {
+                boolean yaTieneSalida = registroSalidaPersistencia.buscarPorViaje(viaje.getIdViaje()).isPresent();
+                boolean yaTieneLlegada = registroLlegadaPersistencia.buscarPorViaje(viaje.getIdViaje()).isPresent();
     %>
     <tr>
         <td><%= viaje.getRuta().getSucursalOrigen().getNombre() %> - <%= viaje.getRuta().getSucursalDestino().getNombre() %></td>
@@ -53,8 +62,18 @@
             %>
                 <a href="<%= request.getContextPath() %>/viaje?accion=editar&id=<%= viaje.getIdViaje() %>" class="btn btn-sm btn-outline-primary">Editar</a>
             <% } %>
-            <a href="<%= request.getContextPath() %>/viaje?accion=registrarSalida&idViaje=<%= viaje.getIdViaje() %>" class="btn btn-sm btn-outline-success">Salida</a>
-            <a href="<%= request.getContextPath() %>/viaje?accion=registrarLlegada&idViaje=<%= viaje.getIdViaje() %>" class="btn btn-sm btn-outline-warning">Llegada</a>
+            <%
+                //Salida solo se muestra si aun no se ha registrado
+                if (!yaTieneSalida) {
+            %>
+                <a href="<%= request.getContextPath() %>/viaje?accion=registrarSalida&idViaje=<%= viaje.getIdViaje() %>" class="btn btn-sm btn-outline-success">Salida</a>
+            <% } %>
+            <%
+                //Llegada solo se muestra si ya salio pero aun no ha llegado
+                if (yaTieneSalida && !yaTieneLlegada) {
+            %>
+                <a href="<%= request.getContextPath() %>/viaje?accion=registrarLlegada&idViaje=<%= viaje.getIdViaje() %>" class="btn btn-sm btn-outline-warning">Llegada</a>
+            <% } %>
             <%
                 if (esAdminSucursal) {
             %>

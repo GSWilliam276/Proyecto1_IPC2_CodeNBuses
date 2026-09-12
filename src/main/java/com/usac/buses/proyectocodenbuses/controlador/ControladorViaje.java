@@ -238,6 +238,14 @@ public class ControladorViaje extends HttpServlet {
             throws IOException, ServletException {
         try {
             int idViaje = Integer.parseInt(request.getParameter("idViaje"));
+
+            //Validacion: no se puede registrar salida si ya existe una
+            if (registroSalidaPersistencia.buscarPorViaje(idViaje).isPresent()) {
+                request.setAttribute("error", "Este viaje ya tiene registrada su salida");
+                response.sendRedirect("viaje?accion=listar");
+                return;
+            }
+
             double kilometrajeSalida = Double.parseDouble(request.getParameter("kilometrajeSalida"));
 
             Viaje viaje = viajePersistencia.buscarPorId(idViaje).orElse(null);
@@ -260,6 +268,14 @@ public class ControladorViaje extends HttpServlet {
             throws IOException, ServletException {
         try {
             int idViaje = Integer.parseInt(request.getParameter("idViaje"));
+
+            //Validacion: no se puede registrar llegada si ya existe una
+            if (registroLlegadaPersistencia.buscarPorViaje(idViaje).isPresent()) {
+                request.setAttribute("error", "Este viaje ya tiene registrada su llegada");
+                response.sendRedirect("viaje?accion=listar");
+                return;
+            }
+
             double kilometrajeLlegada = Double.parseDouble(request.getParameter("kilometrajeLlegada"));
             double gastoCombustible = Double.parseDouble(request.getParameter("gastoCombustible"));
 
