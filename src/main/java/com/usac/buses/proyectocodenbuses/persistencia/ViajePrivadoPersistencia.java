@@ -124,17 +124,40 @@ public class ViajePrivadoPersistencia implements Persistencia<ViajePrivado> {
 
     @Override
     public boolean eliminar(int id) {
-        String sql = "DELETE FROM viaje WHERE id_viaje = ?";
-        try (Connection conexion = conexionBase.obtenerConexion();
-             PreparedStatement ps = conexion.prepareStatement(sql)) {
+        Connection conexion = null;
+        String sqlViajePrivado = "DELETE FROM viaje_privado WHERE id_viaje = ?";
+        String sqlViaje = "DELETE FROM viaje WHERE id_viaje = ?";
 
-            ps.setInt(1, id);
-            ps.executeUpdate();
+        try {
+            conexion = conexionBase.obtenerConexion();
+            conexion.setAutoCommit(false); //Inicia transaccion: se borran 2 tablas relacionadas, en orden
+
+            //Primero se borra la fila hija, porque tiene la clave foranea
+            //que apunta hacia la tabla padre "viaje"
+            PreparedStatement psViajePrivado = conexion.prepareStatement(sqlViajePrivado);
+            psViajePrivado.setInt(1, id);
+            psViajePrivado.executeUpdate();
+
+            //Luego se puede borrar la fila padre sin violar la integridad referencial
+            PreparedStatement psViaje = conexion.prepareStatement(sqlViaje);
+            psViaje.setInt(1, id);
+            psViaje.executeUpdate();
+
+            conexion.commit(); //Confirma transaccion
             return true;
 
         } catch (SQLException e) {
+            if (conexion != null) {
+                try {
+                    conexion.rollback(); //Revierte transaccion
+                } catch (SQLException ex) {
+                    System.err.println("Error al hacer rollback: " + ex.getMessage());
+                }
+            }
             System.err.println("Error al eliminar viaje privado: " + e.getMessage());
             return false;
+        } finally {
+            conexionBase.cerrarConexion(conexion);
         }
     }
 

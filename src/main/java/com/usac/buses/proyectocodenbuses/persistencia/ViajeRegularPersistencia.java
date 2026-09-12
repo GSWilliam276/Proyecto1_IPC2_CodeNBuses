@@ -118,17 +118,40 @@ public class ViajeRegularPersistencia implements Persistencia<ViajeRegular> {
     @Override
     public boolean eliminar(int id) {
         //Solo se permite eliminar si el viaje no ha sido iniciado ni pagado (se valida en el Controlador)
-        String sql = "DELETE FROM viaje WHERE id_viaje = ?";
-        try (Connection conexion = conexionBase.obtenerConexion();
-             PreparedStatement ps = conexion.prepareStatement(sql)) {
+        Connection conexion = null;
+        String sqlViajeRegular = "DELETE FROM viaje_regular WHERE id_viaje = ?";
+        String sqlViaje = "DELETE FROM viaje WHERE id_viaje = ?";
 
-            ps.setInt(1, id);
-            ps.executeUpdate();
+        try {
+            conexion = conexionBase.obtenerConexion();
+            conexion.setAutoCommit(false); //Inicia transaccion: se borran 2 tablas relacionadas, en orden
+
+            //Primero se borra la fila hija, porque tiene la clave foranea
+            //que apunta hacia la tabla padre "viaje"
+            PreparedStatement psViajeRegular = conexion.prepareStatement(sqlViajeRegular);
+            psViajeRegular.setInt(1, id);
+            psViajeRegular.executeUpdate();
+
+            //Luego se puede borrar la fila padre sin violar la integridad referencial
+            PreparedStatement psViaje = conexion.prepareStatement(sqlViaje);
+            psViaje.setInt(1, id);
+            psViaje.executeUpdate();
+
+            conexion.commit(); //Confirma transaccion
             return true;
 
         } catch (SQLException e) {
+            if (conexion != null) {
+                try {
+                    conexion.rollback(); //Revierte transaccion
+                } catch (SQLException ex) {
+                    System.err.println("Error al hacer rollback: " + ex.getMessage());
+                }
+            }
             System.err.println("Error al eliminar viaje regular: " + e.getMessage());
             return false;
+        } finally {
+            conexionBase.cerrarConexion(conexion);
         }
     }
 

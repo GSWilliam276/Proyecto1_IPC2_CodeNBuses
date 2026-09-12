@@ -160,6 +160,19 @@ public class ControladorViaje extends HttpServlet {
             Date fechaSalida = formato.parse(fechaSalidaStr);
             Date fechaLlegada = formato.parse(fechaLlegadaStr);
 
+            //Validacion: no se puede programar un viaje con
+            //fecha de salida en el pasado
+            if (fechaSalida.before(new Date())) {
+                mostrarError(request, response, "fechaHoraSalida", "La fecha de salida no puede ser en el pasado", "/vistas/viaje/registrarViaje.jsp");
+                return;
+            }
+
+            //Validacion: la llegada estimada debe ser posterior a la salida
+            if (!fechaLlegada.after(fechaSalida)) {
+                mostrarError(request, response, "fechaHoraLlegadaEstimada", "La fecha de llegada debe ser posterior a la fecha de salida", "/vistas/viaje/registrarViaje.jsp");
+                return;
+            }
+
             Bus bus = new Bus();
             bus.setIdBus(idBus);
             Chofer chofer = new Chofer();
@@ -193,6 +206,13 @@ public class ControladorViaje extends HttpServlet {
             Date fechaSalida = formato.parse(fechaSalidaStr);
             Date fechaLlegada = formato.parse(fechaLlegadaStr);
 
+            //Validacion: la llegada estimada debe ser posterior
+            //a la salida (aplica siempre, sin importar si es creacion o edicion)
+            if (!fechaLlegada.after(fechaSalida)) {
+                mostrarError(request, response, "fechaHoraLlegadaEstimada", "La fecha de llegada debe ser posterior a la fecha de salida", "/vistas/viaje/editarViaje.jsp");
+                return;
+            }
+
             Bus bus = new Bus();
             bus.setIdBus(idBus);
             Chofer chofer = new Chofer();
@@ -200,7 +220,6 @@ public class ControladorViaje extends HttpServlet {
             Ruta ruta = new Ruta();
             ruta.setIdRuta(idRuta);
 
-            //El tipo de viaje nunca cambia aqui
             ViajeRegular viaje = new ViajeRegular(bus, chofer, fechaSalida, fechaLlegada, ruta);
             viaje.setIdViaje(idViaje);
             viajeRegularPersistencia.actualizar(viaje);
