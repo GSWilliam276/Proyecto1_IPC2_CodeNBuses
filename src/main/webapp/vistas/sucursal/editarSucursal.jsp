@@ -28,6 +28,17 @@
     <br>
     <input type="text" name="ubicacion" value="<%= sucursal.getUbicacion() %>" class="form-control" required/>
     <br>
+
+    <label>Latitud:</label>
+    <br>
+    <input type="number" step="any" name="latitud" value="<%= sucursal.getLatitud() %>" class="form-control" required/>
+    <br>
+
+    <label>Longitud:</label>
+    <br>
+    <input type="number" step="any" name="longitud" value="<%= sucursal.getLongitud() %>" class="form-control" required/>
+    <br>
+
     <button type="submit" class="btn btn-primary">Guardar Cambios</button>
 </form>
 <a href="<%= request.getContextPath() %>/sucursal?accion=listar">Volver al listado</a>

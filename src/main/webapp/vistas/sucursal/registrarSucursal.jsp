@@ -13,6 +13,16 @@
     <p style="color: red;"><%= request.getAttribute("error") %></p>
 <% } %>
 
+<%-- Ayuda para el AdminSistema: como obtener las coordenadas reales
+     de la ubicacion desde Google Maps, sin necesidad de saberlas
+     de memoria --%>
+<div class="alert alert-info">
+    Para obtener la latitud y longitud: Busca la ubicación en
+    <a href="https://www.google.com/maps" target="_blank">Google Maps</a>,
+    haz clic derecho sobre el punto exacto, y copia las coordenadas
+    que aparecen (ejemplo: 14.8443, -91.5198).
+</div>
+
 <form method="POST" action="<%= request.getContextPath() %>/sucursal">
     <input type="hidden" name="accion" value="registrar"/>
 
@@ -24,6 +34,16 @@
     <label>Ubicación:</label>
     <br>
     <input type="text" name="ubicacion" class="form-control" required/>
+    <br>
+
+    <label>Latitud:</label>
+    <br>
+    <input type="number" step="any" name="latitud" class="form-control" required/>
+    <br>
+
+    <label>Longitud:</label>
+    <br>
+    <input type="number" step="any" name="longitud" class="form-control" required/>
     <br>
 
     <button type="submit" class="btn btn-primary">Registrar Sucursal</button>
