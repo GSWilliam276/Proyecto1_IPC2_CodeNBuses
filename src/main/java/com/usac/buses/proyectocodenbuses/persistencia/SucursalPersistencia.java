@@ -17,30 +17,34 @@ public class SucursalPersistencia implements Persistencia<Sucursal> {
 
     @Override
     public boolean insertar(Sucursal sucursal) {
-        String sql = "INSERT INTO sucursal (nombre, ubicacion) VALUES (?, ?)";
+        String sql = "INSERT INTO sucursal (nombre, ubicacion, latitud, longitud) VALUES (?, ?, ?, ?)";
         try (Connection conexion = conexionBase.obtenerConexion();
-             PreparedStatement ps = conexion.prepareStatement(sql)) {
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
 
             ps.setString(1, sucursal.getNombre());
             ps.setString(2, sucursal.getUbicacion());
+            ps.setDouble(3, sucursal.getLatitud());
+            ps.setDouble(4, sucursal.getLongitud());
             ps.executeUpdate();
             return true;
 
         } catch (SQLException e) {
-            System.err.println("Error al insertar sucursal: " + e.getMessage());
+        System.err.println("Error al insertar sucursal: " + e.getMessage());
             return false;
         }
     }
 
     @Override
     public boolean actualizar(Sucursal sucursal) {
-        String sql = "UPDATE sucursal SET nombre = ?, ubicacion = ? WHERE id_sucursal = ?";
+        String sql = "UPDATE sucursal SET nombre = ?, ubicacion = ?, latitud = ?, longitud = ? WHERE id_sucursal = ?";
         try (Connection conexion = conexionBase.obtenerConexion();
-             PreparedStatement ps = conexion.prepareStatement(sql)) {
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
 
             ps.setString(1, sucursal.getNombre());
             ps.setString(2, sucursal.getUbicacion());
-            ps.setInt(3, sucursal.getIdSucursal());
+            ps.setDouble(3, sucursal.getLatitud());
+            ps.setDouble(4, sucursal.getLongitud());
+            ps.setInt(5, sucursal.getIdSucursal());
             ps.executeUpdate();
             return true;
 
@@ -106,6 +110,26 @@ public class SucursalPersistencia implements Persistencia<Sucursal> {
         sucursal.setIdSucursal(rs.getInt("id_sucursal"));
         sucursal.setNombre(rs.getString("nombre"));
         sucursal.setUbicacion(rs.getString("ubicacion"));
+        sucursal.setLatitud(rs.getDouble("latitud"));
+        sucursal.setLongitud(rs.getDouble("longitud"));
         return sucursal;
+    }
+    
+    public boolean existeSucursalConNombre(String nombre) {
+        String sql = "SELECT COUNT(*) AS total FROM sucursal WHERE nombre = ?";
+        try (Connection conexion = conexionBase.obtenerConexion();
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setString(1, nombre);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total") > 0;
+            }
+            return false;
+
+        } catch (SQLException e) {
+            System.err.println("Error al verificar nombre de sucursal: " + e.getMessage());
+            return false;
+        }
     }
 }

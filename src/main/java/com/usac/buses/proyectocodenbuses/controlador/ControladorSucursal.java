@@ -123,6 +123,8 @@ public class ControladorSucursal extends HttpServlet {
         try {
             String nombre = request.getParameter("nombre");
             String ubicacion = request.getParameter("ubicacion");
+            double latitud = Double.parseDouble(request.getParameter("latitud"));
+            double longitud = Double.parseDouble(request.getParameter("longitud"));
 
             if (nombre == null || nombre.trim().isEmpty()) {
                 throw new ExcepcionFormatoInvalido("nombre", "El nombre de la sucursal es obligatorio");
@@ -130,12 +132,19 @@ public class ControladorSucursal extends HttpServlet {
             if (ubicacion == null || ubicacion.trim().isEmpty()) {
                 throw new ExcepcionFormatoInvalido("ubicacion", "La ubicación de la sucursal es obligatoria");
             }
+            //Nueva validacion: no permitir nombres duplicados
+            if (sucursalPersistencia.existeSucursalConNombre(nombre)) {
+                throw new ExcepcionFormatoInvalido("nombre", "Ya existe una sucursal registrada con ese nombre");
+            }
 
-            Sucursal sucursal = new Sucursal(nombre, ubicacion);
+            Sucursal sucursal = new Sucursal(nombre, ubicacion, latitud, longitud);
             sucursalPersistencia.insertar(sucursal);
 
             response.sendRedirect("sucursal?accion=listar");
 
+        } catch (NumberFormatException e) {
+            request.setAttribute("error", "Latitud y longitud deben ser valores numéricos válidos");
+            request.getRequestDispatcher("/vistas/sucursal/registrarSucursal.jsp").forward(request, response);
         } catch (ExcepcionFormatoInvalido e) {
             request.setAttribute("error", e.getMessage() + " (Campo: " + e.getCampo() + ")");
             request.getRequestDispatcher("/vistas/sucursal/registrarSucursal.jsp").forward(request, response);
@@ -148,17 +157,22 @@ public class ControladorSucursal extends HttpServlet {
             int idSucursal = Integer.parseInt(request.getParameter("idSucursal"));
             String nombre = request.getParameter("nombre");
             String ubicacion = request.getParameter("ubicacion");
+            double latitud = Double.parseDouble(request.getParameter("latitud"));
+            double longitud = Double.parseDouble(request.getParameter("longitud"));
 
             if (nombre == null || nombre.trim().isEmpty()) {
                 throw new ExcepcionFormatoInvalido("nombre", "El nombre de la sucursal es obligatorio");
             }
 
-            Sucursal sucursal = new Sucursal(nombre, ubicacion);
+            Sucursal sucursal = new Sucursal(nombre, ubicacion, latitud, longitud);
             sucursal.setIdSucursal(idSucursal);
             sucursalPersistencia.actualizar(sucursal);
 
             response.sendRedirect("sucursal?accion=listar");
 
+        } catch (NumberFormatException e) {
+            request.setAttribute("error", "Latitud y longitud deben ser valores numéricos válidos");
+            request.getRequestDispatcher("/vistas/sucursal/editarSucursal.jsp").forward(request, response);
         } catch (ExcepcionFormatoInvalido e) {
             request.setAttribute("error", e.getMessage() + " (Campo: " + e.getCampo() + ")");
             request.getRequestDispatcher("/vistas/sucursal/editarSucursal.jsp").forward(request, response);
