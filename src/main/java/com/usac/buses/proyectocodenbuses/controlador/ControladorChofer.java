@@ -144,6 +144,47 @@ public class ControladorChofer extends HttpServlet {
             double salarioBase = Double.parseDouble(request.getParameter("salarioBase"));
             int idSucursal = Integer.parseInt(request.getParameter("idSucursal"));
 
+            
+            //Validacion de NIT: opcional, pero si se llena debe ser solo numeros
+            if (nit != null && !nit.trim().isEmpty() && !nit.matches("\\d+")) {
+                ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido("nit", "El NIT debe contener solo números");
+                request.setAttribute("error", excepcion.getMessage() + " (Campo: " + excepcion.getCampo() + ")");
+                request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
+                request.getRequestDispatcher("/vistas/chofer/registrarChofer.jsp").forward(request, response);
+            return;
+            }
+            //Validacion de DPI: obligatorio y solo numeros
+            if (dpi == null || dpi.trim().isEmpty()) {
+                ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido("dpi", "El DPI es obligatorio");
+                request.setAttribute("error", excepcion.getMessage() + " (Campo: " + excepcion.getCampo() + ")");
+                request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
+                request.getRequestDispatcher("/vistas/chofer/registrarChofer.jsp").forward(request, response);
+            return;
+            }
+            if (!dpi.matches("\\d{13}")) {
+                ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido("dpi", "El DPI debe contener exactamente 13 números");
+                request.setAttribute("error", excepcion.getMessage() + " (Campo: " + excepcion.getCampo() + ")");
+                request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
+                request.getRequestDispatcher("/vistas/chofer/registrarChofer.jsp").forward(request, response);
+                return;
+            }
+
+            //Validacion de numero de licencia: obligatorio y solo numeros
+            if (numeroLicencia == null || numeroLicencia.trim().isEmpty()) {
+                ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido("numeroLicencia", "El número de licencia es obligatorio");
+                request.setAttribute("error", excepcion.getMessage() + " (Campo: " + excepcion.getCampo() + ")");
+                request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
+                request.getRequestDispatcher("/vistas/chofer/registrarChofer.jsp").forward(request, response);
+                return;
+            }
+            if (!numeroLicencia.matches("\\d{13}")) {
+                ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido("numeroLicencia", "El número de licencia debe contener exactamente 13 números");
+                request.setAttribute("error", excepcion.getMessage() + " (Campo: " + excepcion.getCampo() + ")");
+                request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
+                request.getRequestDispatcher("/vistas/chofer/registrarChofer.jsp").forward(request, response);
+                return;
+            }
+        
             TipoLicencia tipoLicencia = TipoLicencia.valueOf(tipoLicenciaStr);
 
             //Validacion de regla de negocio: solo licencias A o B pueden conducir bus extraurbano

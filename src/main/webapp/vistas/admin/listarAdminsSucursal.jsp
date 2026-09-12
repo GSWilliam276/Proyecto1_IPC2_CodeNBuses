@@ -19,6 +19,7 @@
         <th>Correo</th>
         <th>DPI</th>
         <th>Sucursal</th>
+        <th>Acciones</th>
     </tr>
     <%
         //Se recorre la lista de administradores de sucursal
@@ -31,6 +32,9 @@
         <td><%= admin.getCorreo() %></td>
         <td><%= admin.getDpi() %></td>
         <td><%= admin.getSucursal().getNombre() %></td>
+        <td>
+            <a href="<%= request.getContextPath() %>/admin?accion=editar&id=<%= admin.getIdUsuario() %>" class="btn btn-sm btn-outline-primary">Editar</a>
+        </td>
     </tr>
     <%
             }

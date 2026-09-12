@@ -113,8 +113,14 @@ public class ControladorUsuario extends HttpServlet {
             if (dpi == null || dpi.trim().isEmpty()) {
                 throw new ExcepcionFormatoInvalido("dpi", "El DPI es obligatorio");
             }
+            if (!dpi.matches("\\d{13}")) {
+                throw new ExcepcionFormatoInvalido("dpi", "El DPI debe contener exactamente 13 números");
+            }
             if (correo == null || correo.trim().isEmpty()) {
                 throw new ExcepcionFormatoInvalido("correo", "El correo es obligatorio");
+            }
+            if (!nit.trim().isEmpty() && !nit.matches("\\d+")) {
+                throw new ExcepcionFormatoInvalido("nit", "El NIT debe contener solo números");
             }
 
             ClienteRegular cliente = new ClienteRegular(nit, dpi, telefono, direccion, correo, contrasena);

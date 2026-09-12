@@ -62,6 +62,9 @@ public class ControladorAdmin extends HttpServlet {
                 request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
                 request.getRequestDispatcher("/vistas/admin/registrarAdminSucursal.jsp").forward(request, response);
                 break;
+            case "editar":
+                mostrarFormularioEditar(request, response);
+                break;
             default:
                 response.sendRedirect("admin?accion=listar");
         }
@@ -80,6 +83,9 @@ public class ControladorAdmin extends HttpServlet {
         switch (accion) {
             case "registrar":
                 registrarAdminSucursal(request, response);
+                break;
+            case "actualizar":
+                actualizarAdminSucursal(request, response);
                 break;
             default:
                 response.sendRedirect("admin?accion=listar");
@@ -107,6 +113,16 @@ public class ControladorAdmin extends HttpServlet {
             if (dpi == null || dpi.trim().isEmpty()) {
                 throw new ExcepcionFormatoInvalido("dpi", "El DPI es obligatorio");
             }
+            
+            if (dpi == null || dpi.trim().isEmpty()) {
+                throw new ExcepcionFormatoInvalido("dpi", "El DPI es obligatorio");
+            }
+            if (!dpi.matches("\\d{13}")) {
+                throw new ExcepcionFormatoInvalido("dpi", "El DPI debe contener exactamente 13 números");
+            }
+            if (!nit.trim().isEmpty() && !nit.matches("\\d+")) {
+                throw new ExcepcionFormatoInvalido("nit", "El NIT debe contener solo números");
+            }
 
             Sucursal sucursal = new Sucursal();
             sucursal.setIdSucursal(idSucursal);
@@ -124,5 +140,81 @@ public class ControladorAdmin extends HttpServlet {
             request.setAttribute("error", e.getMessage() + " (Campo: " + e.getCampo() + ")");
             request.getRequestDispatcher("/vistas/admin/registrarAdminSucursal.jsp").forward(request, response);
         }
+    }
+    
+    private void actualizarAdminSucursal(HttpServletRequest request, HttpServletResponse response)
+            throws IOException, ServletException {
+        try {
+            int idUsuario = Integer.parseInt(request.getParameter("idUsuario"));
+            String dpi = request.getParameter("dpi");
+            String telefono = request.getParameter("telefono");
+            String direccion = request.getParameter("direccion");
+            String correo = request.getParameter("correo");
+            int idSucursal = Integer.parseInt(request.getParameter("idSucursal"));
+
+            //Validacion de DPI: obligatorio y solo numeros
+            if (dpi == null || dpi.trim().isEmpty()) {
+                throw new ExcepcionFormatoInvalido("dpi", "El DPI es obligatorio");
+            }
+            if (!dpi.matches("\\d{13}")) {
+                throw new ExcepcionFormatoInvalido("dpi", "El DPI debe contener exactamente 13 números");
+            }
+
+            //Se trae el admin actual primero, para no perder el NIT
+            //que no viene en este formulario y evitar sobreescribirlo con null
+            AdminSucursal adminActual = adminSucursalPersistencia.buscarPorId(idUsuario).orElse(null);
+            if (adminActual == null) {
+                response.sendRedirect("admin?accion=listar");
+                return;
+            }
+
+            Sucursal sucursal = new Sucursal();
+            sucursal.setIdSucursal(idSucursal);
+
+            AdminSucursal admin = new AdminSucursal(adminActual.getNit(), dpi, telefono, direccion, correo, null, sucursal);
+            admin.setIdUsuario(idUsuario);
+            adminSucursalPersistencia.actualizar(admin);
+
+            response.sendRedirect("admin?accion=listar");
+
+        } catch (NumberFormatException e) {
+            //Se vuelve a cargar el admin y las sucursales para que el JSP
+            //no truene al intentar mostrar los datos precargados
+            recargarFormularioConError(request, response, "Datos numéricos inválidos");
+        } catch (ExcepcionFormatoInvalido e) {
+            recargarFormularioConError(request, response, e.getMessage() + " (Campo: " + e.getCampo() + ")");
+        }
+    }
+
+    private void recargarFormularioConError(HttpServletRequest request, HttpServletResponse response, String mensajeError)
+            throws IOException, ServletException {
+        int idUsuario = Integer.parseInt(request.getParameter("idUsuario"));
+        request.setAttribute("error", mensajeError);
+        adminSucursalPersistencia.buscarPorId(idUsuario).ifPresent(admin -> request.setAttribute("admin", admin));
+        request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
+        request.getRequestDispatcher("/vistas/admin/editarAdminSucursal.jsp").forward(request, response);
+    }
+    
+    private void mostrarFormularioEditar(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        int id = Integer.parseInt(request.getParameter("id"));
+        adminSucursalPersistencia.buscarPorId(id).ifPresentOrElse(
+            admin -> {
+                request.setAttribute("admin", admin);
+                request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
+                try {
+                    request.getRequestDispatcher("/vistas/admin/editarAdminSucursal.jsp").forward(request, response);
+                } catch (ServletException | IOException e) {
+                    System.err.println("Error al mostrar formulario de edición: " + e.getMessage());
+                }
+            },
+            () -> {
+                try {
+                    response.sendRedirect("admin?accion=listar");
+                } catch (IOException e) {
+                    System.err.println("Error al redirigir: " + e.getMessage());
+                }
+            }
+        );
     }
 }
