@@ -1,0 +1,111 @@
+/*
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css to edit this template
+*/
+/* 
+    Created on : 12/09/2026, 22:58:18
+    Author     : eduar
+*/
+/* ============================================
+   Variables de la paleta de colores CodeNBuses
+   ============================================ */
+:root {
+    --azul-marino: #0B3D4C;
+    --azul-marino-claro: #135D73;
+    --turquesa: #4ECDC4;
+    --naranja: #F4A261;
+    --naranja-oscuro: #E76F51;
+    --gris-texto: #333333;
+    --gris-claro: #F5F5F5;
+}
+
+/* ============================================
+   Navbar
+   ============================================ */
+.navbar {
+    background-color: var(--azul-marino) !important;
+}
+
+.navbar-brand {
+    color: var(--turquesa) !important;
+    font-weight: bold;
+}
+
+/* ============================================
+   Botones principales (acciones importantes)
+   ============================================ */
+.btn-primary {
+    background-color: var(--naranja);
+    border-color: var(--naranja);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--naranja-oscuro);
+    border-color: var(--naranja-oscuro);
+}
+
+/* ============================================
+   Botones secundarios (acciones de apoyo)
+   ============================================ */
+.btn-outline-primary {
+    color: var(--azul-marino);
+    border-color: var(--azul-marino);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--azul-marino);
+    color: white;
+}
+
+/* ============================================
+   Encabezados
+   ============================================ */
+h1, h2, h3 {
+    color: var(--azul-marino);
+}
+
+/* ============================================
+   Enlaces
+   ============================================ */
+a {
+    color: var(--turquesa);
+}
+
+a:hover {
+    color: var(--azul-marino);
+}
+
+/* ============================================
+   Cuerpo general
+   ============================================ */
+body {
+    color: var(--gris-texto);
+    background-color: white;
+}
+
+/* ============================================
+   Footer
+   ============================================ */
+footer {
+    background-color: var(--azul-marino) !important;
+}
+
+/* ============================================
+   Sticky footer: el footer siempre queda pegado
+   abajo, incluso si la pagina tiene poco contenido
+   ============================================ */
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.container {
+    flex: 1;
+}
