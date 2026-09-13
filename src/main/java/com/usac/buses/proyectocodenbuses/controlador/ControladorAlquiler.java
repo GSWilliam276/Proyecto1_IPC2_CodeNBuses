@@ -46,7 +46,7 @@ public class ControladorAlquiler extends HttpServlet {
 
         switch (accion) {
             case "listar":
-                listarAlquileres(request, response);
+                listarAlquileres(request, response, usuario);
                 break;
             case "solicitar":
                 request.getRequestDispatcher("/vistas/alquiler/solicitarAlquiler.jsp").forward(request, response);
@@ -86,9 +86,14 @@ public class ControladorAlquiler extends HttpServlet {
         }
     }
 
-    private void listarAlquileres(HttpServletRequest request, HttpServletResponse response)
+    private void listarAlquileres(HttpServletRequest request, HttpServletResponse response, Usuario usuario)
             throws ServletException, IOException {
-        ArrayList<ViajePrivado> alquileres = viajePrivadoPersistencia.listarTodos();
+        ArrayList<ViajePrivado> alquileres;
+        if (usuario instanceof AdminSucursal) {
+            alquileres = viajePrivadoPersistencia.listarTodos();
+        } else {
+            alquileres = viajePrivadoPersistencia.listarPorSolicitante(usuario.getIdUsuario());
+        }
         request.setAttribute("alquileres", alquileres);
         request.getRequestDispatcher("/vistas/alquiler/listarAlquileres.jsp").forward(request, response);
     }
@@ -154,6 +159,11 @@ public class ControladorAlquiler extends HttpServlet {
 
             ViajePrivado viaje = new ViajePrivado(null, null, fechaSalida, fechaLlegada,
                     origen, destino, pasajeros, precioEstimado);
+
+            //Se guarda quien solicito este alquiler, para poder filtrar
+            //despues "mis alquileres" sin mostrar los de otros usuarios
+            viaje.setSolicitante(usuario);
+
             viajePrivadoPersistencia.insertar(viaje);
 
             response.sendRedirect("alquiler?accion=listar");

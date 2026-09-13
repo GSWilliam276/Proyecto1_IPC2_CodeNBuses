@@ -23,9 +23,10 @@ public class ViajePrivadoPersistencia implements Persistencia<ViajePrivado> {
     @Override
     public boolean insertar(ViajePrivado viaje) {
         String sqlViaje = "INSERT INTO viaje (id_bus, id_chofer, fecha_hora_salida, "
-                + "fecha_hora_llegada_estimada, tipo) VALUES (?, ?, ?, ?, 'PRIVADO')";
+                        + "fecha_hora_llegada_estimada, tipo) VALUES (?, ?, ?, ?, 'PRIVADO')";
+        //Se agrega id_solicitante para saber quien pidio este alquiler
         String sqlViajePrivado = "INSERT INTO viaje_privado (id_viaje, origen, destino, pasajeros, "
-                + "precio_estimado, precio_confirmado) VALUES (?, ?, ?, ?, ?, ?)";
+                                + "precio_estimado, precio_confirmado, id_solicitante) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         Connection conexion = null;
         try {
@@ -67,6 +68,7 @@ public class ViajePrivadoPersistencia implements Persistencia<ViajePrivado> {
             psViajePrivado.setInt(4, viaje.getPasajeros());
             psViajePrivado.setDouble(5, viaje.getPrecioEstimado());
             psViajePrivado.setDouble(6, viaje.getPrecioConfirmado());
+            psViajePrivado.setInt(7, viaje.getSolicitante().getIdUsuario());
             psViajePrivado.executeUpdate();
 
             conexion.commit(); //Confirma Transaccion ambas inserciones quedan guardadas juntas
@@ -291,6 +293,24 @@ public class ViajePrivadoPersistencia implements Persistencia<ViajePrivado> {
 
         } catch (SQLException e) {
             System.err.println("Error al listar alquileres por sucursal y fecha: " + e.getMessage());
+        }
+        return viajes;
+    }
+    
+    public ArrayList<ViajePrivado> listarPorSolicitante(int idUsuario) {
+        ArrayList<ViajePrivado> viajes = new ArrayList<>();
+        String sql = "SELECT v.*, vp.origen, vp.destino, vp.pasajeros, vp.precio_estimado, "
+                + "vp.precio_confirmado, vp.id_solicitante FROM viaje v "
+                + "JOIN viaje_privado vp ON v.id_viaje = vp.id_viaje WHERE vp.id_solicitante = ?";
+        try (Connection conexion = conexionBase.obtenerConexion();
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
+            ps.setInt(1, idUsuario);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                viajes.add(mapearViajePrivado(rs));
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al listar alquileres por solicitante: " + e.getMessage());
         }
         return viajes;
     }

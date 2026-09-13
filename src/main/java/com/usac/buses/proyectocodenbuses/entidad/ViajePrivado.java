@@ -17,6 +17,7 @@ public class ViajePrivado extends Viaje {
     private int pasajeros;
     private double precioEstimado;
     private double precioConfirmado;
+    private Usuario solicitante;
 
     public ViajePrivado() {
         super();
@@ -55,4 +56,7 @@ public class ViajePrivado extends Viaje {
 
     public double getPrecioConfirmado() { return precioConfirmado; }
     public void setPrecioConfirmado(double precioConfirmado) { this.precioConfirmado = precioConfirmado; }
+    
+    public Usuario getSolicitante() { return solicitante; }
+    public void setSolicitante(Usuario solicitante) { this.solicitante = solicitante; }
 }
