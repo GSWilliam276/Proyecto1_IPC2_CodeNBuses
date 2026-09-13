@@ -16,19 +16,22 @@ public class Chofer extends Usuario {
     private Date fechaVencimiento;
     private double salarioBase;
     private Sucursal sucursal;
+    private String foto;
 
     public Chofer() {
         super();
     }
 
     public Chofer(String nit, String dpi, String telefono, String direccion, String correo, String contrasena,
-                  String numeroLicencia, TipoLicencia tipoLicencia, Date fechaVencimiento, double salarioBase, Sucursal sucursal) {
+                  String numeroLicencia, TipoLicencia tipoLicencia, Date fechaVencimiento, double salarioBase, 
+                  Sucursal sucursal, String foto) {
         super(nit, dpi, telefono, direccion, correo, contrasena);
         this.numeroLicencia = numeroLicencia;
         this.tipoLicencia = tipoLicencia;
         this.fechaVencimiento = fechaVencimiento;
         this.salarioBase = salarioBase;
         this.sucursal = sucursal;
+        this.foto = foto;
     }
 
     //Getters y Setters
@@ -46,4 +49,7 @@ public class Chofer extends Usuario {
 
     public Sucursal getSucursal() { return sucursal; }
     public void setSucursal(Sucursal sucursal) { this.sucursal = sucursal; }
+
+    public String getFoto() { return foto; }
+    public void setFoto(String foto) { this.foto = foto; }
 }

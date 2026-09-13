@@ -16,6 +16,7 @@
 <a href="<%= request.getContextPath() %>/bus?accion=nuevo" class="btn btn-primary mb-3">Registrar nuevo bus</a>
 <table class="table table-striped">
     <tr>
+        <th>Foto</th>
         <th>Placa</th>
         <th>Marca</th>
         <th>Modelo</th>
@@ -34,6 +35,13 @@
             for (Bus bus : buses) {
     %>
     <tr>
+        <td>
+            <% if (bus.getFoto() != null) { %>
+                <img src="<%= request.getContextPath() %>/recursos/imagenes/<%= bus.getFoto() %>" width="80"/>
+            <% } else { %>
+                Sin foto
+            <% } %>
+        </td>
         <td><%= bus.getPlaca() %></td>
         <td><%= bus.getMarca() %></td>
         <td><%= bus.getModelo() %></td>

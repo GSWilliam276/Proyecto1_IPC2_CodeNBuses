@@ -13,7 +13,7 @@
 <% if (request.getAttribute("error") != null) { %>
     <p style="color: red;"><%= request.getAttribute("error") %></p>
 <% } %>
-<form method="POST" action="<%= request.getContextPath() %>/chofer">
+<form method="POST" action="<%= request.getContextPath() %>/chofer" enctype="multipart/form-data">
     <input type="hidden" name="accion" value="registrar"/>
 
     <label>NIT:</label>
@@ -70,6 +70,11 @@
     <label>Salario Base:</label>
     <br>
     <input type="number" step="0.01" name="salarioBase" class="form-control" required/>
+    <br>
+
+    <label>Foto:</label>
+    <br>
+    <input type="file" name="foto" accept="image/*" class="form-control"/>
     <br>
 
     <label>Sucursal:</label>

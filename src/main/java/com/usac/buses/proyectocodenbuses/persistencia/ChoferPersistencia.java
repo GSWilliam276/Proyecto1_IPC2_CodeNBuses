@@ -23,7 +23,7 @@ public class ChoferPersistencia implements Persistencia<Chofer> {
         String sqlUsuario = "INSERT INTO usuario (nit, dpi, telefono, direccion, correo, contrasena, tipo, activo) "
                            + "VALUES (?, ?, ?, ?, ?, ?, 'CHOFER', ?)";
         String sqlChofer = "INSERT INTO chofer (id_usuario, numero_licencia, tipo_licencia, fecha_vencimiento, "
-                          + "salario_base, id_sucursal) VALUES (?, ?, ?, ?, ?, ?)";
+                            + "salario_base, id_sucursal, foto) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         Connection conexion = null;
         try {
@@ -56,6 +56,7 @@ public class ChoferPersistencia implements Persistencia<Chofer> {
             psChofer.setDate(4, new java.sql.Date(chofer.getFechaVencimiento().getTime()));
             psChofer.setDouble(5, chofer.getSalarioBase());
             psChofer.setInt(6, chofer.getSucursal().getIdSucursal());
+            psChofer.setString(7, chofer.getFoto());
             psChofer.executeUpdate();
 
             conexion.commit(); //ambas inserciones salieron bien, se confirman juntas
@@ -79,16 +80,17 @@ public class ChoferPersistencia implements Persistencia<Chofer> {
     @Override
     public boolean actualizar(Chofer chofer) {
         String sql = "UPDATE chofer SET numero_licencia = ?, tipo_licencia = ?, fecha_vencimiento = ?, "
-                   + "salario_base = ?, id_sucursal = ? WHERE id_usuario = ?";
+                + "salario_base = ?, id_sucursal = ?, foto = ? WHERE id_usuario = ?";
         try (Connection conexion = conexionBase.obtenerConexion();
-             PreparedStatement ps = conexion.prepareStatement(sql)) {
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
 
             ps.setString(1, chofer.getNumeroLicencia());
             ps.setString(2, chofer.getTipoLicencia().name());
             ps.setDate(3, new java.sql.Date(chofer.getFechaVencimiento().getTime()));
             ps.setDouble(4, chofer.getSalarioBase());
             ps.setInt(5, chofer.getSucursal().getIdSucursal());
-            ps.setInt(6, chofer.getIdUsuario());
+            ps.setString(6, chofer.getFoto());
+            ps.setInt(7, chofer.getIdUsuario());
             ps.executeUpdate();
             return true;
 
@@ -118,7 +120,7 @@ public class ChoferPersistencia implements Persistencia<Chofer> {
     @Override
     public Optional<Chofer> buscarPorId(int id) {
         String sql = "SELECT u.*, c.numero_licencia, c.tipo_licencia, c.fecha_vencimiento, "
-                + "c.salario_base, c.id_sucursal FROM usuario u "
+                + "c.salario_base, c.id_sucursal, c.foto FROM usuario u "
                 + "JOIN chofer c ON u.id_usuario = c.id_usuario WHERE u.id_usuario = ?";
         try (Connection conexion = conexionBase.obtenerConexion();
             PreparedStatement ps = conexion.prepareStatement(sql)) {
@@ -138,10 +140,10 @@ public class ChoferPersistencia implements Persistencia<Chofer> {
     public ArrayList<Chofer> listarTodos() {
         ArrayList<Chofer> choferes = new ArrayList<>();
         String sql = "SELECT u.*, c.numero_licencia, c.tipo_licencia, c.fecha_vencimiento, "
-                   + "c.salario_base, c.id_sucursal FROM usuario u "
-                   + "JOIN chofer c ON u.id_usuario = c.id_usuario";
+                + "c.salario_base, c.id_sucursal, c.foto FROM usuario u "
+                + "JOIN chofer c ON u.id_usuario = c.id_usuario";
         try (Connection conexion = conexionBase.obtenerConexion();
-             PreparedStatement ps = conexion.prepareStatement(sql)) {
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
 
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -195,6 +197,7 @@ public class ChoferPersistencia implements Persistencia<Chofer> {
 
     private Chofer mapearChofer(ResultSet rs) throws SQLException {
         Chofer chofer = new Chofer();
+        chofer.setFoto(rs.getString("foto"));
         chofer.setIdUsuario(rs.getInt("id_usuario"));
         chofer.setNit(rs.getString("nit"));
         chofer.setDpi(rs.getString("dpi"));
@@ -214,7 +217,7 @@ public class ChoferPersistencia implements Persistencia<Chofer> {
     
     public Optional<Chofer> buscarPorCorreo(String correo) {
         String sql = "SELECT u.*, c.numero_licencia, c.tipo_licencia, c.fecha_vencimiento, "
-                + "c.salario_base, c.id_sucursal FROM usuario u "
+                + "c.salario_base, c.id_sucursal, c.foto FROM usuario u "
                 + "JOIN chofer c ON u.id_usuario = c.id_usuario WHERE u.correo = ?";
         try (Connection conexion = conexionBase.obtenerConexion();
             PreparedStatement ps = conexion.prepareStatement(sql)) {

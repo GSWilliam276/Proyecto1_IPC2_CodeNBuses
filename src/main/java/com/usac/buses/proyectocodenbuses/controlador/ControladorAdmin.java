@@ -211,7 +211,12 @@ public class ControladorAdmin extends HttpServlet {
     
     private void mostrarFormularioEditar(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
+        String idParam = request.getParameter("id");
+        if (idParam == null || idParam.trim().isEmpty()) {
+            response.sendRedirect("admin?accion=listar");
+            return;
+        }
+        int id = Integer.parseInt(idParam);
         adminSucursalPersistencia.buscarPorId(id).ifPresentOrElse(
             admin -> {
                 request.setAttribute("admin", admin);

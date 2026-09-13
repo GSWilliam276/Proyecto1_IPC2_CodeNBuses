@@ -98,7 +98,12 @@ public class ControladorSucursal extends HttpServlet {
 
     private void mostrarFormularioEditar(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
+        String idParam = request.getParameter("id");
+        if (idParam == null || idParam.trim().isEmpty()) {
+            response.sendRedirect("sucursal?accion=listar");
+            return;
+        }
+        int id = Integer.parseInt(idParam);
         sucursalPersistencia.buscarPorId(id).ifPresentOrElse(
             sucursal -> {
                 request.setAttribute("sucursal", sucursal);

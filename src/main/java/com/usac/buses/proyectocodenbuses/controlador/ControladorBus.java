@@ -106,7 +106,16 @@ public class ControladorBus extends HttpServlet {
 
     private void mostrarFormularioEditar(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
+        String idParam = request.getParameter("id");
+
+        //Si no viene el id en la URL, se redirige al listado en vez
+        //de intentar parsear null y romper con NumberFormatException
+        if (idParam == null || idParam.trim().isEmpty()) {
+            response.sendRedirect("bus?accion=listar");
+            return;
+        }
+
+        int id = Integer.parseInt(idParam);
         busPersistencia.buscarPorId(id).ifPresentOrElse(
             bus -> {
                 request.setAttribute("bus", bus);

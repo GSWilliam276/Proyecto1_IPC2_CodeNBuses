@@ -104,7 +104,12 @@ public class ControladorRuta extends HttpServlet {
 
     private void mostrarFormularioEditar(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
+        String idParam = request.getParameter("id");
+        if (idParam == null || idParam.trim().isEmpty()) {
+            response.sendRedirect("ruta?accion=listar");
+            return;
+        }
+        int id = Integer.parseInt(idParam);
         rutaPersistencia.buscarPorId(id).ifPresentOrElse(
             ruta -> {
                 request.setAttribute("ruta", ruta);

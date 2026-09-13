@@ -16,6 +16,7 @@
 <a href="<%= request.getContextPath() %>/chofer?accion=nuevo" class="btn btn-primary mb-3">Registrar nuevo chofer</a>
 <table class="table table-striped">
     <tr>
+        <th>Foto</th>
         <th>Nombre/Correo</th>
         <th>Licencia</th>
         <th>Tipo</th>
@@ -32,6 +33,13 @@
             for (Chofer chofer : choferes) {
     %>
     <tr>
+        <td>
+            <% if (chofer.getFoto() != null) { %>
+                <img src="<%= request.getContextPath() %>/recursos/imagenes/<%= chofer.getFoto() %>" width="80"/>
+            <% } else { %>
+                Sin foto
+            <% } %>
+        </td>
         <td><%= chofer.getCorreo() %></td>
         <td><%= chofer.getNumeroLicencia() %></td>
         <td><%= chofer.getTipoLicencia() %></td>

@@ -24,8 +24,11 @@ import com.usac.buses.proyectocodenbuses.entidad.Usuario;
 import jakarta.servlet.http.HttpSession;
 import com.usac.buses.proyectocodenbuses.persistencia.SucursalPersistencia;
 import com.usac.buses.proyectocodenbuses.persistencia.UsuarioPersistencia;
+import jakarta.servlet.http.Part;
+import jakarta.servlet.annotation.MultipartConfig;
 
 @WebServlet(name = "ControladorChofer", urlPatterns = {"/chofer"})
+@MultipartConfig(maxFileSize = 5242880)
 public class ControladorChofer extends HttpServlet {
 
     private ChoferPersistencia choferPersistencia = new ChoferPersistencia();
@@ -110,7 +113,12 @@ public class ControladorChofer extends HttpServlet {
 
     private void mostrarFormularioEditar(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
+        String idParam = request.getParameter("id");
+        if (idParam == null || idParam.trim().isEmpty()) {
+            response.sendRedirect("chofer?accion=listar");
+            return;
+        }
+        int id = Integer.parseInt(idParam);
         choferPersistencia.buscarPorId(id).ifPresentOrElse(
             chofer -> {
                 request.setAttribute("chofer", chofer);
@@ -178,7 +186,7 @@ public class ControladorChofer extends HttpServlet {
                 request.getRequestDispatcher("/vistas/chofer/registrarChofer.jsp").forward(request, response);
                 return;
             }
-            
+        
             //Validacion de DPI duplicado
             if (usuarioPersistencia.existeUsuarioConDpi(dpi)) {
                 ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido("dpi", "Ya existe una cuenta registrada con ese DPI");
@@ -203,7 +211,7 @@ public class ControladorChofer extends HttpServlet {
                 request.getRequestDispatcher("/vistas/chofer/registrarChofer.jsp").forward(request, response);
                 return;
             }
-    
+
             TipoLicencia tipoLicencia = TipoLicencia.valueOf(tipoLicenciaStr);
 
             //Validacion de regla de negocio: solo licencias A o B pueden conducir bus extraurbano
@@ -215,6 +223,16 @@ public class ControladorChofer extends HttpServlet {
                 return;
             }
 
+            //Se procesa el archivo de imagen subido, si el usuario selecciono uno
+            String foto = guardarFoto(request);
+            if ("FORMATO_INVALIDO".equals(foto)) {
+                ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido("foto", "El archivo debe ser una imagen (jpg, jpeg, png o gif)");
+                request.setAttribute("error", excepcion.getMessage() + " (Campo: " + excepcion.getCampo() + ")");
+                request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
+                request.getRequestDispatcher("/vistas/chofer/registrarChofer.jsp").forward(request, response);
+                return;
+            }
+
             SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
             Date fechaVencimiento = formato.parse(fechaVencimientoStr);
 
@@ -222,7 +240,7 @@ public class ControladorChofer extends HttpServlet {
             sucursal.setIdSucursal(idSucursal);
 
             Chofer chofer = new Chofer(nit, dpi, telefono, direccion, correo, contrasena,
-                    numeroLicencia, tipoLicencia, fechaVencimiento, salarioBase, sucursal);
+                    numeroLicencia, tipoLicencia, fechaVencimiento, salarioBase, sucursal, foto);
 
             choferPersistencia.insertar(chofer);
             response.sendRedirect("chofer?accion=listar");
@@ -259,11 +277,19 @@ public class ControladorChofer extends HttpServlet {
             SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
             Date fechaVencimiento = formato.parse(fechaVencimientoStr);
 
+            //Se trae el chofer actual primero, para no perder la foto
+            //que no viene en este formulario y evitar sobreescribirla con null
+            Chofer choferActual = choferPersistencia.buscarPorId(idUsuario).orElse(null);
+            if (choferActual == null) {
+                response.sendRedirect("chofer?accion=listar");
+                return;
+            }
+
             Sucursal sucursal = new Sucursal();
             sucursal.setIdSucursal(idSucursal);
 
             Chofer chofer = new Chofer(null, null, null, null, null, null,
-                    numeroLicencia, tipoLicencia, fechaVencimiento, salarioBase, sucursal);
+                    numeroLicencia, tipoLicencia, fechaVencimiento, salarioBase, sucursal, choferActual.getFoto());
             chofer.setIdUsuario(idUsuario);
 
             choferPersistencia.actualizar(chofer);
@@ -285,5 +311,32 @@ public class ControladorChofer extends HttpServlet {
         int id = Integer.parseInt(request.getParameter("id"));
         choferPersistencia.eliminar(id);
         response.sendRedirect("chofer?accion=listar");
+    }
+    
+    private String guardarFoto(HttpServletRequest request) throws IOException, ServletException {
+        Part part = request.getPart("foto");
+        if (part == null || part.getSize() == 0) {
+            return null; //El usuario no selecciono ninguna imagen
+        }
+
+        String nombreOriginal = part.getSubmittedFileName();
+        String extension = nombreOriginal.substring(nombreOriginal.lastIndexOf(".")).toLowerCase();
+
+        //Validacion real del lado del servidor: solo se aceptan imagenes
+        if (!extension.equals(".jpg") && !extension.equals(".jpeg")
+                && !extension.equals(".png") && !extension.equals(".gif")) {
+            return "FORMATO_INVALIDO";
+        }
+
+        String nombreUnico = java.util.UUID.randomUUID().toString() + extension;
+
+        String rutaCarpeta = request.getServletContext().getRealPath("/recursos/imagenes");
+        java.io.File carpeta = new java.io.File(rutaCarpeta);
+        if (!carpeta.exists()) {
+            carpeta.mkdirs();
+        }
+
+        part.write(rutaCarpeta + java.io.File.separator + nombreUnico);
+        return nombreUnico;
     }
 }

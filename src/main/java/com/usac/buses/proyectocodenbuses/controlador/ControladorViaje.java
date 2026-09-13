@@ -28,6 +28,7 @@ public class ControladorViaje extends HttpServlet {
     private RegistroSalidaPersistencia registroSalidaPersistencia = new RegistroSalidaPersistencia();
     private RegistroLlegadaPersistencia registroLlegadaPersistencia = new RegistroLlegadaPersistencia();
     private ConfiguracionPersistencia configuracionPersistencia = new ConfiguracionPersistencia();
+    private BoletoPersistencia boletoPersistencia = new BoletoPersistencia();
 
     private boolean verificarAcceso(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
@@ -124,7 +125,12 @@ public class ControladorViaje extends HttpServlet {
 
     private void mostrarFormularioEditar(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
+        String idParam = request.getParameter("id");
+        if (idParam == null || idParam.trim().isEmpty()) {
+            response.sendRedirect("viaje?accion=listar");
+            return;
+        }
+        int id = Integer.parseInt(idParam);
         viajeRegularPersistencia.buscarPorId(id).ifPresentOrElse(
             viaje -> {
                 request.setAttribute("viaje", viaje);
@@ -239,11 +245,11 @@ public class ControladorViaje extends HttpServlet {
 
         //Solo se puede eliminar si no ha sido iniciado (sin registro de salida), ni pagado
         boolean tieneSalida = registroSalidaPersistencia.buscarPorViaje(id).isPresent();
-        boolean tieneBoletosPagados = false; //se valida en ControladorBoleto/BoletoPersistencia si aplica
+        boolean tieneBoletosPagados = boletoPersistencia.contarPorViaje(id) > 0;
 
-        if (tieneSalida) {
+        if (tieneSalida || tieneBoletosPagados) {
             ExcepcionViajeNoEliminable excepcion = new ExcepcionViajeNoEliminable(
-                "No se puede eliminar el viaje porque ya fue iniciado");
+                "No se puede eliminar el viaje porque ya fue iniciado o ya tiene boletos vendidos");
             request.setAttribute("error", excepcion.getMessage());
             listarViajes(request, response);
             return;
