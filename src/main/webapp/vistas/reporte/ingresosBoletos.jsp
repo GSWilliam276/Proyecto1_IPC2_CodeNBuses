@@ -26,13 +26,16 @@
 <br>
 
 <table class="table table-striped">
-    <tr>
-        <th>Ruta</th>
-        <th>Fecha de Salida</th>
-        <th>Asiento</th>
-        <th>Precio</th>
-        <th>Fecha de Pago</th>
-    </tr>
+    <thead>
+        <tr>
+            <th>Ruta</th>
+            <th>Fecha de Salida</th>
+            <th>Asiento</th>
+            <th>Precio</th>
+            <th>Fecha de Pago</th>
+        </tr>
+    </thead>
+    <tbody>  
     <%
         //Se recorre la lista de boletos que el Controlador ya trajo
         ArrayList<Boleto> boletos = (ArrayList<Boleto>) request.getAttribute("boletos");
@@ -57,6 +60,7 @@
         <td><strong>Total: <%= totalIngresos %></strong></td>
         <td></td>
     </tr>
+    </tbody>
 </table>
 <a href="<%= request.getContextPath() %>/reporte?accion=menu">Volver al menú de reportes</a>
 

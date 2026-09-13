@@ -15,16 +15,19 @@
 <% } %>
 <a href="<%= request.getContextPath() %>/chofer?accion=nuevo" class="btn btn-primary mb-3">Registrar nuevo chofer</a>
 <table class="table table-striped">
-    <tr>
-        <th>Foto</th>
-        <th>Nombre/Correo</th>
-        <th>Licencia</th>
-        <th>Tipo</th>
-        <th>Vencimiento</th>
-        <th>Salario Base</th>
-        <th>Estado</th>
-        <th>Acciones</th>
-    </tr>
+    <thead>
+        <tr>
+            <th>Foto</th>
+            <th>Nombre/Correo</th>
+            <th>Licencia</th>
+            <th>Tipo</th>
+            <th>Vencimiento</th>
+            <th>Salario Base</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
     <%
         //Se recorre la lista de choferes que el Controlador
         //ya trajo de la base de datos
@@ -61,6 +64,7 @@
             }
         }
     %>
+    </tbody>
 </table>
 
 <%-- Formulario oculto para desactivar chofer, igual patron que Bus --%>

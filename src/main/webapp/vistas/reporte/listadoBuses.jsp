@@ -15,14 +15,17 @@
 <% } %>
 
 <table class="table table-striped">
-    <tr>
-        <th>Placa</th>
-        <th>Marca</th>
-        <th>Modelo</th>
-        <th>Capacidad</th>
-        <th>Estado</th>
-        <th>Kilometraje</th>
-    </tr>
+    <thead>
+        <tr>
+            <th>Placa</th>
+            <th>Marca</th>
+            <th>Modelo</th>
+            <th>Capacidad</th>
+            <th>Estado</th>
+            <th>Kilometraje</th>
+        </tr>
+    </thead>
+    <tbody>       
     <%
         //Se recorre la lista de buses de la sucursal del AdminSucursal
         //en sesion, ya filtrada por el Controlador
@@ -42,6 +45,7 @@
             }
         }
     %>
+    </tbody>
 </table>
 <a href="<%= request.getContextPath() %>/reporte?accion=menu">Volver al menú de reportes</a>
 

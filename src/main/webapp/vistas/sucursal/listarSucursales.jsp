@@ -15,11 +15,14 @@
 <% } %>
 <a href="<%= request.getContextPath() %>/sucursal?accion=nuevo" class="btn btn-primary mb-3">Registrar nueva sucursal</a>
 <table class="table table-striped">
-    <tr>
-        <th>Nombre</th>
-        <th>Ubicación</th>
-        <th>Acciones</th>
-    </tr>
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Ubicación</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
     <%
         //Se recorre la lista de sucursales que el Controlador
         //ya trajo de la base de datos
@@ -38,6 +41,7 @@
             }
         }
     %>
+    </tbody>
 </table>
 
 <%@ include file="/vistas/comunes/footer.jsp" %>

@@ -25,15 +25,18 @@
     <a href="<%= request.getContextPath() %>/ruta?accion=nuevo" class="btn btn-primary mb-3">Registrar nueva ruta</a>
 <% } %>
 <table class="table table-striped">
-    <tr>
-        <th>Origen</th>
-        <th>Destino</th>
-        <th>Distancia (km)</th>
-        <th>Precio Boleto</th>
-        <% if (esAdminSucursal) { %>
-            <th>Acciones</th>
-        <% } %>
-    </tr>
+    <thead>
+        <tr>
+            <th>Origen</th>
+            <th>Destino</th>
+            <th>Distancia (km)</th>
+            <th>Precio Boleto</th>
+            <% if (esAdminSucursal) { %>
+                <th>Acciones</th>
+            <% } %>
+        </tr>
+    </thead>
+    <tbody>
     <%
         //Se recorre la lista de rutas que el Controlador
         //ya trajo de la base de datos
@@ -59,6 +62,7 @@
             }
         }
     %>
+    </tbody>
 </table>
 
 <%-- Formulario oculto para eliminar ruta. El Controlador ya valida

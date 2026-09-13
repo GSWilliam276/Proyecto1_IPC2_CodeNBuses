@@ -39,12 +39,15 @@
 <br>
 
 <table class="table table-striped">
-    <tr>
-        <th>Sucursal</th>
-        <th>Combustible</th>
-        <th>Taller/Repuestos</th>
-        <th>Depreciación</th>
-    </tr>
+    <thead>
+        <tr>
+            <th>Sucursal</th>
+            <th>Combustible</th>
+            <th>Taller/Repuestos</th>
+            <th>Depreciación</th>
+        </tr>
+    </thead>
+    <tbody>    
     <%
         //Cada fila trae: nombre sucursal, combustible, taller, depreciacion
         //(ya calculado por separado en el Controlador, por categoria)
@@ -72,6 +75,7 @@
         <td colspan="3"><strong>GRAN TOTAL</strong></td>
         <td><strong><%= request.getAttribute("granTotal") %></strong></td>
     </tr>
+    </tbody>
 </table>
 <a href="<%= request.getContextPath() %>/reporte?accion=menu">Volver al menú de reportes</a>
 

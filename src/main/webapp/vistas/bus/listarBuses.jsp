@@ -15,16 +15,19 @@
 <% } %>
 <a href="<%= request.getContextPath() %>/bus?accion=nuevo" class="btn btn-primary mb-3">Registrar nuevo bus</a>
 <table class="table table-striped">
-    <tr>
-        <th>Foto</th>
-        <th>Placa</th>
-        <th>Marca</th>
-        <th>Modelo</th>
-        <th>Capacidad</th>
-        <th>Estado</th>
-        <th>Kilometraje</th>
-        <th>Acciones</th>
-    </tr>
+    <thead>
+        <tr>
+            <th>Foto</th>
+            <th>Placa</th>
+            <th>Marca</th>
+            <th>Modelo</th>
+            <th>Capacidad</th>
+            <th>Estado</th>
+            <th>Kilometraje</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
     <%
         //El Controlador ya consulto la base de datos y guardo la lista
         //completa de buses en el request bajo el nombre "buses".
@@ -63,6 +66,7 @@
             }
         }
     %>
+    </tbody>
 </table>
 <%-- Formulario oculto que se llena y envia por JavaScript cuando el
      usuario confirma que quiere desactivar un bus especifico --%>

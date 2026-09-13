@@ -109,3 +109,17 @@ body {
 .container {
     flex: 1;
 }
+
+/* ============================================
+   Encabezados de tablas con color de marca
+   ============================================ */
+.table thead th,
+table tr:first-child th {
+    background-color: var(--azul-marino);
+    color: white;
+}
+
+.table {
+    border-radius: 8px;
+    overflow: hidden;
+}

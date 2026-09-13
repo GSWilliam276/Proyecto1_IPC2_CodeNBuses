@@ -15,12 +15,16 @@
 <% } %>
 <a href="<%= request.getContextPath() %>/admin?accion=nuevo" class="btn btn-primary mb-3">Registrar nuevo administrador</a>
 <table class="table table-striped">
-    <tr>
-        <th>Correo</th>
-        <th>DPI</th>
-        <th>Sucursal</th>
-        <th>Acciones</th>
-    </tr>
+    <thead>
+        <tr>
+            <th>Correo</th>
+            <th>DPI</th>
+            <th>Sucursal</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+
     <%
         //Se recorre la lista de administradores de sucursal
         //que el Controlador ya trajo de la base de datos
@@ -40,6 +44,7 @@
             }
         }
     %>
+    </tbody>
 </table>
 
 <%@ include file="/vistas/comunes/footer.jsp" %>

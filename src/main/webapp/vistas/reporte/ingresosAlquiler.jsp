@@ -25,12 +25,15 @@
 <br>
 
 <table class="table table-striped">
-    <tr>
-        <th>Origen</th>
-        <th>Destino</th>
-        <th>Fecha de Salida</th>
-        <th>Precio Confirmado</th>
-    </tr>
+    <thead>
+        <tr>
+            <th>Origen</th>
+            <th>Destino</th>
+            <th>Fecha de Salida</th>
+            <th>Precio Confirmado</th>
+        </tr>
+    </thead>
+    <tbody>      
     <%
         ArrayList<ViajePrivado> alquileres = (ArrayList<ViajePrivado>) request.getAttribute("alquileres");
         double totalIngresos = 0;
@@ -52,6 +55,7 @@
         <td colspan="3"></td>
         <td><strong>Total: <%= totalIngresos %></strong></td>
     </tr>
+    </tbody>
 </table>
 <a href="<%= request.getContextPath() %>/reporte?accion=menu">Volver al menú de reportes</a>
 

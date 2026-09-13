@@ -15,11 +15,14 @@
 <% } %>
 
 <table class="table table-striped">
-    <tr>
-        <th>Tipo</th>
-        <th>Monto</th>
-        <th>Fecha</th>
-    </tr>
+    <thead>
+        <tr>
+            <th>Tipo</th>
+            <th>Monto</th>
+            <th>Fecha</th>
+        </tr>
+    </thead>
+    <tbody>    
     <%
         //Se recorre la lista de movimientos de la cartera del usuario
         //en sesion, ordenados del mas reciente al mas antiguo
@@ -37,6 +40,7 @@
             }
         }
     %>
+    </tbody>
 </table>
 <a href="<%= request.getContextPath() %>/cartera?accion=ver">Volver a mi cartera</a>
 

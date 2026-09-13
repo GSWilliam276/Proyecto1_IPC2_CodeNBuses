@@ -17,13 +17,16 @@
 <a href="<%= request.getContextPath() %>/boleto?accion=buscarViajes" class="btn btn-outline-secondary mb-3">Buscar más viajes</a>
 
 <table class="table table-striped">
-    <tr>
-        <th>Ruta</th>
-        <th>Salida</th>
-        <th>Asiento</th>
-        <th>Precio Pagado</th>
-        <th>Fecha de Pago</th>
-    </tr>
+    <thead>
+        <tr>
+            <th>Ruta</th>
+            <th>Salida</th>
+            <th>Asiento</th>
+            <th>Precio Pagado</th>
+            <th>Fecha de Pago</th>
+        </tr>
+    </thead>
+    <tbody>
     <%
         //Se recorre la lista de boletos del cliente en sesion,
         //que el Controlador ya filtro con listarPorCliente()
@@ -42,6 +45,7 @@
             }
         }
     %>
+    </tbody>
 </table>
 
 <%@ include file="/vistas/comunes/footer.jsp" %>

@@ -14,11 +14,14 @@
 <% } %>
 
 <table class="table table-striped">
-    <tr>
-        <th>Placa</th>
-        <th>Kilometraje Total</th>
-        <th>Depreciación Acumulada Real</th>
-    </tr>
+    <thead>
+        <tr>
+            <th>Placa</th>
+            <th>Kilometraje Total</th>
+            <th>Depreciación Acumulada Real</th>
+        </tr>
+    </thead>
+    <tbody>      
     <%
         //Cada fila trae: placa, kilometraje, depreciacion acumulada real
         //(sumada desde los registros de llegada ya guardados, respetando
@@ -36,6 +39,7 @@
             }
         }
     %>
+    </tbody>
 </table>
 <a href="<%= request.getContextPath() %>/reporte?accion=menu">Volver al menú de reportes</a>
 

@@ -23,17 +23,20 @@
 %>
 <a href="<%= request.getContextPath() %>/alquiler?accion=solicitar" class="btn btn-primary mb-3">Solicitar Alquiler</a>
 <table class="table table-striped">
-    <tr>
-        <th>Origen</th>
-        <th>Destino</th>
-        <th>Pasajeros</th>
-        <th>Salida</th>
-        <th>Precio Estimado</th>
-        <th>Precio Confirmado</th>
-        <% if (esAdminSucursal) { %>
-            <th>Acciones</th>
-        <% } %>
-    </tr>
+    <thead>
+        <tr>
+            <th>Origen</th>
+            <th>Destino</th>
+            <th>Pasajeros</th>
+            <th>Salida</th>
+            <th>Precio Estimado</th>
+            <th>Precio Confirmado</th>
+            <% if (esAdminSucursal) { %>
+                <th>Acciones</th>
+            <% } %>
+        </tr>
+    </thead>
+    <tbody>
     <%
         ArrayList<ViajePrivado> alquileres = (ArrayList<ViajePrivado>) request.getAttribute("alquileres");
         if (alquileres != null) {
@@ -73,6 +76,7 @@
             }
         }
     %>
+    </tbody>
 </table>
 
 <%@ include file="/vistas/comunes/footer.jsp" %>

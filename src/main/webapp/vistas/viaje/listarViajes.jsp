@@ -32,14 +32,17 @@
     <a href="<%= request.getContextPath() %>/viaje?accion=nuevo" class="btn btn-primary mb-3">Registrar nuevo viaje</a>
 <% } %>
 <table class="table table-striped">
-    <tr>
-        <th>Ruta</th>
-        <th>Bus</th>
-        <th>Chofer</th>
-        <th>Salida</th>
-        <th>Llegada Estimada</th>
-        <th>Acciones</th>
-    </tr>
+    <thead>
+        <tr>
+            <th>Ruta</th>
+            <th>Bus</th>
+            <th>Chofer</th>
+            <th>Salida</th>
+            <th>Llegada Estimada</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
     <%
         //Se recorre la lista de viajes regulares que el Controlador
         //ya trajo de la base de datos
@@ -85,6 +88,7 @@
             }
         }
     %>
+    </tbody>
 </table>
 
 <%-- Formulario oculto para eliminar viaje. El Controlador ya valida

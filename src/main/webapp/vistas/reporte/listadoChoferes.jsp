@@ -15,13 +15,16 @@
 <% } %>
 
 <table class="table table-striped">
-    <tr>
-        <th>Correo</th>
-        <th>Número de Licencia</th>
-        <th>Tipo de Licencia</th>
-        <th>Vencimiento</th>
-        <th>Estado</th>
-    </tr>
+    <thead>
+        <tr>
+            <th>Correo</th>
+            <th>Número de Licencia</th>
+            <th>Tipo de Licencia</th>
+            <th>Vencimiento</th>
+            <th>Estado</th>
+        </tr>
+    </thead>
+    <tbody>      
     <%
         //Se recorre la lista de choferes de la sucursal del AdminSucursal
         //en sesion, ya filtrada por el Controlador
@@ -40,6 +43,7 @@
             }
         }
     %>
+    </tbody>
 </table>
 <a href="<%= request.getContextPath() %>/reporte?accion=menu">Volver al menú de reportes</a>
 

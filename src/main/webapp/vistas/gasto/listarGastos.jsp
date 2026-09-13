@@ -19,12 +19,15 @@
 %>
 <a href="<%= request.getContextPath() %>/gasto?accion=nuevo" class="btn btn-primary mb-3">Registrar nuevo gasto</a>
 <table class="table table-striped">
-    <tr>
-        <th>Mano de Obra</th>
-        <th>Repuestos</th>
-        <th>Total</th>
-        <th>Fecha</th>
-    </tr>
+    <thead>
+        <tr>
+            <th>Mano de Obra</th>
+            <th>Repuestos</th>
+            <th>Total</th>
+            <th>Fecha</th>
+        </tr>
+    </thead>
+    <tbody>    
     <%
         //Se recorre la lista de gastos que el Controlador
         //ya trajo de la base de datos, filtrados por bus
@@ -42,6 +45,7 @@
             }
         }
     %>
+    </tbody>
 </table>
 
 <%@ include file="/vistas/comunes/footer.jsp" %>

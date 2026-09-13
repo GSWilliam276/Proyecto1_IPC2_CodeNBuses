@@ -24,11 +24,14 @@
 <br>
 
 <table class="table table-striped">
-    <tr>
-        <th>Origen</th>
-        <th>Destino</th>
-        <th>Total de Boletos Vendidos</th>
-    </tr>
+    <thead>
+        <tr>
+            <th>Origen</th>
+            <th>Destino</th>
+            <th>Total de Boletos Vendidos</th>
+        </tr>
+    </thead>
+    <tbody>
     <%
         //Cada fila es un Object[] con: origen, destino, total_boletos
         ArrayList<Object[]> rutasDemandadas = (ArrayList<Object[]>) request.getAttribute("rutasDemandadas");
@@ -44,6 +47,7 @@
             }
         }
     %>
+    </tbody>
 </table>
 <a href="<%= request.getContextPath() %>/reporte?accion=menu">Volver al menú de reportes</a>
 

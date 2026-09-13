@@ -40,13 +40,16 @@
 <br>
 
 <table class="table table-striped">
-    <tr>
-        <th>Sucursal</th>
-        <th>Ingresos Boletos</th>
-        <th>Ingresos Alquiler</th>
-        <th>Costos Totales</th>
-        <th>Ganancia Neta</th>
-    </tr>
+    <thead>
+        <tr>
+            <th>Sucursal</th>
+            <th>Ingresos Boletos</th>
+            <th>Ingresos Alquiler</th>
+            <th>Costos Totales</th>
+            <th>Ganancia Neta</th>
+        </tr>
+    </thead>
+    <tbody>     
     <%
         //Cada fila trae: nombre sucursal, ingresos boletos, ingresos
         //alquiler, costos totales, ganancia neta (ya calculado en el Controlador)
@@ -71,6 +74,7 @@
         <td><strong>Costos: <%= request.getAttribute("totalCostos") %></strong></td>
         <td><strong>Ganancia: <%= request.getAttribute("totalGanancia") %></strong></td>
     </tr>
+    </tbody>
 </table>
 <a href="<%= request.getContextPath() %>/reporte?accion=menu">Volver al menú de reportes</a>
 
