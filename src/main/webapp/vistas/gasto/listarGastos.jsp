@@ -7,6 +7,8 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="com.usac.buses.proyectocodenbuses.entidad.Gasto"%>
 <%@page import="java.util.ArrayList"%>
+<%@page import="java.text.SimpleDateFormat"%>
+<%@page import="java.util.Locale"%>
 <%@ include file="/vistas/comunes/header.jsp" %>
 
 <h1>Gastos de Taller y Repuestos</h1>
@@ -16,6 +18,10 @@
 <%
     //El Controlador ya filtro los gastos por el bus seleccionado
     Integer idBus = (Integer) request.getAttribute("idBus");
+
+    //Formato de fecha en español, sin hora ya que Gasto solo
+    //guarda la fecha del mantenimiento, no un horario especifico
+    SimpleDateFormat formatoFecha = new SimpleDateFormat("dd 'de' MMMM 'de' yyyy", new Locale("es", "ES"));
 %>
 <a href="<%= request.getContextPath() %>/gasto?accion=nuevo" class="btn btn-primary mb-3">Registrar nuevo gasto</a>
 <table class="table table-striped">
@@ -39,7 +45,7 @@
         <td><%= gasto.getMontoManoObra() %></td>
         <td><%= gasto.getMontoRepuestos() %></td>
         <td><%= gasto.getMontoTotal() %></td>
-        <td><%= gasto.getFecha() %></td>
+        <td><%= formatoFecha.format(gasto.getFecha()) %></td>
     </tr>
     <%
             }

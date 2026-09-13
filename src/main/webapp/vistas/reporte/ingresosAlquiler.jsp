@@ -7,6 +7,8 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="com.usac.buses.proyectocodenbuses.entidad.ViajePrivado"%>
 <%@page import="java.util.ArrayList"%>
+<%@page import="java.text.SimpleDateFormat"%>
+<%@page import="java.util.Locale"%>
 <%@ include file="/vistas/comunes/header.jsp" %>
 
 <h1>Reporte: Ingresos por Alquiler</h1>
@@ -24,6 +26,10 @@
 </form>
 <br>
 
+<%
+    //Formato de fecha y hora en español
+    SimpleDateFormat formatoFechaHora = new SimpleDateFormat("dd 'de' MMMM 'de' yyyy, HH:mm", new Locale("es", "ES"));
+%>
 <table class="table table-striped">
     <thead>
         <tr>
@@ -44,7 +50,7 @@
     <tr>
         <td><%= viaje.getOrigen() %></td>
         <td><%= viaje.getDestino() %></td>
-        <td><%= viaje.getFechaHoraSalida() %></td>
+        <td><%= formatoFechaHora.format(viaje.getFechaHoraSalida()) %></td>
         <td><%= viaje.getPrecioConfirmado() %></td>
     </tr>
     <%

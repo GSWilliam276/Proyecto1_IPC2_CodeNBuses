@@ -9,6 +9,8 @@
 <%@page import="com.usac.buses.proyectocodenbuses.entidad.AdminSucursal"%>
 <%@page import="com.usac.buses.proyectocodenbuses.entidad.Usuario"%>
 <%@page import="java.util.ArrayList"%>
+<%@page import="java.text.SimpleDateFormat"%>
+<%@page import="java.util.Locale"%>
 <%@ include file="/vistas/comunes/header.jsp" %>
 
 <h1>Alquileres Privados</h1>
@@ -20,6 +22,9 @@
     //mostrar el boton de "Confirmar Precio", exclusivo de AdminSucursal
     Usuario usuarioActual = (Usuario) session.getAttribute("usuario");
     boolean esAdminSucursal = usuarioActual instanceof AdminSucursal;
+
+    //Formato de fecha y hora en español
+    SimpleDateFormat formatoFechaHora = new SimpleDateFormat("dd 'de' MMMM 'de' yyyy, HH:mm", new Locale("es", "ES"));
 %>
 <a href="<%= request.getContextPath() %>/alquiler?accion=solicitar" class="btn btn-primary mb-3">Solicitar Alquiler</a>
 <table class="table table-striped">
@@ -46,7 +51,7 @@
         <td><%= viaje.getOrigen() %></td>
         <td><%= viaje.getDestino() %></td>
         <td><%= viaje.getPasajeros() %></td>
-        <td><%= viaje.getFechaHoraSalida() %></td>
+        <td><%= formatoFechaHora.format(viaje.getFechaHoraSalida()) %></td>
         <td><%= viaje.getPrecioEstimado() %></td>
         <td><%= viaje.getPrecioConfirmado() > 0 ? viaje.getPrecioConfirmado() : "Pendiente" %></td>
         <%

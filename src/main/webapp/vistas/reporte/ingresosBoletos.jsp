@@ -7,6 +7,8 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="com.usac.buses.proyectocodenbuses.entidad.Boleto"%>
 <%@page import="java.util.ArrayList"%>
+<%@page import="java.text.SimpleDateFormat"%>
+<%@page import="java.util.Locale"%>
 <%@ include file="/vistas/comunes/header.jsp" %>
 
 <h1>Reporte: Ingresos por Venta de Boletos</h1>
@@ -25,6 +27,10 @@
 </form>
 <br>
 
+<%
+    //Formato de fecha y hora en español
+    SimpleDateFormat formatoFechaHora = new SimpleDateFormat("dd 'de' MMMM 'de' yyyy, HH:mm", new Locale("es", "ES"));
+%>
 <table class="table table-striped">
     <thead>
         <tr>
@@ -46,10 +52,10 @@
     %>
     <tr>
         <td><%= boleto.getViaje().getRuta().getSucursalOrigen().getNombre() %> - <%= boleto.getViaje().getRuta().getSucursalDestino().getNombre() %></td>
-        <td><%= boleto.getViaje().getFechaHoraSalida() %></td>
+        <td><%= formatoFechaHora.format(boleto.getViaje().getFechaHoraSalida()) %></td>
         <td><%= boleto.getNumeroAsiento() %></td>
         <td><%= boleto.getPrecio() %></td>
-        <td><%= boleto.getFechaPago() %></td>
+        <td><%= formatoFechaHora.format(boleto.getFechaPago()) %></td>
     </tr>
     <%
             }

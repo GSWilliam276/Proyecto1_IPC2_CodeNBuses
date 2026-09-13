@@ -7,6 +7,8 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="com.usac.buses.proyectocodenbuses.entidad.MovimientoCartera"%>
 <%@page import="java.util.ArrayList"%>
+<%@page import="java.text.SimpleDateFormat"%>
+<%@page import="java.util.Locale"%>
 <%@ include file="/vistas/comunes/header.jsp" %>
 
 <h1>Historial de Movimientos</h1>
@@ -14,6 +16,10 @@
     <p style="color: red;"><%= request.getAttribute("error") %></p>
 <% } %>
 
+<%
+    //Formato de fecha y hora en español
+    SimpleDateFormat formatoFechaHora = new SimpleDateFormat("dd 'de' MMMM 'de' yyyy, HH:mm", new Locale("es", "ES"));
+%>
 <table class="table table-striped">
     <thead>
         <tr>
@@ -34,7 +40,7 @@
     <tr>
         <td><%= movimiento.getTipo() %></td>
         <td><%= movimiento.getMonto() %></td>
-        <td><%= movimiento.getFecha() %></td>
+        <td><%= formatoFechaHora.format(movimiento.getFecha()) %></td>
     </tr>
     <%
             }
