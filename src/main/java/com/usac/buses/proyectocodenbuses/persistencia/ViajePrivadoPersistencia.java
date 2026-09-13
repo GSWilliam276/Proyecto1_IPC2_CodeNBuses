@@ -23,9 +23,9 @@ public class ViajePrivadoPersistencia implements Persistencia<ViajePrivado> {
     @Override
     public boolean insertar(ViajePrivado viaje) {
         String sqlViaje = "INSERT INTO viaje (id_bus, id_chofer, fecha_hora_salida, "
-                        + "fecha_hora_llegada_estimada, tipo) VALUES (?, ?, ?, ?, 'PRIVADO')";
+                + "fecha_hora_llegada_estimada, tipo) VALUES (?, ?, ?, ?, 'PRIVADO')";
         String sqlViajePrivado = "INSERT INTO viaje_privado (id_viaje, origen, destino, pasajeros, "
-                                + "precio_estimado, precio_confirmado) VALUES (?, ?, ?, ?, ?, ?)";
+                + "precio_estimado, precio_confirmado) VALUES (?, ?, ?, ?, ?, ?)";
 
         Connection conexion = null;
         try {
@@ -34,8 +34,20 @@ public class ViajePrivadoPersistencia implements Persistencia<ViajePrivado> {
 
             //Insertar en la tabla viaje (datos comunes)
             PreparedStatement psViaje = conexion.prepareStatement(sqlViaje, Statement.RETURN_GENERATED_KEYS);
-            psViaje.setInt(1, viaje.getBus().getIdBus());
-            psViaje.setInt(2, viaje.getChofer().getIdUsuario());
+
+            //Se permite que bus y chofer aun no esten asignados al momento
+            //de solicitar el alquiler; se asignan despues con asignarBusYChofer()
+            if (viaje.getBus() != null) {
+                psViaje.setInt(1, viaje.getBus().getIdBus());
+            } else {
+                psViaje.setNull(1, java.sql.Types.INTEGER);
+            }
+            if (viaje.getChofer() != null) {
+                psViaje.setInt(2, viaje.getChofer().getIdUsuario());
+            } else {
+                psViaje.setNull(2, java.sql.Types.INTEGER);
+            }
+
             psViaje.setTimestamp(3, new Timestamp(viaje.getFechaHoraSalida().getTime()));
             psViaje.setTimestamp(4, new Timestamp(viaje.getFechaHoraLlegadaEstimada().getTime()));
             psViaje.executeUpdate();

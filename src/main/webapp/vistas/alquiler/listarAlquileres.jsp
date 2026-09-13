@@ -53,7 +53,19 @@
             if (esAdminSucursal) {
         %>
         <td>
-            <a href="<%= request.getContextPath() %>/alquiler?accion=confirmar&id=<%= viaje.getIdViaje() %>" class="btn btn-sm btn-outline-primary">Confirmar Precio</a>
+            <%
+                //Solo se muestra el boton de confirmar si el precio aun
+                //no ha sido confirmado (sigue en su valor por defecto de 0)
+                if (viaje.getPrecioConfirmado() == 0) {
+            %>
+                <a href="<%= request.getContextPath() %>/alquiler?accion=confirmar&id=<%= viaje.getIdViaje() %>" class="btn btn-sm btn-outline-primary">Confirmar Precio</a>
+            <%
+                } else {
+            %>
+                <span class="text-muted">Ya confirmado</span>
+            <%
+                }
+            %>
         </td>
         <% } %>
     </tr>

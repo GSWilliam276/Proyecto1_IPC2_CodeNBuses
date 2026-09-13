@@ -125,11 +125,9 @@ public class ControladorAlquiler extends HttpServlet {
     //El sistema calcula un precio estimado automaticamente.
     private void solicitarAlquiler(HttpServletRequest request, HttpServletResponse response, Usuario usuario)
             throws IOException, ServletException {
-        if (!(usuario instanceof ClienteRegular)) {
-            response.sendRedirect("alquiler?accion=listar");
-            return;
-        }
-
+        //Cualquier tipo de usuario puede solicitar un alquiler, 
+        //ya que todos los usuarios pueden ser clientes
+        //de cualquier servicio, sin importar su rol principal
         try {
             String origen = request.getParameter("origen");
             String destino = request.getParameter("destino");
@@ -140,6 +138,17 @@ public class ControladorAlquiler extends HttpServlet {
             SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
             Date fechaSalida = formato.parse(fechaSalidaStr);
             Date fechaLlegada = formato.parse(fechaLlegadaStr);
+
+            //Validacion de sentido comun: no se puede solicitar con fecha pasada
+            if (fechaSalida.before(new Date())) {
+                mostrarError(request, response, "fechaHoraSalida", "La fecha de salida no puede ser en el pasado", "/vistas/alquiler/solicitarAlquiler.jsp");
+                return;
+            }
+            //Validacion de sentido comun: la llegada debe ser posterior a la salida
+            if (!fechaLlegada.after(fechaSalida)) {
+                mostrarError(request, response, "fechaHoraLlegadaEstimada", "La fecha de llegada debe ser posterior a la fecha de salida", "/vistas/alquiler/solicitarAlquiler.jsp");
+                return;
+            }
 
             double precioEstimado = calcularPrecioEstimado(pasajeros, fechaSalida, fechaLlegada);
 

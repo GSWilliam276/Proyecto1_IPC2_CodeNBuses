@@ -34,6 +34,7 @@
     <a href="<%= request.getContextPath() %>/admin?accion=listar" class="btn btn-outline-primary">Administradores de Sucursal</a>
     <a href="<%= request.getContextPath() %>/admin?accion=configurarDepreciacion" class="btn btn-outline-primary">Configurar Depreciación</a>
     <a href="<%= request.getContextPath() %>/reporte?accion=menu" class="btn btn-outline-primary">Reportes</a>
+    <a href="<%= request.getContextPath() %>/alquiler?accion=listar" class="btn btn-outline-primary">Alquiler Privado</a>
 <% } %>
 
 <% if (usuario instanceof AdminSucursal) { %>
@@ -50,6 +51,7 @@
 <% if (usuario instanceof Chofer) { %>
     <h3>Mis Viajes</h3>
     <a href="<%= request.getContextPath() %>/viaje?accion=listar" class="btn btn-outline-primary">Ver Viajes</a>
+    <a href="<%= request.getContextPath() %>/alquiler?accion=listar" class="btn btn-outline-primary">Alquiler Privado</a>
 <% } %>
 
 <% if (usuario instanceof ClienteRegular) { %>

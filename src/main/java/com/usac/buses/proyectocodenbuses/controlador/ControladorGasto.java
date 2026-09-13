@@ -56,7 +56,11 @@ public class ControladorGasto extends HttpServlet {
 
         switch (accion) {
             case "listar":
-                listarGastosPorBus(request, response);
+                if (request.getParameter("idBus") != null) {
+                    listarGastosPorBus(request, response);
+                } else {
+                    mostrarSeleccionBus(request, response);
+                }
                 break;
             case "nuevo":
                 request.setAttribute("buses", new BusPersistencia().listarTodos());
@@ -124,5 +128,12 @@ public class ControladorGasto extends HttpServlet {
         ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido(campo, mensaje);
         request.setAttribute("error", excepcion.getMessage() + " (Campo: " + excepcion.getCampo() + ")");
         request.getRequestDispatcher(vista).forward(request, response);
+    }
+    
+    private void mostrarSeleccionBus(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        ArrayList<Bus> buses = new BusPersistencia().listarTodos();
+        request.setAttribute("buses", buses);
+        request.getRequestDispatcher("/vistas/gasto/seleccionarBus.jsp").forward(request, response);
     }
 }
