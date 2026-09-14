@@ -27,7 +27,26 @@
 
     //Formato de fecha y hora en español
     SimpleDateFormat formatoFechaHora = new SimpleDateFormat("dd 'de' MMMM 'de' yyyy, HH:mm", new Locale("es", "ES"));
+
+    ArrayList<ViajePrivado> alquileres = (ArrayList<ViajePrivado>) request.getAttribute("alquileres");
+
+    //Se verifica si el usuario (no AdminSucursal) tiene al menos
+    //un alquiler ya confirmado, para mostrarle un aviso destacado
+    boolean tieneAlquilerConfirmado = false;
+    if (!esAdminSucursal && alquileres != null) {
+        for (ViajePrivado v : alquileres) {
+            if (v.getPrecioConfirmado() > 0) {
+                tieneAlquilerConfirmado = true;
+                break;
+            }
+        }
+    }
 %>
+<% if (tieneAlquilerConfirmado) { %>
+    <div class="alert alert-success" role="alert">
+        <i class="bi bi-check-circle-fill"></i> ¡Tienes alquileres ya confirmados! Revisa el precio final en la tabla.
+    </div>
+<% } %>
 <a href="<%= request.getContextPath() %>/alquiler?accion=solicitar" class="btn btn-primary mb-3">Solicitar Alquiler</a>
 <table class="table table-striped">
     <thead>
@@ -45,7 +64,6 @@
     </thead>
     <tbody>
     <%
-        ArrayList<ViajePrivado> alquileres = (ArrayList<ViajePrivado>) request.getAttribute("alquileres");
         if (alquileres != null) {
             for (ViajePrivado viaje : alquileres) {
     %>
