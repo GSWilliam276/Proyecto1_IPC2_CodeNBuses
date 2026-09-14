@@ -12,7 +12,7 @@ import java.sql.SQLException;
  * @author eduar
  */
 public class ConexionBase {
-    private static final String URL = "jdbc:mysql://localhost:3306/gestion_buses?useSSL=false&serverTimezone=UTC";
+    private static final String URL = "jdbc:mysql://localhost:3306/gestion_buses?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
     private static final String USUARIO = "gs_william237";
     private static final String CONTRASENA = "59487059@"; 
     private static final String DRIVER = "com.mysql.cj.jdbc.Driver";

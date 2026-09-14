@@ -192,6 +192,6 @@ public class ControladorUsuario extends HttpServlet {
         if (sesion != null) {
             sesion.invalidate();
         }
-        response.sendRedirect("usuario?accion=login");
+        response.sendRedirect("vistas/bienvenida.jsp");
     }
 }

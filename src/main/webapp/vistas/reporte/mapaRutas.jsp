@@ -21,7 +21,7 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<%-- Filtro obligatorio por sucursal, tal como pide el enunciado --%>
+<%-- Filtro obligatorio por sucursal--%>
 <form method="GET" action="<%= request.getContextPath() %>/reporte">
     <input type="hidden" name="accion" value="mapaRutas"/>
     <label>Sucursal:</label>

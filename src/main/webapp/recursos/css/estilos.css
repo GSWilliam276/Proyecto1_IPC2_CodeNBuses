@@ -190,3 +190,27 @@ table tr:first-child th {
     background-color: var(--azul-marino);
     color: white;
 }
+
+/* ============================================
+   Formularios centrados con ancho limitado,
+   para que no se vean estirados de borde a borde
+   ============================================ */
+.formulario-compacto {
+    max-width: 450px;
+    margin: 0 auto;
+    padding: 30px;
+    background-color: var(--gris-claro);
+    border-radius: 10px;
+}
+
+/* =================================
+   Iconos para entrar/crear cuenta
+   ================================= */
+.formulario-con-icono {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 60px;
+    max-width: 700px;
+    margin: 0 auto;
+}

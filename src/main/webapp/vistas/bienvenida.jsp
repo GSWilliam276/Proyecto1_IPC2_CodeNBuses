@@ -11,10 +11,9 @@
     <div>
         <h1 class="bienvenida-titulo">Bienvenido a CodeNBuses</h1>
         <p class="bienvenida-texto">
-            Viaja con la confianza de una flota moderna y horarios pensados para llegar
-            a tiempo. Reserva boletos para tus rutas favoritas, sigue el estado de tus
-            viajes y accede a servicios de alquiler privado para grupos, todo desde
-            un mismo lugar.
+            En CodeNBuses creemos que viajar debe ser simple y seguro. Por eso
+            cuidamos cada detalle de tu recorrido, desde la salida hasta la
+            llegada, para que solo te preocupes de disfrutar el camino.
         </p>
 
         <a href="<%= request.getContextPath() %>/usuario?accion=login">
@@ -29,8 +28,8 @@
     <i class="bi bi-bus-front bienvenida-imagen"></i>
 </div>
 
-<%-- Tarjetas de servicios principales, para dar un vistazo rapido 
-de que puede hacer el usuario en el sistema --%>
+<%-- Tarjetas de servicios principales, para llenar el espacio y dar
+     un vistazo rapido de que puede hacer el usuario en el sistema --%>
 <div class="row mt-5 text-center">
     <div class="col-md-4">
         <div class="tarjeta-servicio">

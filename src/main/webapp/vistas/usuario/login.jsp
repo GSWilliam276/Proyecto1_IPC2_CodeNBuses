@@ -7,30 +7,39 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ include file="/vistas/comunes/header.jsp" %>
 
-<h1>Iniciar Sesión</h1>
-
-<% if (request.getAttribute("error") != null) { %>
-    <div class="alert alert-danger" role="alert">
-        <%= request.getAttribute("error") %>
+<div class="formulario-con-icono">
+    <div>
+        <i class="bi bi-person-check bienvenida-imagen"></i>
     </div>
-<% } %>
 
-<form method="POST" action="<%= request.getContextPath() %>/usuario">
-    <input type="hidden" name="accion" value="login"/>
+    <div class="formulario-compacto">
+        <h1>Iniciar Sesión</h1>
+        <p class="text-muted">Nos alegra verte de nuevo</p>
 
-    <label>Correo:</label>
-    <br>
-    <input type="email" name="correo" class="form-control" required/>
-    <br>
+        <% if (request.getAttribute("error") != null) { %>
+            <div class="alert alert-danger" role="alert">
+                <%= request.getAttribute("error") %>
+            </div>
+        <% } %>
 
-    <label>Contraseña:</label>
-    <br>
-    <input type="password" name="contrasena" class="form-control" required/>
-    <br>
+        <form method="POST" action="<%= request.getContextPath() %>/usuario">
+            <input type="hidden" name="accion" value="login"/>
 
-    <button type="submit" class="btn btn-primary">Ingresar</button>
-</form>
+            <label>Correo:</label>
+            <br>
+            <input type="email" name="correo" class="form-control" required/>
+            <br>
 
-<p>¿No tienes cuenta? <a href="<%= request.getContextPath() %>/usuario?accion=crearCuenta">Crea una aquí</a></p>
+            <label>Contraseña:</label>
+            <br>
+            <input type="password" name="contrasena" class="form-control" required/>
+            <br>
+
+            <button type="submit" class="btn btn-primary">Ingresar</button>
+        </form>
+
+        <p class="mt-3">¿No tienes cuenta? <a href="<%= request.getContextPath() %>/usuario?accion=crearCuenta">Crea una aquí</a></p>
+    </div>
+</div>
 
 <%@ include file="/vistas/comunes/footer.jsp" %>
