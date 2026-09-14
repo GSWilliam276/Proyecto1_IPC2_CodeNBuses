@@ -18,6 +18,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import com.usac.buses.proyectocodenbuses.persistencia.BusPersistencia;
+import com.usac.buses.proyectocodenbuses.persistencia.ChoferPersistencia;
 
 @WebServlet(name = "ControladorAlquiler", urlPatterns = {"/alquiler"})
 public class ControladorAlquiler extends HttpServlet {
@@ -78,9 +80,6 @@ public class ControladorAlquiler extends HttpServlet {
             case "confirmarPrecio":
                 confirmarPrecio(request, response, usuario);
                 break;
-            case "asignarBusChofer":
-                asignarBusYChofer(request, response, usuario);
-                break;
             default:
                 response.sendRedirect("alquiler?accion=listar");
         }
@@ -110,6 +109,10 @@ public class ControladorAlquiler extends HttpServlet {
         viajePrivadoPersistencia.buscarPorId(id).ifPresentOrElse(
             viaje -> {
                 request.setAttribute("viaje", viaje);
+                //Se necesitan las listas de bus y chofer para armar los
+                //combobox de asignacion en la misma pantalla de confirmar precio
+                request.setAttribute("buses", new BusPersistencia().listarTodos());
+                request.setAttribute("choferes", new ChoferPersistencia().listarTodos());
                 try {
                     request.getRequestDispatcher("/vistas/alquiler/confirmarPrecio.jsp").forward(request, response);
                 } catch (ServletException | IOException e) {
@@ -194,29 +197,14 @@ public class ControladorAlquiler extends HttpServlet {
         try {
             int idViaje = Integer.parseInt(request.getParameter("idViaje"));
             double precioConfirmado = Double.parseDouble(request.getParameter("precioConfirmado"));
-
-            viajePrivadoPersistencia.confirmarPrecio(idViaje, precioConfirmado);
-            response.sendRedirect("alquiler?accion=listar");
-
-        } catch (NumberFormatException e) {
-            mostrarError(request, response, "precioConfirmado", "Debe ingresar un valor numérico válido", "/vistas/alquiler/confirmarPrecio.jsp");
-        }
-    }
-
-    
-    //El AdminSucursal asigna bus y chofer una vez el cliente ya pago el precio confirmado
-    private void asignarBusYChofer(HttpServletRequest request, HttpServletResponse response, Usuario usuario)
-            throws IOException, ServletException {
-        if (!(usuario instanceof AdminSucursal)) {
-            response.sendRedirect("alquiler?accion=listar");
-            return;
-        }
-
-        try {
-            int idViaje = Integer.parseInt(request.getParameter("idViaje"));
             int idBus = Integer.parseInt(request.getParameter("idBus"));
             int idChofer = Integer.parseInt(request.getParameter("idChofer"));
 
+            //Se confirma el precio
+            viajePrivadoPersistencia.confirmarPrecio(idViaje, precioConfirmado);
+
+            //Se asigna el bus y chofer al mismo tiempo, ya que normalmente
+            //el AdminSucursal hace ambas cosas juntas al confirmar un alquiler
             viajePrivadoPersistencia.buscarPorId(idViaje).ifPresent(viaje -> {
                 Bus bus = new Bus();
                 bus.setIdBus(idBus);
@@ -231,10 +219,10 @@ public class ControladorAlquiler extends HttpServlet {
             response.sendRedirect("alquiler?accion=listar");
 
         } catch (NumberFormatException e) {
-            mostrarError(request, response, "idBus/idChofer", "Debe seleccionar valores válidos", "/vistas/alquiler/listarAlquileres.jsp");
+            mostrarError(request, response, "precioConfirmado/idBus/idChofer", "Debe ingresar valores válidos", "/vistas/alquiler/confirmarPrecio.jsp");
         }
     }
-
+    
     private void mostrarError(HttpServletRequest request, HttpServletResponse response,
                             String campo, String mensaje, String vista) throws IOException, ServletException {
         ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido(campo, mensaje);

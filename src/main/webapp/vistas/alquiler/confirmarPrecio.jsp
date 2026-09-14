@@ -6,6 +6,9 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="com.usac.buses.proyectocodenbuses.entidad.ViajePrivado"%>
+<%@page import="com.usac.buses.proyectocodenbuses.entidad.Bus"%>
+<%@page import="com.usac.buses.proyectocodenbuses.entidad.Chofer"%>
+<%@page import="java.util.ArrayList"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@page import="java.util.Locale"%>
 <%@ include file="/vistas/comunes/header.jsp" %>
@@ -24,6 +27,9 @@
 
     //Formato de fecha y hora en español
     SimpleDateFormat formatoFechaHora = new SimpleDateFormat("dd 'de' MMMM 'de' yyyy, HH:mm", new Locale("es", "ES"));
+
+    ArrayList<Bus> buses = (ArrayList<Bus>) request.getAttribute("buses");
+    ArrayList<Chofer> choferes = (ArrayList<Chofer>) request.getAttribute("choferes");
 %>
 
 <p><strong>Origen:</strong> <%= viaje.getOrigen() %></p>
@@ -33,7 +39,8 @@
 <p><strong>Precio Estimado:</strong> <%= viaje.getPrecioEstimado() %></p>
 
 <%-- El AdminSucursal puede aceptar el precio estimado tal cual,
-     o cambiarlo si lo considera necesario --%>
+     o cambiarlo si lo considera necesario. En la misma pantalla
+     tambien asigna el bus y chofer que atenderan el alquiler --%>
 <form method="POST" action="<%= request.getContextPath() %>/alquiler">
     <input type="hidden" name="accion" value="confirmarPrecio"/>
     <input type="hidden" name="idViaje" value="<%= viaje.getIdViaje() %>"/>
@@ -43,7 +50,41 @@
     <input type="number" step="0.01" name="precioConfirmado" value="<%= viaje.getPrecioEstimado() %>" class="form-control" required/>
     <br>
 
-    <button type="submit" class="btn btn-primary">Confirmar Precio</button>
+    <label>Bus a Asignar:</label>
+    <br>
+    <% if (buses == null || buses.isEmpty()) { %>
+        <p class="text-danger">No hay buses registrados.</p>
+    <% } else { %>
+        <select name="idBus" class="form-control" required>
+            <%
+                for (Bus bus : buses) {
+            %>
+                <option value="<%= bus.getIdBus() %>"><%= bus.getPlaca() %> - <%= bus.getMarca() %></option>
+            <%
+                }
+            %>
+        </select>
+    <% } %>
+    <br>
+
+    <label>Chofer a Asignar:</label>
+    <br>
+    <% if (choferes == null || choferes.isEmpty()) { %>
+        <p class="text-danger">No hay choferes registrados.</p>
+    <% } else { %>
+        <select name="idChofer" class="form-control" required>
+            <%
+                for (Chofer chofer : choferes) {
+            %>
+                <option value="<%= chofer.getIdUsuario() %>"><%= chofer.getCorreo() %></option>
+            <%
+                }
+            %>
+        </select>
+    <% } %>
+    <br>
+
+    <button type="submit" class="btn btn-primary">Confirmar Precio y Asignar</button>
 </form>
 <a href="<%= request.getContextPath() %>/alquiler?accion=listar">Volver al listado</a>
 
