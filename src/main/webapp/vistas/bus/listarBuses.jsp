@@ -76,16 +76,47 @@
     <input type="hidden" name="accion" value="desactivar"/>
     <input type="hidden" id="idBusDesactivar" name="id"/>
 </form>
+
+<%-- Modal personalizado de confirmacion, con la marca CodeNBuses
+     en vez del generico "localhost dice" del confirm() nativo --%>
+<div class="modal fade" id="modalConfirmar" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: var(--azul-marino); color: white;">
+                <h5 class="modal-title">CodeNBuses</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p id="modalConfirmarMensaje"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="btnConfirmarAccion">Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-    //Muestra un modal de confirmacion nativo del navegador antes de
-    //desactivar el bus. Si el usuario acepta, rellena el ID en el
-    //formulario oculto y lo envía por POST hacia el Controlador
-    function confirmarDesactivar(idBus) {
-        if (confirm("¿Estas seguro de desactivar este bus?")) {
-            document.getElementById("idBusDesactivar").value = idBus;
-            document.getElementById("formDesactivar").submit();
-        }
-    }
+    //Se usa un modal personalizado de Bootstrap en vez del confirm()
+    //nativo del navegador, para mostrar la marca CodeNBuses en vez
+    //del generico "localhost dice". Se espera a que el HTML termine
+    //de cargar (DOMContentLoaded) antes de crear el modal
+    document.addEventListener('DOMContentLoaded', function() {
+        var idSeleccionado = null;
+        var modalConfirmar = new bootstrap.Modal(document.getElementById('modalConfirmar'));
+
+        window.confirmarDesactivar = function(idBus) {
+            idSeleccionado = idBus;
+            document.getElementById('modalConfirmarMensaje').innerText = "¿Estás seguro de desactivar este bus?";
+            modalConfirmar.show();
+        };
+
+        document.getElementById('btnConfirmarAccion').addEventListener('click', function() {
+            document.getElementById('idBusDesactivar').value = idSeleccionado;
+            document.getElementById('formDesactivar').submit();
+        });
+    });
 </script>
 
 <%@ include file="/vistas/comunes/footer.jsp" %>
