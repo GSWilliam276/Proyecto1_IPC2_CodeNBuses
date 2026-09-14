@@ -18,6 +18,11 @@
 <form method="POST" action="<%= request.getContextPath() %>/chofer" enctype="multipart/form-data">
     <input type="hidden" name="accion" value="registrar"/>
 
+    <label>Nombre Completo:</label>
+    <br>
+    <input type="text" name="nombre" class="form-control" required/>
+    <br>
+
     <label>NIT:</label>
     <br>
     <input type="text" name="nit" class="form-control"/>

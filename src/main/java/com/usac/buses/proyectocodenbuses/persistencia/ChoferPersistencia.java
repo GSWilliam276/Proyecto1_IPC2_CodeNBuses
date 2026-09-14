@@ -20,8 +20,8 @@ public class ChoferPersistencia implements Persistencia<Chofer> {
 
     @Override
     public boolean insertar(Chofer chofer) {
-        String sqlUsuario = "INSERT INTO usuario (nit, dpi, telefono, direccion, correo, contrasena, tipo, activo) "
-                           + "VALUES (?, ?, ?, ?, ?, ?, 'CHOFER', ?)";
+        String sqlUsuario = "INSERT INTO usuario (nombre, nit, dpi, telefono, direccion, correo, contrasena, tipo, activo) "
+                           + "VALUES (?, ?, ?, ?, ?, ?, ?, 'CHOFER', ?)";
         String sqlChofer = "INSERT INTO chofer (id_usuario, numero_licencia, tipo_licencia, fecha_vencimiento, "
                             + "salario_base, id_sucursal, foto) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
@@ -32,13 +32,14 @@ public class ChoferPersistencia implements Persistencia<Chofer> {
 
             //Insertar en la tabla usuario
             PreparedStatement psUsuario = conexion.prepareStatement(sqlUsuario, Statement.RETURN_GENERATED_KEYS);
-            psUsuario.setString(1, chofer.getNit());
-            psUsuario.setString(2, chofer.getDpi());
-            psUsuario.setString(3, chofer.getTelefono());
-            psUsuario.setString(4, chofer.getDireccion());
-            psUsuario.setString(5, chofer.getCorreo());
-            psUsuario.setString(6, chofer.getContrasena());
-            psUsuario.setBoolean(7, chofer.isActivo());
+            psUsuario.setString(1, chofer.getNombre());
+            psUsuario.setString(2, chofer.getNit());
+            psUsuario.setString(3, chofer.getDpi());
+            psUsuario.setString(4, chofer.getTelefono());
+            psUsuario.setString(5, chofer.getDireccion());
+            psUsuario.setString(6, chofer.getCorreo());
+            psUsuario.setString(7, chofer.getContrasena());
+            psUsuario.setBoolean(8, chofer.isActivo());
             psUsuario.executeUpdate();
 
             //Obtener el id generado automaticamente para usarlo en la tabla chofer
@@ -159,7 +160,7 @@ public class ChoferPersistencia implements Persistencia<Chofer> {
     public ArrayList<Chofer> listarPorSucursal(int idSucursal) {
         ArrayList<Chofer> choferes = new ArrayList<>();
         String sql = "SELECT u.*, c.numero_licencia, c.tipo_licencia, c.fecha_vencimiento, "
-                   + "c.salario_base, c.id_sucursal FROM usuario u "
+                   + "c.salario_base, c.id_sucursal, c.foto FROM usuario u "
                    + "JOIN chofer c ON u.id_usuario = c.id_usuario WHERE c.id_sucursal = ?";
         try (Connection conexion = conexionBase.obtenerConexion();
              PreparedStatement ps = conexion.prepareStatement(sql)) {
@@ -179,7 +180,7 @@ public class ChoferPersistencia implements Persistencia<Chofer> {
     public ArrayList<Chofer> listarActivos() {
         ArrayList<Chofer> choferes = new ArrayList<>();
         String sql = "SELECT u.*, c.numero_licencia, c.tipo_licencia, c.fecha_vencimiento, "
-                   + "c.salario_base, c.id_sucursal FROM usuario u "
+                   + "c.salario_base, c.id_sucursal, c.foto FROM usuario u "
                    + "JOIN chofer c ON u.id_usuario = c.id_usuario WHERE u.activo = true";
         try (Connection conexion = conexionBase.obtenerConexion();
              PreparedStatement ps = conexion.prepareStatement(sql)) {
@@ -199,6 +200,7 @@ public class ChoferPersistencia implements Persistencia<Chofer> {
         Chofer chofer = new Chofer();
         chofer.setFoto(rs.getString("foto"));
         chofer.setIdUsuario(rs.getInt("id_usuario"));
+        chofer.setNombre(rs.getString("nombre"));
         chofer.setNit(rs.getString("nit"));
         chofer.setDpi(rs.getString("dpi"));
         chofer.setTelefono(rs.getString("telefono"));

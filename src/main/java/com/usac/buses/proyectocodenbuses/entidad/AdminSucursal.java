@@ -16,8 +16,8 @@ public class AdminSucursal extends Usuario {
         super();
     }
 
-    public AdminSucursal(String nit, String dpi, String telefono, String direccion, String correo, String contrasena, Sucursal sucursal) {
-        super(nit, dpi, telefono, direccion, correo, contrasena);
+    public AdminSucursal(String nombre, String nit, String dpi, String telefono, String direccion, String correo, String contrasena, Sucursal sucursal) {
+        super(nombre, nit, dpi, telefono, direccion, correo, contrasena);
         this.sucursal = sucursal;
     }
 

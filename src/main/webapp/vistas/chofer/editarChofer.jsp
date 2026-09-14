@@ -22,14 +22,18 @@
     Chofer chofer = (Chofer) request.getAttribute("chofer");
     ArrayList<Sucursal> sucursales = (ArrayList<Sucursal>) request.getAttribute("sucursales");
 %>
-<%-- Aqui solo se editan los datos especificos del chofer
-     (licencia, salario, sucursal) que gestiona el AdminSucursal.
-     Los datos heredados de Usuario (nit, dpi, telefono, direccion)
+<%-- Aqui el AdminSucursal edita nombre, licencia, salario y sucursal.
+     Los demas datos heredados de Usuario (nit, dpi, telefono, direccion)
      se editan por separado desde "Mi Perfil", ya que le pertenecen
      al propio usuario, no al AdminSucursal --%>
 <form method="POST" action="<%= request.getContextPath() %>/chofer">
     <input type="hidden" name="accion" value="actualizar"/>
     <input type="hidden" name="idUsuario" value="<%= chofer.getIdUsuario() %>"/>
+
+    <label>Nombre Completo:</label>
+    <br>
+    <input type="text" name="nombre" value="<%= chofer.getNombre() %>" class="form-control" required/>
+    <br>
 
     <label>Número de Licencia:</label>
     <br>

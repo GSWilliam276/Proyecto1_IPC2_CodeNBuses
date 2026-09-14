@@ -19,8 +19,8 @@ public class AdminSucursalPersistencia implements Persistencia<AdminSucursal> {
 
     @Override
     public boolean insertar(AdminSucursal admin) {
-        String sqlUsuario = "INSERT INTO usuario (nit, dpi, telefono, direccion, correo, contrasena, tipo, activo) "
-                           + "VALUES (?, ?, ?, ?, ?, ?, 'ADMIN_SUCURSAL', ?)";
+        String sqlUsuario = "INSERT INTO usuario (nombre, nit, dpi, telefono, direccion, correo, contrasena, tipo, activo) "
+                           + "VALUES (?, ?, ?, ?, ?, ?, ?, 'ADMIN_SUCURSAL', ?)";
         String sqlAdmin = "INSERT INTO admin_sucursal (id_usuario, id_sucursal) VALUES (?, ?)";
 
         Connection conexion = null;
@@ -30,13 +30,14 @@ public class AdminSucursalPersistencia implements Persistencia<AdminSucursal> {
 
             //Insertar en la tabla usuario
             PreparedStatement psUsuario = conexion.prepareStatement(sqlUsuario, Statement.RETURN_GENERATED_KEYS);
-            psUsuario.setString(1, admin.getNit());
-            psUsuario.setString(2, admin.getDpi());
-            psUsuario.setString(3, admin.getTelefono());
-            psUsuario.setString(4, admin.getDireccion());
-            psUsuario.setString(5, admin.getCorreo());
-            psUsuario.setString(6, admin.getContrasena());
-            psUsuario.setBoolean(7, admin.isActivo());
+            psUsuario.setString(1, admin.getNombre());
+            psUsuario.setString(2, admin.getNit());
+            psUsuario.setString(3, admin.getDpi());
+            psUsuario.setString(4, admin.getTelefono());
+            psUsuario.setString(5, admin.getDireccion());
+            psUsuario.setString(6, admin.getCorreo());
+            psUsuario.setString(7, admin.getContrasena());
+            psUsuario.setBoolean(8, admin.isActivo());
             psUsuario.executeUpdate();
 
             //Obtener el id generado para reutilizarlo en la segunda tabla
@@ -73,7 +74,7 @@ public class AdminSucursalPersistencia implements Persistencia<AdminSucursal> {
     @Override
     public boolean actualizar(AdminSucursal admin) {
         Connection conexion = null;
-        String sqlUsuario = "UPDATE usuario SET nit = ?, dpi = ?, telefono = ?, direccion = ?, correo = ? "
+        String sqlUsuario = "UPDATE usuario SET nombre = ?, nit = ?, dpi = ?, telefono = ?, direccion = ?, correo = ? "
                            + "WHERE id_usuario = ?";
         String sqlAdmin = "UPDATE admin_sucursal SET id_sucursal = ? WHERE id_usuario = ?";
 
@@ -82,12 +83,13 @@ public class AdminSucursalPersistencia implements Persistencia<AdminSucursal> {
             conexion.setAutoCommit(false); //Inicia Transaccion: actualiza 2 tablas juntas
 
             PreparedStatement psUsuario = conexion.prepareStatement(sqlUsuario);
-            psUsuario.setString(1, admin.getNit());
-            psUsuario.setString(2, admin.getDpi());
-            psUsuario.setString(3, admin.getTelefono());
-            psUsuario.setString(4, admin.getDireccion());
-            psUsuario.setString(5, admin.getCorreo());
-            psUsuario.setInt(6, admin.getIdUsuario());
+            psUsuario.setString(1, admin.getNombre());
+            psUsuario.setString(2, admin.getNit());
+            psUsuario.setString(3, admin.getDpi());
+            psUsuario.setString(4, admin.getTelefono());
+            psUsuario.setString(5, admin.getDireccion());
+            psUsuario.setString(6, admin.getCorreo());
+            psUsuario.setInt(7, admin.getIdUsuario());
             psUsuario.executeUpdate();
 
             PreparedStatement psAdmin = conexion.prepareStatement(sqlAdmin);
@@ -190,6 +192,7 @@ public class AdminSucursalPersistencia implements Persistencia<AdminSucursal> {
    private AdminSucursal mapearAdminSucursal(ResultSet rs) throws SQLException {
         AdminSucursal admin = new AdminSucursal();
         admin.setIdUsuario(rs.getInt("id_usuario"));
+        admin.setNombre(rs.getString("nombre"));
         admin.setNit(rs.getString("nit"));
         admin.setDpi(rs.getString("dpi"));
         admin.setTelefono(rs.getString("telefono"));

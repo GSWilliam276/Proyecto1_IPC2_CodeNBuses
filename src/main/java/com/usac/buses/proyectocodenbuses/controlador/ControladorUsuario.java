@@ -48,6 +48,9 @@ public class ControladorUsuario extends HttpServlet {
             case "logout":
                 cerrarSesion(request, response);
                 break;
+            case "editarPerfilForm":
+                mostrarFormularioEditarPerfil(request, response);
+                break;
             default:
                 response.sendRedirect("usuario?accion=login");
         }
@@ -103,6 +106,7 @@ public class ControladorUsuario extends HttpServlet {
     private void crearCuenta(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
         try {
+            String nombre = request.getParameter("nombre");
             String nit = request.getParameter("nit");
             String dpi = request.getParameter("dpi");
             String telefono = request.getParameter("telefono");
@@ -110,6 +114,9 @@ public class ControladorUsuario extends HttpServlet {
             String correo = request.getParameter("correo");
             String contrasena = request.getParameter("contrasena");
 
+            if (nombre == null || nombre.trim().isEmpty()) {
+                throw new ExcepcionFormatoInvalido("nombre", "El nombre es obligatorio");
+            }
             if (dpi == null || dpi.trim().isEmpty()) {
                 throw new ExcepcionFormatoInvalido("dpi", "El DPI es obligatorio");
             }
@@ -132,7 +139,7 @@ public class ControladorUsuario extends HttpServlet {
                 throw new ExcepcionFormatoInvalido("correo", "Ya existe una cuenta registrada con ese correo");
             }
 
-            ClienteRegular cliente = new ClienteRegular(nit, dpi, telefono, direccion, correo, contrasena);
+            ClienteRegular cliente = new ClienteRegular(nombre, nit, dpi, telefono, direccion, correo, contrasena);
             clienteRegularPersistencia.insertar(cliente);
 
             //Toda cuenta nueva inicia con su cartera en cero
@@ -163,6 +170,21 @@ public class ControladorUsuario extends HttpServlet {
         request.getRequestDispatcher("/vistas/usuario/perfil.jsp").forward(request, response);
     }
 
+    //Muestra el formulario de edicion, precargado con los datos actuales
+    private void mostrarFormularioEditarPerfil(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        HttpSession sesion = request.getSession();
+        Usuario usuario = (Usuario) sesion.getAttribute("usuario");
+
+        if (usuario == null) {
+            response.sendRedirect("usuario?accion=login");
+            return;
+        }
+
+        request.setAttribute("usuario", usuario);
+        request.getRequestDispatcher("/vistas/usuario/editarPerfil.jsp").forward(request, response);
+    }
+
     private void editarPerfil(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
         HttpSession sesion = request.getSession();
@@ -173,12 +195,19 @@ public class ControladorUsuario extends HttpServlet {
             return;
         }
 
+        //Se permite cambiar cualquier dato del perfil
+        String nombre = request.getParameter("nombre");
+        String nit = request.getParameter("nit");
+        String dpi = request.getParameter("dpi");
         String telefono = request.getParameter("telefono");
         String direccion = request.getParameter("direccion");
 
-        usuarioPersistencia.editarPerfil(usuario.getIdUsuario(), telefono, direccion);
+        usuarioPersistencia.editarPerfil(usuario.getIdUsuario(), nombre, nit, dpi, telefono, direccion);
 
         //Actualiza tambien el objeto en sesion para que se refleje sin necesidad de volver a loguear
+        usuario.setNombre(nombre);
+        usuario.setNit(nit);
+        usuario.setDpi(dpi);
         usuario.setTelefono(telefono);
         usuario.setDireccion(direccion);
         sesion.setAttribute("usuario", usuario);

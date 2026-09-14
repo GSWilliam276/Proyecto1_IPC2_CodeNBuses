@@ -13,8 +13,8 @@ public class AdminSistema extends Usuario {
         super();
     }
 
-    public AdminSistema(String nit, String dpi, String telefono, String direccion, String correo, String contrasena) {
-        super(nit, dpi, telefono, direccion, correo, contrasena);
+    public AdminSistema(String nombre, String nit, String dpi, String telefono, String direccion, String correo, String contrasena) {
+        super(nombre, nit, dpi, telefono, direccion, correo, contrasena);
     }
 
     public void configurarDepreciacion(double monto) {

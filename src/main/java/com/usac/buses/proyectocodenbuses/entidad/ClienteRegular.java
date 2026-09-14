@@ -13,7 +13,7 @@ public class ClienteRegular extends Usuario {
         super();
     }
 
-    public ClienteRegular(String nit, String dpi, String telefono, String direccion, String correo, String contrasena) {
-        super(nit, dpi, telefono, direccion, correo, contrasena);
+    public ClienteRegular(String nombre, String nit, String dpi, String telefono, String direccion, String correo, String contrasena) {
+        super(nombre, nit, dpi, telefono, direccion, correo, contrasena);
     }
 }

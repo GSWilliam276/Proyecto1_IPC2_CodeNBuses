@@ -11,6 +11,7 @@ package com.usac.buses.proyectocodenbuses.entidad;
 public class Usuario {
     //Atributos
     private int idUsuario;
+    private String nombre;
     private String nit;
     private String dpi;
     private String telefono;
@@ -24,7 +25,8 @@ public class Usuario {
     }
     
     //Inicializacion
-    public Usuario(String nit, String dpi, String telefono, String direccion, String correo, String contrasena) {
+    public Usuario(String nombre, String nit, String dpi, String telefono, String direccion, String correo, String contrasena) {
+        this.nombre = nombre;
         this.nit = nit;
         this.dpi = dpi;
         this.telefono = telefono;
@@ -34,7 +36,11 @@ public class Usuario {
         this.activo = true;
     }
     
-    public void editarPerfil(String telefono, String direccion) {
+    //Se amplia para permitir editar todos los datos del perfil
+    public void editarPerfil(String nombre, String nit, String dpi, String telefono, String direccion) {
+        this.nombre = nombre;
+        this.nit = nit;
+        this.dpi = dpi;
         this.telefono = telefono;
         this.direccion = direccion;
     }
@@ -42,6 +48,9 @@ public class Usuario {
     //Getters y setters
     public int getIdUsuario() { return idUsuario; }
     public void setIdUsuario(int idUsuario) { this.idUsuario = idUsuario; }
+
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
 
     public String getNit() { return nit; }
     public void setNit(String nit) { this.nit = nit; }

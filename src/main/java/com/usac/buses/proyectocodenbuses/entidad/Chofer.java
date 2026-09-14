@@ -22,10 +22,10 @@ public class Chofer extends Usuario {
         super();
     }
 
-    public Chofer(String nit, String dpi, String telefono, String direccion, String correo, String contrasena,
+    public Chofer(String nombre, String nit, String dpi, String telefono, String direccion, String correo, String contrasena,
                   String numeroLicencia, TipoLicencia tipoLicencia, Date fechaVencimiento, double salarioBase, 
                   Sucursal sucursal, String foto) {
-        super(nit, dpi, telefono, direccion, correo, contrasena);
+        super(nombre, nit, dpi, telefono, direccion, correo, contrasena);
         this.numeroLicencia = numeroLicencia;
         this.tipoLicencia = tipoLicencia;
         this.fechaVencimiento = fechaVencimiento;

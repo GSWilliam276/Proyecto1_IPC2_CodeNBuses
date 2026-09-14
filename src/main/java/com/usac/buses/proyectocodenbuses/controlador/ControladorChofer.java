@@ -142,6 +142,7 @@ public class ControladorChofer extends HttpServlet {
     private void registrarChofer(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
         try {
+            String nombre = request.getParameter("nombre");
             String nit = request.getParameter("nit");
             String dpi = request.getParameter("dpi");
             String telefono = request.getParameter("telefono");
@@ -154,6 +155,14 @@ public class ControladorChofer extends HttpServlet {
             double salarioBase = Double.parseDouble(request.getParameter("salarioBase"));
             int idSucursal = Integer.parseInt(request.getParameter("idSucursal"));
 
+            //Validacion de nombre: obligatorio
+            if (nombre == null || nombre.trim().isEmpty()) {
+                ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido("nombre", "El nombre es obligatorio");
+                request.setAttribute("error", excepcion.getMessage());
+                request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
+                request.getRequestDispatcher("/vistas/chofer/registrarChofer.jsp").forward(request, response);
+                return;
+            }
             //Validacion de NIT: opcional, pero si se llena debe ser solo numeros
             if (nit != null && !nit.trim().isEmpty() && !nit.matches("\\d+")) {
                 ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido("nit", "El NIT debe contener solo números");
@@ -238,7 +247,7 @@ public class ControladorChofer extends HttpServlet {
             Sucursal sucursal = new Sucursal();
             sucursal.setIdSucursal(idSucursal);
 
-            Chofer chofer = new Chofer(nit, dpi, telefono, direccion, correo, contrasena,
+            Chofer chofer = new Chofer(nombre, nit, dpi, telefono, direccion, correo, contrasena,
                     numeroLicencia, tipoLicencia, fechaVencimiento, salarioBase, sucursal, foto);
 
             choferPersistencia.insertar(chofer);
@@ -259,6 +268,7 @@ public class ControladorChofer extends HttpServlet {
             throws IOException, ServletException {
         try {
             int idUsuario = Integer.parseInt(request.getParameter("idUsuario"));
+            String nombre = request.getParameter("nombre");
             String numeroLicencia = request.getParameter("numeroLicencia");
             TipoLicencia tipoLicencia = TipoLicencia.valueOf(request.getParameter("tipoLicencia"));
             String fechaVencimientoStr = request.getParameter("fechaVencimiento");
@@ -287,7 +297,7 @@ public class ControladorChofer extends HttpServlet {
             Sucursal sucursal = new Sucursal();
             sucursal.setIdSucursal(idSucursal);
 
-            Chofer chofer = new Chofer(null, null, null, null, null, null,
+            Chofer chofer = new Chofer(nombre, null, null, null, null, null, null,
                     numeroLicencia, tipoLicencia, fechaVencimiento, salarioBase, sucursal, choferActual.getFoto());
             chofer.setIdUsuario(idUsuario);
 

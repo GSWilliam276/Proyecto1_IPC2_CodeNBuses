@@ -17,8 +17,8 @@ public class AdminSistemaPersistencia implements Persistencia<AdminSistema> {
 
     @Override
     public boolean insertar(AdminSistema admin) {
-        String sqlUsuario = "INSERT INTO usuario (nit, dpi, telefono, direccion, correo, contrasena, tipo, activo) "
-                           + "VALUES (?, ?, ?, ?, ?, ?, 'ADMIN_SISTEMA', ?)";
+        String sqlUsuario = "INSERT INTO usuario (nombre, nit, dpi, telefono, direccion, correo, contrasena, tipo, activo) "
+                           + "VALUES (?, ?, ?, ?, ?, ?, ?, 'ADMIN_SISTEMA', ?)";
         String sqlAdmin = "INSERT INTO admin_sistema (id_usuario) VALUES (?)";
 
         Connection conexion = null;
@@ -28,13 +28,14 @@ public class AdminSistemaPersistencia implements Persistencia<AdminSistema> {
 
             //Insertar en la tabla usuario
             PreparedStatement psUsuario = conexion.prepareStatement(sqlUsuario, Statement.RETURN_GENERATED_KEYS);
-            psUsuario.setString(1, admin.getNit());
-            psUsuario.setString(2, admin.getDpi());
-            psUsuario.setString(3, admin.getTelefono());
-            psUsuario.setString(4, admin.getDireccion());
-            psUsuario.setString(5, admin.getCorreo());
-            psUsuario.setString(6, admin.getContrasena());
-            psUsuario.setBoolean(7, admin.isActivo());
+            psUsuario.setString(1, admin.getNombre());
+            psUsuario.setString(2, admin.getNit());
+            psUsuario.setString(3, admin.getDpi());
+            psUsuario.setString(4, admin.getTelefono());
+            psUsuario.setString(5, admin.getDireccion());
+            psUsuario.setString(6, admin.getCorreo());
+            psUsuario.setString(7, admin.getContrasena());
+            psUsuario.setBoolean(8, admin.isActivo());
             psUsuario.executeUpdate();
 
             //Obtener el id generado para reutilizarlo en la segunda tabla
@@ -70,17 +71,18 @@ public class AdminSistemaPersistencia implements Persistencia<AdminSistema> {
     @Override
     public boolean actualizar(AdminSistema admin) {
         //Solo se actualizan datos heredados de Usuario, admin_sistema no tiene campos propios que editar
-        String sql = "UPDATE usuario SET nit = ?, dpi = ?, telefono = ?, direccion = ?, correo = ? "
+        String sql = "UPDATE usuario SET nombre = ?, nit = ?, dpi = ?, telefono = ?, direccion = ?, correo = ? "
                    + "WHERE id_usuario = ?";
         try (Connection conexion = conexionBase.obtenerConexion();
              PreparedStatement ps = conexion.prepareStatement(sql)) {
 
-            ps.setString(1, admin.getNit());
-            ps.setString(2, admin.getDpi());
-            ps.setString(3, admin.getTelefono());
-            ps.setString(4, admin.getDireccion());
-            ps.setString(5, admin.getCorreo());
-            ps.setInt(6, admin.getIdUsuario());
+            ps.setString(1, admin.getNombre());
+            ps.setString(2, admin.getNit());
+            ps.setString(3, admin.getDpi());
+            ps.setString(4, admin.getTelefono());
+            ps.setString(5, admin.getDireccion());
+            ps.setString(6, admin.getCorreo());
+            ps.setInt(7, admin.getIdUsuario());
             ps.executeUpdate();
             return true;
 
@@ -146,6 +148,7 @@ public class AdminSistemaPersistencia implements Persistencia<AdminSistema> {
     private AdminSistema mapearAdminSistema(ResultSet rs) throws SQLException {
         AdminSistema admin = new AdminSistema();
         admin.setIdUsuario(rs.getInt("id_usuario"));
+        admin.setNombre(rs.getString("nombre"));
         admin.setNit(rs.getString("nit"));
         admin.setDpi(rs.getString("dpi"));
         admin.setTelefono(rs.getString("telefono"));

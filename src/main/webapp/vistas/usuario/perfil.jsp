@@ -38,16 +38,20 @@
 <div class="d-flex align-items-center gap-3 mb-3">
     <i class="bi <%= iconoRol %>" style="font-size: 3rem; color: var(--azul-marino);"></i>
     <div>
-        <h1 class="mb-0">Bienvenido, <%= usuario.getCorreo() %></h1>
+        <h1 class="mb-0">Bienvenido, <%= usuario.getNombre() %></h1>
         <p class="mb-0">Tipo de usuario: <%= tipoUsuarioTexto %></p>
     </div>
 </div>
 
 <h2>Mis datos</h2>
+<p>Nombre: <%= usuario.getNombre() %></p>
+<p>Correo: <%= usuario.getCorreo() %></p>
 <p>NIT: <%= usuario.getNit() %></p>
 <p>DPI: <%= usuario.getDpi() %></p>
 <p>Teléfono: <%= usuario.getTelefono() %></p>
 <p>Dirección: <%= usuario.getDireccion() %></p>
+
+<a href="<%= request.getContextPath() %>/usuario?accion=editarPerfilForm" class="btn btn-outline-primary">Editar Perfil</a>
 
 <hr>
 

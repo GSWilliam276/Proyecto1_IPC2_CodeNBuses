@@ -112,6 +112,7 @@ public class ControladorAdmin extends HttpServlet {
     private void registrarAdminSucursal(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
         try {
+            String nombre = request.getParameter("nombre");
             String nit = request.getParameter("nit");
             String dpi = request.getParameter("dpi");
             String telefono = request.getParameter("telefono");
@@ -120,6 +121,10 @@ public class ControladorAdmin extends HttpServlet {
             String contrasena = request.getParameter("contrasena");
             int idSucursal = Integer.parseInt(request.getParameter("idSucursal"));
 
+            //Validacion de nombre: obligatorio
+            if (nombre == null || nombre.trim().isEmpty()) {
+                throw new ExcepcionFormatoInvalido("nombre", "El nombre es obligatorio");
+            }
             if (dpi == null || dpi.trim().isEmpty()) {
                 throw new ExcepcionFormatoInvalido("dpi", "El DPI es obligatorio");
             }
@@ -141,7 +146,7 @@ public class ControladorAdmin extends HttpServlet {
             Sucursal sucursal = new Sucursal();
             sucursal.setIdSucursal(idSucursal);
 
-            AdminSucursal admin = new AdminSucursal(nit, dpi, telefono, direccion, correo, contrasena, sucursal);
+            AdminSucursal admin = new AdminSucursal(nombre, nit, dpi, telefono, direccion, correo, contrasena, sucursal);
             adminSucursalPersistencia.insertar(admin);
 
             response.sendRedirect("admin?accion=listar");
@@ -155,17 +160,22 @@ public class ControladorAdmin extends HttpServlet {
             request.getRequestDispatcher("/vistas/admin/registrarAdminSucursal.jsp").forward(request, response);
         }
     }
-    
+
     private void actualizarAdminSucursal(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
         try {
             int idUsuario = Integer.parseInt(request.getParameter("idUsuario"));
+            String nombre = request.getParameter("nombre");
             String dpi = request.getParameter("dpi");
             String telefono = request.getParameter("telefono");
             String direccion = request.getParameter("direccion");
             String correo = request.getParameter("correo");
             int idSucursal = Integer.parseInt(request.getParameter("idSucursal"));
 
+            //Validacion de nombre: obligatorio
+            if (nombre == null || nombre.trim().isEmpty()) {
+                throw new ExcepcionFormatoInvalido("nombre", "El nombre es obligatorio");
+            }
             //Validacion de DPI: obligatorio y solo numeros
             if (dpi == null || dpi.trim().isEmpty()) {
                 throw new ExcepcionFormatoInvalido("dpi", "El DPI es obligatorio");
@@ -185,15 +195,13 @@ public class ControladorAdmin extends HttpServlet {
             Sucursal sucursal = new Sucursal();
             sucursal.setIdSucursal(idSucursal);
 
-            AdminSucursal admin = new AdminSucursal(adminActual.getNit(), dpi, telefono, direccion, correo, null, sucursal);
+            AdminSucursal admin = new AdminSucursal(nombre, adminActual.getNit(), dpi, telefono, direccion, correo, null, sucursal);
             admin.setIdUsuario(idUsuario);
             adminSucursalPersistencia.actualizar(admin);
 
             response.sendRedirect("admin?accion=listar");
 
         } catch (NumberFormatException e) {
-            //Se vuelve a cargar el admin y las sucursales para que el JSP
-            //no truene al intentar mostrar los datos precargados
             recargarFormularioConError(request, response, "Datos numéricos inválidos");
         } catch (ExcepcionFormatoInvalido e) {
             recargarFormularioConError(request, response, e.getMessage());

@@ -26,6 +26,11 @@
     <input type="hidden" name="accion" value="actualizar"/>
     <input type="hidden" name="idUsuario" value="<%= admin.getIdUsuario() %>"/>
 
+    <label>Nombre Completo:</label>
+    <br>
+    <input type="text" name="nombre" value="<%= admin.getNombre() %>" class="form-control" required/>
+    <br>
+
     <label>DPI:</label>
     <br>
     <input type="text" name="dpi" value="<%= admin.getDpi() %>" class="form-control" required/>

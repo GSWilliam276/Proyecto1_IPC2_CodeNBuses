@@ -15,19 +15,23 @@ public class UsuarioPersistencia {
     private ConexionBase conexionBase = new ConexionBase();
 
     
-    //Actualiza solo los datos heredados de Usuario (nit, dpi, telefono, direccion),
-    //sin importar si es Chofer, AdminSucursal, AdminSistema o ClienteRegular.
-    //Esto es lo que usa "Editar perfil", separado de la gestión operativa
-    //que hace cada Controlador especifico (ej. ControladorChofer solo toca
+    //Actualiza TODOS los datos heredados de Usuario (nombre, nit, dpi,
+    //telefono, direccion). Sin importar si es Chofer,
+    //AdminSucursal, AdminSistema o ClienteRegular. Esto es lo que usa
+    //"Editar perfil", separado de la gestión operativa que hace cada
+    //Controlador especifico (ej. ControladorChofer solo toca
     //licencia/salario, nunca los datos de Usuario)
-    public boolean editarPerfil(int idUsuario, String telefono, String direccion) {
-        String sql = "UPDATE usuario SET telefono = ?, direccion = ? WHERE id_usuario = ?";
+    public boolean editarPerfil(int idUsuario, String nombre, String nit, String dpi, String telefono, String direccion) {
+        String sql = "UPDATE usuario SET nombre = ?, nit = ?, dpi = ?, telefono = ?, direccion = ? WHERE id_usuario = ?";
         try (Connection conexion = conexionBase.obtenerConexion();
              PreparedStatement ps = conexion.prepareStatement(sql)) {
 
-            ps.setString(1, telefono);
-            ps.setString(2, direccion);
-            ps.setInt(3, idUsuario);
+            ps.setString(1, nombre);
+            ps.setString(2, nit);
+            ps.setString(3, dpi);
+            ps.setString(4, telefono);
+            ps.setString(5, direccion);
+            ps.setInt(6, idUsuario);
             ps.executeUpdate();
             return true;
 
@@ -92,6 +96,7 @@ public class UsuarioPersistencia {
     private Usuario mapearUsuario(ResultSet rs) throws SQLException {
         Usuario usuario = new Usuario();
         usuario.setIdUsuario(rs.getInt("id_usuario"));
+        usuario.setNombre(rs.getString("nombre"));
         usuario.setNit(rs.getString("nit"));
         usuario.setDpi(rs.getString("dpi"));
         usuario.setTelefono(rs.getString("telefono"));

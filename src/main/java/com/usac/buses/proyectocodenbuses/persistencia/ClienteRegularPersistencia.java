@@ -17,8 +17,8 @@ public class ClienteRegularPersistencia implements Persistencia<ClienteRegular> 
 
     @Override
     public boolean insertar(ClienteRegular cliente) {
-        String sqlUsuario = "INSERT INTO usuario (nit, dpi, telefono, direccion, correo, contrasena, tipo, activo) "
-                           + "VALUES (?, ?, ?, ?, ?, ?, 'CLIENTE', ?)";
+        String sqlUsuario = "INSERT INTO usuario (nombre, nit, dpi, telefono, direccion, correo, contrasena, tipo, activo) "
+                           + "VALUES (?, ?, ?, ?, ?, ?, ?, 'CLIENTE', ?)";
         String sqlCliente = "INSERT INTO cliente_regular (id_usuario) VALUES (?)";
 
         Connection conexion = null;
@@ -27,13 +27,14 @@ public class ClienteRegularPersistencia implements Persistencia<ClienteRegular> 
             conexion.setAutoCommit(false); //Inicia Transaccion: 2 tablas involucradas (usuario + cliente_regular)
 
             PreparedStatement psUsuario = conexion.prepareStatement(sqlUsuario, Statement.RETURN_GENERATED_KEYS);
-            psUsuario.setString(1, cliente.getNit());
-            psUsuario.setString(2, cliente.getDpi());
-            psUsuario.setString(3, cliente.getTelefono());
-            psUsuario.setString(4, cliente.getDireccion());
-            psUsuario.setString(5, cliente.getCorreo());
-            psUsuario.setString(6, cliente.getContrasena());
-            psUsuario.setBoolean(7, cliente.isActivo());
+            psUsuario.setString(1, cliente.getNombre());
+            psUsuario.setString(2, cliente.getNit());
+            psUsuario.setString(3, cliente.getDpi());
+            psUsuario.setString(4, cliente.getTelefono());
+            psUsuario.setString(5, cliente.getDireccion());
+            psUsuario.setString(6, cliente.getCorreo());
+            psUsuario.setString(7, cliente.getContrasena());
+            psUsuario.setBoolean(8, cliente.isActivo());
             psUsuario.executeUpdate();
 
             ResultSet generatedKeys = psUsuario.getGeneratedKeys();
@@ -66,17 +67,18 @@ public class ClienteRegularPersistencia implements Persistencia<ClienteRegular> 
 
     @Override
     public boolean actualizar(ClienteRegular cliente) {
-        String sql = "UPDATE usuario SET nit = ?, dpi = ?, telefono = ?, direccion = ?, correo = ? "
+        String sql = "UPDATE usuario SET nombre = ?, nit = ?, dpi = ?, telefono = ?, direccion = ?, correo = ? "
                    + "WHERE id_usuario = ?";
         try (Connection conexion = conexionBase.obtenerConexion();
              PreparedStatement ps = conexion.prepareStatement(sql)) {
 
-            ps.setString(1, cliente.getNit());
-            ps.setString(2, cliente.getDpi());
-            ps.setString(3, cliente.getTelefono());
-            ps.setString(4, cliente.getDireccion());
-            ps.setString(5, cliente.getCorreo());
-            ps.setInt(6, cliente.getIdUsuario());
+            ps.setString(1, cliente.getNombre());
+            ps.setString(2, cliente.getNit());
+            ps.setString(3, cliente.getDpi());
+            ps.setString(4, cliente.getTelefono());
+            ps.setString(5, cliente.getDireccion());
+            ps.setString(6, cliente.getCorreo());
+            ps.setInt(7, cliente.getIdUsuario());
             ps.executeUpdate();
             return true;
 
@@ -161,6 +163,7 @@ public class ClienteRegularPersistencia implements Persistencia<ClienteRegular> 
     private ClienteRegular mapearCliente(ResultSet rs) throws SQLException {
         ClienteRegular cliente = new ClienteRegular();
         cliente.setIdUsuario(rs.getInt("id_usuario"));
+        cliente.setNombre(rs.getString("nombre"));
         cliente.setNit(rs.getString("nit"));
         cliente.setDpi(rs.getString("dpi"));
         cliente.setTelefono(rs.getString("telefono"));
