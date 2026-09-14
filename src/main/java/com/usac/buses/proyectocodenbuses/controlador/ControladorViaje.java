@@ -93,6 +93,9 @@ public class ControladorViaje extends HttpServlet {
             return;
         }
 
+        HttpSession sesion = request.getSession();
+        Usuario usuario = (Usuario) sesion.getAttribute("usuario");
+
         String accion = request.getParameter("accion");
 
         switch (accion) {
@@ -106,10 +109,10 @@ public class ControladorViaje extends HttpServlet {
                 eliminarViaje(request, response);
                 break;
             case "salida":
-                registrarSalida(request, response);
+                registrarSalida(request, response, usuario);
                 break;
             case "llegada":
-                registrarLlegada(request, response);
+                registrarLlegada(request, response, usuario);
                 break;
             default:
                 response.sendRedirect("viaje?accion=listar");
@@ -284,10 +287,26 @@ public class ControladorViaje extends HttpServlet {
         response.sendRedirect("viaje?accion=listar");
     }
 
-    private void registrarSalida(HttpServletRequest request, HttpServletResponse response)
+    private void registrarSalida(HttpServletRequest request, HttpServletResponse response, Usuario usuario)
             throws IOException, ServletException {
         try {
             int idViaje = Integer.parseInt(request.getParameter("idViaje"));
+
+            Viaje viaje = viajePersistencia.buscarPorId(idViaje).orElse(null);
+            if (viaje == null) {
+                response.sendRedirect("viaje?accion=listar");
+                return;
+            }
+
+            //Validacion de permiso: solo el AdminSucursal o el chofer
+            //especificamente asignado a este viaje pueden registrar su salida
+            boolean esAdminSucursal = usuario instanceof AdminSucursal;
+            boolean esChoferAsignado = usuario instanceof Chofer
+                    && viaje.getChofer().getIdUsuario() == usuario.getIdUsuario();
+            if (!esAdminSucursal && !esChoferAsignado) {
+                response.sendRedirect("viaje?accion=listar");
+                return;
+            }
 
             //Validacion: no se puede registrar salida si ya existe una
             if (registroSalidaPersistencia.buscarPorViaje(idViaje).isPresent()) {
@@ -297,12 +316,6 @@ public class ControladorViaje extends HttpServlet {
             }
 
             double kilometrajeSalida = Double.parseDouble(request.getParameter("kilometrajeSalida"));
-
-            Viaje viaje = viajePersistencia.buscarPorId(idViaje).orElse(null);
-            if (viaje == null) {
-                response.sendRedirect("viaje?accion=listar");
-                return;
-            }
 
             RegistroSalida registro = new RegistroSalida(viaje, new Date(), kilometrajeSalida);
             registroSalidaPersistencia.insertar(registro);
@@ -314,10 +327,26 @@ public class ControladorViaje extends HttpServlet {
         }
     }
 
-    private void registrarLlegada(HttpServletRequest request, HttpServletResponse response)
+    private void registrarLlegada(HttpServletRequest request, HttpServletResponse response, Usuario usuario)
             throws IOException, ServletException {
         try {
             int idViaje = Integer.parseInt(request.getParameter("idViaje"));
+
+            Viaje viaje = viajePersistencia.buscarPorId(idViaje).orElse(null);
+            if (viaje == null) {
+                response.sendRedirect("viaje?accion=listar");
+                return;
+            }
+
+            //Validacion de permiso: solo el AdminSucursal o el chofer
+            //especificamente asignado a este viaje pueden registrar su llegada
+            boolean esAdminSucursal = usuario instanceof AdminSucursal;
+            boolean esChoferAsignado = usuario instanceof Chofer
+                    && viaje.getChofer().getIdUsuario() == usuario.getIdUsuario();
+            if (!esAdminSucursal && !esChoferAsignado) {
+                response.sendRedirect("viaje?accion=listar");
+                return;
+            }
 
             //Validacion: no se puede registrar llegada si ya existe una
             if (registroLlegadaPersistencia.buscarPorViaje(idViaje).isPresent()) {
@@ -328,12 +357,6 @@ public class ControladorViaje extends HttpServlet {
 
             double kilometrajeLlegada = Double.parseDouble(request.getParameter("kilometrajeLlegada"));
             double gastoCombustible = Double.parseDouble(request.getParameter("gastoCombustible"));
-
-            Viaje viaje = viajePersistencia.buscarPorId(idViaje).orElse(null);
-            if (viaje == null) {
-                response.sendRedirect("viaje?accion=listar");
-                return;
-            }
 
             //Se necesita el kilometraje de salida para calcular correctamente
             //los kilometros recorridos en ESTE viaje especifico
