@@ -6,6 +6,8 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="com.usac.buses.proyectocodenbuses.entidad.ViajePrivado"%>
+<%@page import="java.text.SimpleDateFormat"%>
+<%@page import="java.util.Locale"%>
 <%@ include file="/vistas/comunes/header.jsp" %>
 
 <h1>Confirmar Precio de Alquiler</h1>
@@ -19,13 +21,16 @@
     //El Controlador ya busco el viaje privado por su ID y lo guardo
     //en el request para mostrar los datos de la solicitud
     ViajePrivado viaje = (ViajePrivado) request.getAttribute("viaje");
+
+    //Formato de fecha y hora en español
+    SimpleDateFormat formatoFechaHora = new SimpleDateFormat("dd 'de' MMMM 'de' yyyy, HH:mm", new Locale("es", "ES"));
 %>
 
 <p><strong>Origen:</strong> <%= viaje.getOrigen() %></p>
 <p><strong>Destino:</strong> <%= viaje.getDestino() %></p>
 <p><strong>Pasajeros:</strong> <%= viaje.getPasajeros() %></p>
-<p><strong>Fecha de Salida:</strong> <%= viaje.getFechaHoraSalida() %></p>
-<p><strong>Precio Estimado (calculado por el sistema):</strong> <%= viaje.getPrecioEstimado() %></p>
+<p><strong>Fecha de Salida:</strong> <%= formatoFechaHora.format(viaje.getFechaHoraSalida()) %></p>
+<p><strong>Precio Estimado:</strong> <%= viaje.getPrecioEstimado() %></p>
 
 <%-- El AdminSucursal puede aceptar el precio estimado tal cual,
      o cambiarlo si lo considera necesario --%>

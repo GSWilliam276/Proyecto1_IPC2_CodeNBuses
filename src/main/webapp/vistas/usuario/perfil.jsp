@@ -14,10 +14,34 @@
 
 <%
     Usuario usuario = (Usuario) session.getAttribute("usuario");
+
+    //Se traduce el nombre tecnico de la clase Java a un texto
+    //amigable para el usuario final, en vez de mostrar "ClienteRegular",
+    //"AdminSucursal", etc. tal cual
+    String tipoUsuarioTexto;
+    String iconoRol;
+    if (usuario instanceof AdminSistema) {
+        tipoUsuarioTexto = "Administrador del Sistema";
+        iconoRol = "bi-shield-lock";
+    } else if (usuario instanceof AdminSucursal) {
+        tipoUsuarioTexto = "Administrador de Sucursal";
+        iconoRol = "bi-building";
+    } else if (usuario instanceof Chofer) {
+        tipoUsuarioTexto = "Chofer";
+        iconoRol = "bi-bus-front";
+    } else {
+        tipoUsuarioTexto = "Cliente";
+        iconoRol = "bi-person";
+    }
 %>
 
-<h1>Bienvenido, <%= usuario.getCorreo() %></h1>
-<p>Tipo de usuario: <%= usuario.getClass().getSimpleName() %></p>
+<div class="d-flex align-items-center gap-3 mb-3">
+    <i class="bi <%= iconoRol %>" style="font-size: 3rem; color: var(--azul-marino);"></i>
+    <div>
+        <h1 class="mb-0">Bienvenido, <%= usuario.getCorreo() %></h1>
+        <p class="mb-0">Tipo de usuario: <%= tipoUsuarioTexto %></p>
+    </div>
+</div>
 
 <h2>Mis datos</h2>
 <p>NIT: <%= usuario.getNit() %></p>
