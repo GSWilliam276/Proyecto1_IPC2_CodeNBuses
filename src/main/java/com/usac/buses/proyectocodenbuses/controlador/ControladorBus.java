@@ -146,7 +146,7 @@ public class ControladorBus extends HttpServlet {
             //Validacion de placa duplicada
             if (busPersistencia.existeBusConPlaca(placa)) {
                 ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido("placa", "Ya existe un bus registrado con esa placa");
-                request.setAttribute("error", excepcion.getMessage() + " (Campo: " + excepcion.getCampo() + ")");
+                request.setAttribute("error", excepcion.getMessage());
                 request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
                 request.getRequestDispatcher("/vistas/bus/registrarBus.jsp").forward(request, response);
                 return;
@@ -166,7 +166,7 @@ public class ControladorBus extends HttpServlet {
             String foto = guardarFoto(request);
             if ("FORMATO_INVALIDO".equals(foto)) {
                 ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido("foto", "El archivo debe ser una imagen (jpg, jpeg, png o gif)");
-                request.setAttribute("error", excepcion.getMessage() + " (Campo: " + excepcion.getCampo() + ")");
+                request.setAttribute("error", excepcion.getMessage());
                 request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
                 request.getRequestDispatcher("/vistas/bus/registrarBus.jsp").forward(request, response);
                 return;
@@ -183,7 +183,7 @@ public class ControladorBus extends HttpServlet {
             response.sendRedirect("bus?accion=listar");
 
         } catch (ExcepcionFormatoInvalido e) {
-            request.setAttribute("error", e.getMessage() + " (Campo: " + e.getCampo() + ")");
+            request.setAttribute("error", e.getMessage());
             request.getRequestDispatcher("/vistas/bus/registrarBus.jsp").forward(request, response);
         }
     }

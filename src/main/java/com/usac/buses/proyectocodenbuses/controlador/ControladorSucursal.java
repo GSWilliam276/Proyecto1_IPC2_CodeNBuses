@@ -151,7 +151,7 @@ public class ControladorSucursal extends HttpServlet {
             request.setAttribute("error", "Latitud y longitud deben ser valores numéricos válidos");
             request.getRequestDispatcher("/vistas/sucursal/registrarSucursal.jsp").forward(request, response);
         } catch (ExcepcionFormatoInvalido e) {
-            request.setAttribute("error", e.getMessage() + " (Campo: " + e.getCampo() + ")");
+            request.setAttribute("error", e.getMessage());
             request.getRequestDispatcher("/vistas/sucursal/registrarSucursal.jsp").forward(request, response);
         }
     }
@@ -179,7 +179,7 @@ public class ControladorSucursal extends HttpServlet {
             request.setAttribute("error", "Latitud y longitud deben ser valores numéricos válidos");
             request.getRequestDispatcher("/vistas/sucursal/editarSucursal.jsp").forward(request, response);
         } catch (ExcepcionFormatoInvalido e) {
-            request.setAttribute("error", e.getMessage() + " (Campo: " + e.getCampo() + ")");
+            request.setAttribute("error", e.getMessage());
             request.getRequestDispatcher("/vistas/sucursal/editarSucursal.jsp").forward(request, response);
         }
     }

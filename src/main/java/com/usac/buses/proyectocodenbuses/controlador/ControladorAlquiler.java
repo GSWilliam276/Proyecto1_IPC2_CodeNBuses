@@ -236,9 +236,9 @@ public class ControladorAlquiler extends HttpServlet {
     }
 
     private void mostrarError(HttpServletRequest request, HttpServletResponse response,
-                               String campo, String mensaje, String vista) throws IOException, ServletException {
+                            String campo, String mensaje, String vista) throws IOException, ServletException {
         ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido(campo, mensaje);
-        request.setAttribute("error", excepcion.getMessage() + " (Campo: " + excepcion.getCampo() + ")");
+        request.setAttribute("error", excepcion.getMessage());
         request.getRequestDispatcher(vista).forward(request, response);
     }
 }

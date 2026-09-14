@@ -148,10 +148,10 @@ public class ControladorAdmin extends HttpServlet {
 
         } catch (NumberFormatException e) {
             ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido("idSucursal", "Debe seleccionar una sucursal válida");
-            request.setAttribute("error", excepcion.getMessage() + " (Campo: " + excepcion.getCampo() + ")");
+            request.setAttribute("error", excepcion.getMessage());
             request.getRequestDispatcher("/vistas/admin/registrarAdminSucursal.jsp").forward(request, response);
         } catch (ExcepcionFormatoInvalido e) {
-            request.setAttribute("error", e.getMessage() + " (Campo: " + e.getCampo() + ")");
+            request.setAttribute("error", e.getMessage());
             request.getRequestDispatcher("/vistas/admin/registrarAdminSucursal.jsp").forward(request, response);
         }
     }
@@ -196,7 +196,7 @@ public class ControladorAdmin extends HttpServlet {
             //no truene al intentar mostrar los datos precargados
             recargarFormularioConError(request, response, "Datos numéricos inválidos");
         } catch (ExcepcionFormatoInvalido e) {
-            recargarFormularioConError(request, response, e.getMessage() + " (Campo: " + e.getCampo() + ")");
+            recargarFormularioConError(request, response, e.getMessage());
         }
     }
 

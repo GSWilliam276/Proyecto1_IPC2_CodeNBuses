@@ -144,7 +144,7 @@ public class ControladorUsuario extends HttpServlet {
             response.sendRedirect("usuario?accion=login");
 
         } catch (ExcepcionFormatoInvalido e) {
-            request.setAttribute("error", e.getMessage() + " (Campo: " + e.getCampo() + ")");
+            request.setAttribute("error", e.getMessage());
             request.getRequestDispatcher("/vistas/usuario/crearCuenta.jsp").forward(request, response);
         }
     }

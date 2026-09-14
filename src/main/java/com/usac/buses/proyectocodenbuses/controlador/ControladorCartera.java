@@ -161,8 +161,8 @@ public class ControladorCartera extends HttpServlet {
     }
 
     private void mostrarError(HttpServletRequest request, HttpServletResponse response,
-                               String campo, String mensaje, String vista) throws IOException, ServletException {
-        request.setAttribute("error", mensaje + " (Campo: " + campo + ")");
+                            String campo, String mensaje, String vista) throws IOException, ServletException {
+        request.setAttribute("error", mensaje);
         request.getRequestDispatcher(vista).forward(request, response);
     }
 }

@@ -157,7 +157,7 @@ public class ControladorChofer extends HttpServlet {
             //Validacion de NIT: opcional, pero si se llena debe ser solo numeros
             if (nit != null && !nit.trim().isEmpty() && !nit.matches("\\d+")) {
                 ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido("nit", "El NIT debe contener solo números");
-                request.setAttribute("error", excepcion.getMessage() + " (Campo: " + excepcion.getCampo() + ")");
+                request.setAttribute("error", excepcion.getMessage());
                 request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
                 request.getRequestDispatcher("/vistas/chofer/registrarChofer.jsp").forward(request, response);
                 return;
@@ -165,14 +165,14 @@ public class ControladorChofer extends HttpServlet {
             //Validacion de DPI: obligatorio y solo numeros
             if (dpi == null || dpi.trim().isEmpty()) {
                 ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido("dpi", "El DPI es obligatorio");
-                request.setAttribute("error", excepcion.getMessage() + " (Campo: " + excepcion.getCampo() + ")");
+                request.setAttribute("error", excepcion.getMessage());
                 request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
                 request.getRequestDispatcher("/vistas/chofer/registrarChofer.jsp").forward(request, response);
                 return;
             }
             if (!dpi.matches("\\d{13}")) {
                 ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido("dpi", "El DPI debe contener exactamente 13 números");
-                request.setAttribute("error", excepcion.getMessage() + " (Campo: " + excepcion.getCampo() + ")");
+                request.setAttribute("error", excepcion.getMessage());
                 request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
                 request.getRequestDispatcher("/vistas/chofer/registrarChofer.jsp").forward(request, response);
                 return;
@@ -181,32 +181,31 @@ public class ControladorChofer extends HttpServlet {
             //Validacion de correo duplicado
             if (usuarioPersistencia.existeUsuarioConCorreo(correo)) {
                 ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido("correo", "Ya existe una cuenta registrada con ese correo");
-                request.setAttribute("error", excepcion.getMessage() + " (Campo: " + excepcion.getCampo() + ")");
+                request.setAttribute("error", excepcion.getMessage());
                 request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
                 request.getRequestDispatcher("/vistas/chofer/registrarChofer.jsp").forward(request, response);
                 return;
             }
-        
+    
             //Validacion de DPI duplicado
             if (usuarioPersistencia.existeUsuarioConDpi(dpi)) {
                 ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido("dpi", "Ya existe una cuenta registrada con ese DPI");
-                request.setAttribute("error", excepcion.getMessage() + " (Campo: " + excepcion.getCampo() + ")");
+                request.setAttribute("error", excepcion.getMessage());
                 request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
                 request.getRequestDispatcher("/vistas/chofer/registrarChofer.jsp").forward(request, response);
                 return;
             }
-
             //Validacion de numero de licencia: obligatorio y solo numeros
             if (numeroLicencia == null || numeroLicencia.trim().isEmpty()) {
                 ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido("numeroLicencia", "El número de licencia es obligatorio");
-                request.setAttribute("error", excepcion.getMessage() + " (Campo: " + excepcion.getCampo() + ")");
+                request.setAttribute("error", excepcion.getMessage());
                 request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
                 request.getRequestDispatcher("/vistas/chofer/registrarChofer.jsp").forward(request, response);
                 return;
             }
             if (!numeroLicencia.matches("\\d{13}")) {
                 ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido("numeroLicencia", "El número de licencia debe contener exactamente 13 números");
-                request.setAttribute("error", excepcion.getMessage() + " (Campo: " + excepcion.getCampo() + ")");
+                request.setAttribute("error", excepcion.getMessage());
                 request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
                 request.getRequestDispatcher("/vistas/chofer/registrarChofer.jsp").forward(request, response);
                 return;
@@ -227,7 +226,7 @@ public class ControladorChofer extends HttpServlet {
             String foto = guardarFoto(request);
             if ("FORMATO_INVALIDO".equals(foto)) {
                 ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido("foto", "El archivo debe ser una imagen (jpg, jpeg, png o gif)");
-                request.setAttribute("error", excepcion.getMessage() + " (Campo: " + excepcion.getCampo() + ")");
+                request.setAttribute("error", excepcion.getMessage());
                 request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
                 request.getRequestDispatcher("/vistas/chofer/registrarChofer.jsp").forward(request, response);
                 return;
@@ -247,11 +246,11 @@ public class ControladorChofer extends HttpServlet {
 
         } catch (NumberFormatException e) {
             ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido("salarioBase", "El salario debe ser un valor numérico válido");
-            request.setAttribute("error", excepcion.getMessage() + " (Campo: " + excepcion.getCampo() + ")");
+            request.setAttribute("error", excepcion.getMessage());
             request.getRequestDispatcher("/vistas/chofer/registrarChofer.jsp").forward(request, response);
         } catch (java.text.ParseException e) {
             ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido("fechaVencimiento", "La fecha ingresada no es válida");
-            request.setAttribute("error", excepcion.getMessage() + " (Campo: " + excepcion.getCampo() + ")");
+            request.setAttribute("error", excepcion.getMessage());
             request.getRequestDispatcher("/vistas/chofer/registrarChofer.jsp").forward(request, response);
         }
     }
@@ -297,11 +296,11 @@ public class ControladorChofer extends HttpServlet {
 
         } catch (NumberFormatException e) {
             ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido("salarioBase", "El salario debe ser un valor numérico válido");
-            request.setAttribute("error", excepcion.getMessage() + " (Campo: " + excepcion.getCampo() + ")");
+            request.setAttribute("error", excepcion.getMessage());
             request.getRequestDispatcher("/vistas/chofer/editarChofer.jsp").forward(request, response);
         } catch (java.text.ParseException e) {
             ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido("fechaVencimiento", "La fecha ingresada no es válida");
-            request.setAttribute("error", excepcion.getMessage() + " (Campo: " + excepcion.getCampo() + ")");
+            request.setAttribute("error", excepcion.getMessage());
             request.getRequestDispatcher("/vistas/chofer/editarChofer.jsp").forward(request, response);
         }
     }

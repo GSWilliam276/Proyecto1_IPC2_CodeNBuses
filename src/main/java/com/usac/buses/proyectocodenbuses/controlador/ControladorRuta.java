@@ -144,7 +144,7 @@ public class ControladorRuta extends HttpServlet {
             if (idSucursalOrigen == idSucursalDestino) {
                 ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido(
                     "idSucursalDestino", "La sucursal de destino debe ser distinta a la de origen");
-                request.setAttribute("error", excepcion.getMessage() + " (Campo: " + excepcion.getCampo() + ")");
+                request.setAttribute("error", excepcion.getMessage());
                 request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
                 request.getRequestDispatcher("/vistas/ruta/registrarRuta.jsp").forward(request, response);
                 return;
@@ -162,7 +162,7 @@ public class ControladorRuta extends HttpServlet {
 
         } catch (NumberFormatException e) {
             ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido("distanciaKm/precioBoleto", "Debe ingresar valores numéricos válidos");
-            request.setAttribute("error", excepcion.getMessage() + " (Campo: " + excepcion.getCampo() + ")");
+            request.setAttribute("error", excepcion.getMessage());
             request.getRequestDispatcher("/vistas/ruta/registrarRuta.jsp").forward(request, response);
         }
     }
@@ -180,7 +180,7 @@ public class ControladorRuta extends HttpServlet {
             if (idSucursalOrigen == idSucursalDestino) {
                 ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido(
                     "idSucursalDestino", "La sucursal de destino debe ser distinta a la de origen");
-                request.setAttribute("error", excepcion.getMessage() + " (Campo: " + excepcion.getCampo() + ")");
+                request.setAttribute("error", excepcion.getMessage());
                 //Se vuelve a cargar la ruta y las sucursales para no dejar
                 //el formulario de edicion vacio al mostrar el error
                 rutaPersistencia.buscarPorId(idRuta).ifPresent(r -> request.setAttribute("ruta", r));
@@ -200,7 +200,7 @@ public class ControladorRuta extends HttpServlet {
 
         } catch (NumberFormatException e) {
             ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido("distanciaKm/precioBoleto", "Debe ingresar valores numéricos válidos");
-            request.setAttribute("error", excepcion.getMessage() + " (Campo: " + excepcion.getCampo() + ")");
+            request.setAttribute("error", excepcion.getMessage());
             request.getRequestDispatcher("/vistas/ruta/editarRuta.jsp").forward(request, response);
         }
     }
