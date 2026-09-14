@@ -13,7 +13,9 @@
 
 <h1>Reporte: Ingresos por Venta de Boletos</h1>
 <% if (request.getAttribute("error") != null) { %>
-    <p style="color: red;"><%= request.getAttribute("error") %></p>
+    <div class="alert alert-danger" role="alert">
+        <%= request.getAttribute("error") %>
+    </div>
 <% } %>
 
 <%-- Filtro opcional de fechas: si no se especifica, se toman en cuenta todos los registros--%>

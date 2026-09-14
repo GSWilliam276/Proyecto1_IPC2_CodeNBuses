@@ -11,7 +11,9 @@
 
 <h1>Registrar Gasto de Taller</h1>
 <% if (request.getAttribute("error") != null) { %>
-    <p style="color: red;"><%= request.getAttribute("error") %></p>
+    <div class="alert alert-danger" role="alert">
+        <%= request.getAttribute("error") %>
+    </div>
 <% } %>
 <form method="POST" action="<%= request.getContextPath() %>/gasto">
     <input type="hidden" name="accion" value="registrar"/>

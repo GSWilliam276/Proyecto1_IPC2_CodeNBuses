@@ -10,7 +10,9 @@
 
 <h1>Mi Cartera</h1>
 <% if (request.getAttribute("error") != null) { %>
-    <p style="color: red;"><%= request.getAttribute("error") %></p>
+    <div class="alert alert-danger" role="alert">
+        <%= request.getAttribute("error") %>
+    </div>
 <% } %>
 
 <%

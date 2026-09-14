@@ -12,7 +12,9 @@
 
 <h1>Editar Bus</h1>
 <% if (request.getAttribute("error") != null) { %>
-    <p style="color: red;"><%= request.getAttribute("error") %></p>
+    <div class="alert alert-danger" role="alert">
+        <%= request.getAttribute("error") %>
+    </div>
 <% } %>
 <%
     //El Controlador ya busco el bus por su ID y lo guardo en el request,

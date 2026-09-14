@@ -11,7 +11,9 @@
 
 <h1>Registrar Administrador de Sucursal</h1>
 <% if (request.getAttribute("error") != null) { %>
-    <p style="color: red;"><%= request.getAttribute("error") %></p>
+    <div class="alert alert-danger" role="alert">
+        <%= request.getAttribute("error") %>
+    </div>
 <% } %>
 
 <%-- Los administradores de sucursal solo pueden ser

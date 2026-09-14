@@ -11,7 +11,9 @@
 
 <h1>Listado de Choferes</h1>
 <% if (request.getAttribute("error") != null) { %>
-    <p style="color: red;"><%= request.getAttribute("error") %></p>
+    <div class="alert alert-danger" role="alert">
+        <%= request.getAttribute("error") %>
+    </div>
 <% } %>
 <a href="<%= request.getContextPath() %>/chofer?accion=nuevo" class="btn btn-primary mb-3">Registrar nuevo chofer</a>
 <table class="table table-striped">

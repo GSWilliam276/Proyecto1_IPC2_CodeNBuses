@@ -10,7 +10,9 @@
 <h1>Registrar Nueva Sucursal</h1>
 
 <% if (request.getAttribute("error") != null) { %>
-    <p style="color: red;"><%= request.getAttribute("error") %></p>
+    <div class="alert alert-danger" role="alert">
+        <%= request.getAttribute("error") %>
+    </div>
 <% } %>
 
 <%-- Ayuda para el AdminSistema: como obtener las coordenadas reales

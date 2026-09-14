@@ -9,7 +9,9 @@
 
 <h1>Registrar Salida de Viaje</h1>
 <% if (request.getAttribute("error") != null) { %>
-    <p style="color: red;"><%= request.getAttribute("error") %></p>
+    <div class="alert alert-danger" role="alert">
+        <%= request.getAttribute("error") %>
+    </div>
 <% } %>
 
 <%-- Aviso importante: este registro es INMUTABLE una vez guardado,

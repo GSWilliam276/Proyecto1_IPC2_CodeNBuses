@@ -12,7 +12,9 @@
 
 <h1>Editar Ruta</h1>
 <% if (request.getAttribute("error") != null) { %>
-    <p style="color: red;"><%= request.getAttribute("error") %></p>
+    <div class="alert alert-danger" role="alert">
+        <%= request.getAttribute("error") %>
+    </div>
 <% } %>
 <%
     //El Controlador ya busco la ruta por su ID y la guardo en el request,

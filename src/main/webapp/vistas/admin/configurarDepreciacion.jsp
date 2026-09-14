@@ -9,7 +9,9 @@
 
 <h1>Configurar Monto de Depreciación</h1>
 <% if (request.getAttribute("error") != null) { %>
-    <p style="color: red;"><%= request.getAttribute("error") %></p>
+    <div class="alert alert-danger" role="alert">
+        <%= request.getAttribute("error") %>
+    </div>
 <% } %>
 
 <%-- El monto que se configure aplica solo hacia adelante, sin afectar

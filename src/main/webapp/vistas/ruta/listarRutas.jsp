@@ -13,7 +13,9 @@
 
 <h1>Listado de Rutas</h1>
 <% if (request.getAttribute("error") != null) { %>
-    <p style="color: red;"><%= request.getAttribute("error") %></p>
+    <div class="alert alert-danger" role="alert">
+        <%= request.getAttribute("error") %>
+    </div>
 <% } %>
 <%
     //Se verifica el rol del usuario en sesion para decidir si

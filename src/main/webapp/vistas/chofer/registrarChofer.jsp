@@ -11,7 +11,9 @@
 
 <h1>Registrar Nuevo Chofer</h1>
 <% if (request.getAttribute("error") != null) { %>
-    <p style="color: red;"><%= request.getAttribute("error") %></p>
+    <div class="alert alert-danger" role="alert">
+        <%= request.getAttribute("error") %>
+    </div>
 <% } %>
 <form method="POST" action="<%= request.getContextPath() %>/chofer" enctype="multipart/form-data">
     <input type="hidden" name="accion" value="registrar"/>

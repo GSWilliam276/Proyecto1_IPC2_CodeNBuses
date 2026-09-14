@@ -13,7 +13,9 @@
 
 <h1>Mis Boletos</h1>
 <% if (request.getAttribute("error") != null) { %>
-    <p style="color: red;"><%= request.getAttribute("error") %></p>
+    <div class="alert alert-danger" role="alert">
+        <%= request.getAttribute("error") %>
+    </div>
 <% } %>
 
 <a href="<%= request.getContextPath() %>/boleto?accion=buscarViajes" class="btn btn-outline-secondary mb-3">Buscar más viajes</a>

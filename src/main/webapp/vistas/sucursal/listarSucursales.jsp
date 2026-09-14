@@ -11,7 +11,9 @@
 
 <h1>Listado de Sucursales</h1>
 <% if (request.getAttribute("error") != null) { %>
-    <p style="color: red;"><%= request.getAttribute("error") %></p>
+    <div class="alert alert-danger" role="alert">
+        <%= request.getAttribute("error") %>
+    </div>
 <% } %>
 <a href="<%= request.getContextPath() %>/sucursal?accion=nuevo" class="btn btn-primary mb-3">Registrar nueva sucursal</a>
 <table class="table table-striped">

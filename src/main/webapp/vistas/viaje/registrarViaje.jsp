@@ -13,7 +13,9 @@
 
 <h1>Registrar Nuevo Viaje</h1>
 <% if (request.getAttribute("error") != null) { %>
-    <p style="color: red;"><%= request.getAttribute("error") %></p>
+    <div class="alert alert-danger" role="alert">
+        <%= request.getAttribute("error") %>
+    </div>
 <% } %>
 <%
     //Se recuperan las 3 listas necesarias para armar los combobox

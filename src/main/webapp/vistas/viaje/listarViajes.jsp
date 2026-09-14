@@ -17,7 +17,9 @@
 
 <h1>Listado de Viajes</h1>
 <% if (request.getAttribute("error") != null) { %>
-    <p style="color: red;"><%= request.getAttribute("error") %></p>
+    <div class="alert alert-danger" role="alert">
+        <%= request.getAttribute("error") %>
+    </div>
 <% } %>
 <%
     //Se verifica el rol para decidir que acciones mostrar:
