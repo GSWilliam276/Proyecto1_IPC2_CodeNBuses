@@ -277,4 +277,61 @@ public class BoletoPersistencia implements Persistencia<Boleto> {
         }
         return boletos;
     }
+    
+    //Devuelve el reporte de ingresos por boletos AGRUPADO por viaje,
+    //tal como pide el enunciado: cantidad de boletos vendidos e ingreso
+    //total por cada viaje, no una fila por boleto individual.
+    //Cada fila del resultado es: [idViaje, ruta(origen-destino), fecha,
+    //cantidadBoletos, ingresoTotal]
+    public ArrayList<Object[]> reporteAgrupadoPorViaje(int idSucursal, Date desde, Date hasta, Integer idRutaFiltro, Integer idBusFiltro) {
+        ArrayList<Object[]> resultado = new ArrayList<>();
+        String sql = "SELECT v.id_viaje, so.nombre AS origen, sd.nombre AS destino, "
+                + "v.fecha_hora_salida, COUNT(b.id_boleto) AS cantidad, SUM(b.precio) AS ingreso "
+                + "FROM boleto b "
+                + "JOIN viaje_regular vr ON b.id_viaje_regular = vr.id_viaje "
+                + "JOIN viaje v ON vr.id_viaje = v.id_viaje "
+                + "JOIN ruta r ON vr.id_ruta = r.id_ruta "
+                + "JOIN sucursal so ON r.id_sucursal_origen = so.id_sucursal "
+                + "JOIN sucursal sd ON r.id_sucursal_destino = sd.id_sucursal "
+                + "JOIN bus bu ON v.id_bus = bu.id_bus "
+                + "WHERE bu.id_sucursal = ? AND b.fecha_pago BETWEEN ? AND ? ";
+
+        if (idRutaFiltro != null) {
+            sql += "AND vr.id_ruta = ? ";
+        }
+        if (idBusFiltro != null) {
+            sql += "AND v.id_bus = ? ";
+        }
+        sql += "GROUP BY v.id_viaje, so.nombre, sd.nombre, v.fecha_hora_salida";
+
+        try (Connection conexion = conexionBase.obtenerConexion();
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            int index = 1;
+            ps.setInt(index++, idSucursal);
+            ps.setTimestamp(index++, new Timestamp(desde.getTime()));
+            ps.setTimestamp(index++, new Timestamp(hasta.getTime()));
+            if (idRutaFiltro != null) {
+                ps.setInt(index++, idRutaFiltro);
+            }
+            if (idBusFiltro != null) {
+                ps.setInt(index++, idBusFiltro);
+            }
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                resultado.add(new Object[]{
+                    rs.getInt("id_viaje"),
+                    rs.getString("origen") + " - " + rs.getString("destino"),
+                    rs.getTimestamp("fecha_hora_salida"),
+                    rs.getInt("cantidad"),
+                    rs.getDouble("ingreso")
+                });
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al generar reporte agrupado de boletos: " + e.getMessage());
+        }
+        return resultado;
+    }
 }

@@ -25,15 +25,20 @@
             <th>Capacidad</th>
             <th>Estado</th>
             <th>Kilometraje</th>
+            <th>Chofer Actual</th>
+            <th>Total de Viajes</th>
         </tr>
     </thead>
     <tbody>       
     <%
-        //Se recorre la lista de buses de la sucursal del AdminSucursal
-        //en sesion, ya filtrada por el Controlador
-        ArrayList<Bus> buses = (ArrayList<Bus>) request.getAttribute("buses");
-        if (buses != null) {
-            for (Bus bus : buses) {
+        //Cada fila trae: bus, chofer actual asignado, total de viajes
+        //realizados (ya calculado en el Controlador)
+        ArrayList<Object[]> filas = (ArrayList<Object[]>) request.getAttribute("filasReporte");
+        if (filas != null) {
+            for (Object[] fila : filas) {
+                Bus bus = (Bus) fila[0];
+                String choferActual = (String) fila[1];
+                int totalViajes = (int) fila[2];
     %>
     <tr>
         <td><%= bus.getPlaca() %></td>
@@ -42,6 +47,8 @@
         <td><%= bus.getCapacidad() %></td>
         <td><%= bus.getEstadoOperativo() %></td>
         <td><%= bus.getKilometraje() %></td>
+        <td><%= choferActual %></td>
+        <td><%= totalViajes %></td>
     </tr>
     <%
             }

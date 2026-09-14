@@ -11,6 +11,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Optional;
+import com.usac.buses.proyectocodenbuses.persistencia.UsuarioPersistencia;
+import com.usac.buses.proyectocodenbuses.entidad.Usuario;
 /**
  *
  * @author eduar
@@ -19,6 +21,7 @@ public class ViajePrivadoPersistencia implements Persistencia<ViajePrivado> {
     private ConexionBase conexionBase = new ConexionBase();
     private BusPersistencia busPersistencia = new BusPersistencia();
     private ChoferPersistencia choferPersistencia = new ChoferPersistencia();
+    private UsuarioPersistencia usuarioPersistencia = new UsuarioPersistencia();
 
     @Override
     public boolean insertar(ViajePrivado viaje) {
@@ -178,7 +181,7 @@ public class ViajePrivadoPersistencia implements Persistencia<ViajePrivado> {
     @Override
     public Optional<ViajePrivado> buscarPorId(int id) {
         String sql = "SELECT v.*, vp.origen, vp.destino, vp.pasajeros, vp.precio_estimado, "
-                + "vp.precio_confirmado FROM viaje v "
+                + "vp.precio_confirmado, vp.id_solicitante FROM viaje v "
                 + "JOIN viaje_privado vp ON v.id_viaje = vp.id_viaje WHERE v.id_viaje = ?";
         try (Connection conexion = conexionBase.obtenerConexion();
             PreparedStatement ps = conexion.prepareStatement(sql)) {
@@ -198,10 +201,10 @@ public class ViajePrivadoPersistencia implements Persistencia<ViajePrivado> {
     public ArrayList<ViajePrivado> listarTodos() {
         ArrayList<ViajePrivado> viajes = new ArrayList<>();
         String sql = "SELECT v.*, vp.origen, vp.destino, vp.pasajeros, vp.precio_estimado, "
-                   + "vp.precio_confirmado FROM viaje v "
-                   + "JOIN viaje_privado vp ON v.id_viaje = vp.id_viaje";
+                + "vp.precio_confirmado, vp.id_solicitante FROM viaje v "
+                + "JOIN viaje_privado vp ON v.id_viaje = vp.id_viaje";
         try (Connection conexion = conexionBase.obtenerConexion();
-             PreparedStatement ps = conexion.prepareStatement(sql)) {
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
 
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -247,6 +250,12 @@ public class ViajePrivadoPersistencia implements Persistencia<ViajePrivado> {
         viaje.setPasajeros(rs.getInt("pasajeros"));
         viaje.setPrecioEstimado(rs.getDouble("precio_estimado"));
         viaje.setPrecioConfirmado(rs.getDouble("precio_confirmado"));
+
+        //Se carga el solicitante completo, necesario para mostrar
+        //su informacion en el reporte de ingresos por alquiler
+        Usuario solicitante = usuarioPersistencia.buscarPorId(rs.getInt("id_solicitante")).orElse(null);
+        viaje.setSolicitante(solicitante);
+
         return viaje;
     }
     
@@ -276,7 +285,7 @@ public class ViajePrivadoPersistencia implements Persistencia<ViajePrivado> {
     public ArrayList<ViajePrivado> listarPorSucursalYFecha(int idSucursal, Date desde, Date hasta) {
         ArrayList<ViajePrivado> viajes = new ArrayList<>();
         String sql = "SELECT v.*, vp.origen, vp.destino, vp.pasajeros, vp.precio_estimado, "
-                + "vp.precio_confirmado FROM viaje v "
+                + "vp.precio_confirmado, vp.id_solicitante FROM viaje v "
                 + "JOIN viaje_privado vp ON v.id_viaje = vp.id_viaje "
                 + "JOIN bus bu ON v.id_bus = bu.id_bus "
                 + "WHERE bu.id_sucursal = ? AND v.fecha_hora_salida BETWEEN ? AND ?";

@@ -30,6 +30,7 @@ public class ControladorReporte extends HttpServlet {
     private RegistroLlegadaPersistencia registroLlegadaPersistencia = new RegistroLlegadaPersistencia();
     private SucursalPersistencia sucursalPersistencia = new SucursalPersistencia();
     private RutaPersistencia rutaPersistencia = new RutaPersistencia();
+    private ViajeRegularPersistencia viajeRegularPersistencia = new ViajeRegularPersistencia();
 
     private Usuario obtenerUsuarioSesion(HttpServletRequest request) {
         HttpSession sesion = request.getSession();
@@ -101,7 +102,17 @@ public class ControladorReporte extends HttpServlet {
         }
         AdminSucursal admin = (AdminSucursal) usuario;
         ArrayList<Bus> buses = busPersistencia.listarPorSucursal(admin.getSucursal().getIdSucursal());
-        request.setAttribute("buses", buses);
+
+        //Se arma cada fila con la informacion extra que pide el enunciado:
+        //chofer asignado actualmente y total de viajes realizados
+        ArrayList<Object[]> filasReporte = new ArrayList<>();
+        for (Bus bus : buses) {
+            String choferActual = viajeRegularPersistencia.obtenerChoferActualPorBus(bus.getIdBus());
+            int totalViajes = viajeRegularPersistencia.contarViajesPorBus(bus.getIdBus());
+            filasReporte.add(new Object[]{bus, choferActual, totalViajes});
+        }
+
+        request.setAttribute("filasReporte", filasReporte);
         request.getRequestDispatcher("/vistas/reporte/listadoBuses.jsp").forward(request, response);
     }
 
@@ -113,7 +124,15 @@ public class ControladorReporte extends HttpServlet {
         }
         AdminSucursal admin = (AdminSucursal) usuario;
         ArrayList<Chofer> choferes = choferPersistencia.listarPorSucursal(admin.getSucursal().getIdSucursal());
-        request.setAttribute("choferes", choferes);
+
+        //Se arma cada fila con el total de viajes realizados
+        ArrayList<Object[]> filasReporte = new ArrayList<>();
+        for (Chofer chofer : choferes) {
+            int totalViajes = viajeRegularPersistencia.contarViajesPorChofer(chofer.getIdUsuario());
+            filasReporte.add(new Object[]{chofer, totalViajes});
+        }
+
+        request.setAttribute("filasReporte", filasReporte);
         request.getRequestDispatcher("/vistas/reporte/listadoChoferes.jsp").forward(request, response);
     }
 
@@ -127,9 +146,20 @@ public class ControladorReporte extends HttpServlet {
         Date desde = obtenerFechaOTodas(request, "desde", true);
         Date hasta = obtenerFechaOTodas(request, "hasta", false);
 
-        ArrayList<Boleto> boletos = boletoPersistencia.listarPorSucursalYFecha(
-            admin.getSucursal().getIdSucursal(), desde, hasta);
-        request.setAttribute("boletos", boletos);
+        //Filtros opcionales de ruta y bus
+        String idRutaParam = request.getParameter("idRuta");
+        String idBusParam = request.getParameter("idBus");
+        Integer idRutaFiltro = (idRutaParam != null && !idRutaParam.trim().isEmpty()) ? Integer.parseInt(idRutaParam) : null;
+        Integer idBusFiltro = (idBusParam != null && !idBusParam.trim().isEmpty()) ? Integer.parseInt(idBusParam) : null;
+
+        ArrayList<Object[]> filasReporte = boletoPersistencia.reporteAgrupadoPorViaje(
+            admin.getSucursal().getIdSucursal(), desde, hasta, idRutaFiltro, idBusFiltro);
+
+        //Se pasan las listas de rutas y buses de la sucursal, para armar
+        //los combobox de filtro en el JSP
+        request.setAttribute("rutas", rutaPersistencia.listarPorSucursal(admin.getSucursal().getIdSucursal()));
+        request.setAttribute("buses", busPersistencia.listarPorSucursal(admin.getSucursal().getIdSucursal()));
+        request.setAttribute("filasReporte", filasReporte);
         request.getRequestDispatcher("/vistas/reporte/ingresosBoletos.jsp").forward(request, response);
     }
 

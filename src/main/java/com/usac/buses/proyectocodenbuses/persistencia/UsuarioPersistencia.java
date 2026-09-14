@@ -14,7 +14,6 @@ import java.util.Optional;
 public class UsuarioPersistencia {
     private ConexionBase conexionBase = new ConexionBase();
 
-    
     //Actualiza TODOS los datos heredados de Usuario (nombre, nit, dpi,
     //telefono, direccion). Sin importar si es Chofer,
     //AdminSucursal, AdminSistema o ClienteRegular. Esto es lo que usa
@@ -140,6 +139,24 @@ public class UsuarioPersistencia {
         } catch (SQLException e) {
             System.err.println("Error al verificar DPI: " + e.getMessage());
             return false;
+        }
+    }
+    
+    public Optional<Usuario> buscarPorId(int id) {
+        String sql = "SELECT * FROM usuario WHERE id_usuario = ?";
+        try (Connection conexion = conexionBase.obtenerConexion();
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return Optional.of(mapearUsuario(rs));
+            }
+            return Optional.empty();
+
+        } catch (SQLException e) {
+            System.err.println("Error al buscar usuario por id: " + e.getMessage());
+            return Optional.empty();
         }
     }
 }

@@ -19,27 +19,31 @@
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>Correo</th>
+            <th>Nombre Completo</th>
             <th>Número de Licencia</th>
             <th>Tipo de Licencia</th>
             <th>Vencimiento</th>
             <th>Estado</th>
+            <th>Total de Viajes</th>
         </tr>
     </thead>
     <tbody>      
     <%
-        //Se recorre la lista de choferes de la sucursal del AdminSucursal
-        //en sesion, ya filtrada por el Controlador
-        ArrayList<Chofer> choferes = (ArrayList<Chofer>) request.getAttribute("choferes");
-        if (choferes != null) {
-            for (Chofer chofer : choferes) {
+        //Cada fila trae: chofer, total de viajes realizados
+        //(ya calculado en el Controlador)
+        ArrayList<Object[]> filas = (ArrayList<Object[]>) request.getAttribute("filasReporte");
+        if (filas != null) {
+            for (Object[] fila : filas) {
+                Chofer chofer = (Chofer) fila[0];
+                int totalViajes = (int) fila[1];
     %>
     <tr>
-        <td><%= chofer.getCorreo() %></td>
+        <td><%= chofer.getNombre() %></td>
         <td><%= chofer.getNumeroLicencia() %></td>
         <td><%= chofer.getTipoLicencia() %></td>
         <td><%= chofer.getFechaVencimiento() %></td>
         <td><%= chofer.isActivo() ? "Activo" : "Inactivo" %></td>
+        <td><%= totalViajes %></td>
     </tr>
     <%
             }

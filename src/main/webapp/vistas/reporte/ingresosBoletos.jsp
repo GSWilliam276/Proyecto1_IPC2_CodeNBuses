@@ -5,7 +5,8 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@page import="com.usac.buses.proyectocodenbuses.entidad.Boleto"%>
+<%@page import="com.usac.buses.proyectocodenbuses.entidad.Ruta"%>
+<%@page import="com.usac.buses.proyectocodenbuses.entidad.Bus"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@page import="java.util.Locale"%>
@@ -18,19 +19,44 @@
     </div>
 <% } %>
 
-<%-- Filtro opcional de fechas: si no se especifica, se toman en cuenta todos los registros--%>
+<%
+    ArrayList<Ruta> rutas = (ArrayList<Ruta>) request.getAttribute("rutas");
+    ArrayList<Bus> buses = (ArrayList<Bus>) request.getAttribute("buses");
+%>
+
+<%-- Filtro opcional de fechas, ruta y bus: si no se especifica,
+     se toman en cuenta todos los registros --%>
 <form method="GET" action="<%= request.getContextPath() %>/reporte">
     <input type="hidden" name="accion" value="ingresosBoletos"/>
     <label>Desde:</label>
     <input type="date" name="desde"/>
     <label>Hasta:</label>
     <input type="date" name="hasta"/>
+
+    <label>Ruta (opcional):</label>
+    <select name="idRuta">
+        <option value="">Todas</option>
+        <% if (rutas != null) { for (Ruta ruta : rutas) { %>
+            <option value="<%= ruta.getIdRuta() %>">
+                <%= ruta.getSucursalOrigen().getNombre() %> - <%= ruta.getSucursalDestino().getNombre() %>
+            </option>
+        <% } } %>
+    </select>
+
+    <label>Bus (opcional):</label>
+    <select name="idBus">
+        <option value="">Todos</option>
+        <% if (buses != null) { for (Bus bus : buses) { %>
+            <option value="<%= bus.getIdBus() %>"><%= bus.getPlaca() %></option>
+        <% } } %>
+    </select>
+
     <button type="submit" class="btn btn-secondary">Filtrar</button>
 </form>
 <br>
 
 <%
-    //Formato de fecha y hora en español
+    //Formato de fecha en español
     SimpleDateFormat formatoFechaHora = new SimpleDateFormat("dd 'de' MMMM 'de' yyyy, HH:mm", new Locale("es", "ES"));
 %>
 <table class="table table-striped">
@@ -38,26 +64,26 @@
         <tr>
             <th>Ruta</th>
             <th>Fecha de Salida</th>
-            <th>Asiento</th>
-            <th>Precio</th>
-            <th>Fecha de Pago</th>
+            <th>Boletos Vendidos</th>
+            <th>Ingreso Total</th>
         </tr>
     </thead>
     <tbody>  
     <%
-        //Se recorre la lista de boletos que el Controlador ya trajo
-        ArrayList<Boleto> boletos = (ArrayList<Boleto>) request.getAttribute("boletos");
+        //Cada fila ya viene agrupada por viaje desde el Controlador:
+        //[idViaje, ruta, fecha, cantidadBoletos, ingresoTotal]
+        ArrayList<Object[]> filas = (ArrayList<Object[]>) request.getAttribute("filasReporte");
         double totalIngresos = 0;
-        if (boletos != null) {
-            for (Boleto boleto : boletos) {
-                totalIngresos += boleto.getPrecio();
+        if (filas != null) {
+            for (Object[] fila : filas) {
+                double ingreso = (double) fila[4];
+                totalIngresos += ingreso;
     %>
     <tr>
-        <td><%= boleto.getViaje().getRuta().getSucursalOrigen().getNombre() %> - <%= boleto.getViaje().getRuta().getSucursalDestino().getNombre() %></td>
-        <td><%= formatoFechaHora.format(boleto.getViaje().getFechaHoraSalida()) %></td>
-        <td><%= boleto.getNumeroAsiento() %></td>
-        <td><%= boleto.getPrecio() %></td>
-        <td><%= formatoFechaHora.format(boleto.getFechaPago()) %></td>
+        <td><%= fila[1] %></td>
+        <td><%= formatoFechaHora.format((java.util.Date) fila[2]) %></td>
+        <td><%= fila[3] %></td>
+        <td><%= ingreso %></td>
     </tr>
     <%
             }
@@ -66,7 +92,6 @@
     <tr>
         <td colspan="3"></td>
         <td><strong>Total: <%= totalIngresos %></strong></td>
-        <td></td>
     </tr>
     </tbody>
 </table>

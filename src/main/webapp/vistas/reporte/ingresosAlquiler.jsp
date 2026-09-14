@@ -35,9 +35,11 @@
 <table class="table table-striped">
     <thead>
         <tr>
+            <th>Cliente</th>
             <th>Origen</th>
             <th>Destino</th>
             <th>Fecha de Salida</th>
+            <th>Bus Asignado</th>
             <th>Precio Confirmado</th>
         </tr>
     </thead>
@@ -50,9 +52,11 @@
                 totalIngresos += viaje.getPrecioConfirmado();
     %>
     <tr>
+        <td><%= viaje.getSolicitante() != null ? viaje.getSolicitante().getNombre() : "N/A" %></td>
         <td><%= viaje.getOrigen() %></td>
         <td><%= viaje.getDestino() %></td>
         <td><%= formatoFechaHora.format(viaje.getFechaHoraSalida()) %></td>
+        <td><%= viaje.getBus() != null ? viaje.getBus().getPlaca() : "Sin asignar" %></td>
         <td><%= viaje.getPrecioConfirmado() %></td>
     </tr>
     <%
@@ -60,7 +64,7 @@
         }
     %>
     <tr>
-        <td colspan="3"></td>
+        <td colspan="5"></td>
         <td><strong>Total: <%= totalIngresos %></strong></td>
     </tr>
     </tbody>

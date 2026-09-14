@@ -275,4 +275,61 @@ public class ViajeRegularPersistencia implements Persistencia<ViajeRegular> {
             return false;
         }
     }
+    
+    public int contarViajesPorBus(int idBus) {
+        String sql = "SELECT COUNT(*) AS total FROM viaje WHERE id_bus = ?";
+        try (Connection conexion = conexionBase.obtenerConexion();
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setInt(1, idBus);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+            return 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error al contar viajes por bus: " + e.getMessage());
+            return 0;
+        }
+    }
+    
+    public String obtenerChoferActualPorBus(int idBus) {
+        String sql = "SELECT u.correo FROM viaje v "
+                + "JOIN usuario u ON v.id_chofer = u.id_usuario "
+                + "WHERE v.id_bus = ? "
+                + "ORDER BY v.fecha_hora_salida DESC LIMIT 1";
+        try (Connection conexion = conexionBase.obtenerConexion();
+             PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setInt(1, idBus);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("correo");
+            }
+            return "Sin asignar";
+
+        } catch (SQLException e) {
+            System.err.println("Error al obtener chofer actual del bus: " + e.getMessage());
+            return "Sin asignar";
+        }
+    }
+    
+    public int contarViajesPorChofer(int idChofer) {
+        String sql = "SELECT COUNT(*) AS total FROM viaje WHERE id_chofer = ?";
+        try (Connection conexion = conexionBase.obtenerConexion();
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setInt(1, idChofer);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+            return 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error al contar viajes por chofer: " + e.getMessage());
+            return 0;
+        }
+    }
 }
