@@ -20,11 +20,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import com.usac.buses.proyectocodenbuses.persistencia.BusPersistencia;
 import com.usac.buses.proyectocodenbuses.persistencia.ChoferPersistencia;
+import com.usac.buses.proyectocodenbuses.persistencia.ViajeRegularPersistencia;
 
 @WebServlet(name = "ControladorAlquiler", urlPatterns = {"/alquiler"})
 public class ControladorAlquiler extends HttpServlet {
 
     private ViajePrivadoPersistencia viajePrivadoPersistencia = new ViajePrivadoPersistencia();
+    private ViajeRegularPersistencia viajeRegularPersistencia = new ViajeRegularPersistencia();
 
     private Usuario obtenerUsuarioSesion(HttpServletRequest request) {
         HttpSession sesion = request.getSession();
@@ -200,21 +202,41 @@ public class ControladorAlquiler extends HttpServlet {
             int idBus = Integer.parseInt(request.getParameter("idBus"));
             int idChofer = Integer.parseInt(request.getParameter("idChofer"));
 
+            //Se busca el viaje primero para conocer sus fechas y poder
+            //validar disponibilidad de bus/chofer antes de confirmar
+            ViajePrivado viajeActual = viajePrivadoPersistencia.buscarPorId(idViaje).orElse(null);
+            if (viajeActual == null) {
+                response.sendRedirect("alquiler?accion=listar");
+                return;
+            }
+
+            //Validacion: el chofer no puede tener otro viaje en ese horario
+            if (viajeRegularPersistencia.choferTieneViajeEnHorario(idChofer,
+                    viajeActual.getFechaHoraSalida(), viajeActual.getFechaHoraLlegadaEstimada(), idViaje)) {
+                mostrarError(request, response, "idChofer", "El chofer seleccionado ya tiene otro viaje asignado en ese horario", "/vistas/alquiler/confirmarPrecio.jsp");
+                return;
+            }
+
+            //Validacion: el bus no puede tener otro viaje en ese horario
+            if (viajeRegularPersistencia.busTieneViajeEnHorario(idBus,
+                    viajeActual.getFechaHoraSalida(), viajeActual.getFechaHoraLlegadaEstimada(), idViaje)) {
+                mostrarError(request, response, "idBus", "El bus seleccionado ya tiene otro viaje asignado en ese horario", "/vistas/alquiler/confirmarPrecio.jsp");
+                return;
+            }
+
             //Se confirma el precio
             viajePrivadoPersistencia.confirmarPrecio(idViaje, precioConfirmado);
 
             //Se asigna el bus y chofer al mismo tiempo, ya que normalmente
             //el AdminSucursal hace ambas cosas juntas al confirmar un alquiler
-            viajePrivadoPersistencia.buscarPorId(idViaje).ifPresent(viaje -> {
-                Bus bus = new Bus();
-                bus.setIdBus(idBus);
-                Chofer chofer = new Chofer();
-                chofer.setIdUsuario(idChofer);
+            Bus bus = new Bus();
+            bus.setIdBus(idBus);
+            Chofer chofer = new Chofer();
+            chofer.setIdUsuario(idChofer);
 
-                viaje.setBus(bus);
-                viaje.setChofer(chofer);
-                viajePrivadoPersistencia.actualizar(viaje);
-            });
+            viajeActual.setBus(bus);
+            viajeActual.setChofer(chofer);
+            viajePrivadoPersistencia.actualizar(viajeActual);
 
             response.sendRedirect("alquiler?accion=listar");
 

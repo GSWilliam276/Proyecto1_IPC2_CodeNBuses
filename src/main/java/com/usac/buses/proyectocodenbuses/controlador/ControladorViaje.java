@@ -179,6 +179,18 @@ public class ControladorViaje extends HttpServlet {
                 return;
             }
 
+            //Validacion: el chofer no puede tener otro viaje en ese horario
+            if (viajeRegularPersistencia.choferTieneViajeEnHorario(idChofer, fechaSalida, fechaLlegada, null)) {
+                mostrarError(request, response, "idChofer", "El chofer seleccionado ya tiene otro viaje asignado en ese horario", "/vistas/viaje/registrarViaje.jsp");
+                return;
+            }
+
+            //Validacion: el bus no puede tener otro viaje en ese horario
+            if (viajeRegularPersistencia.busTieneViajeEnHorario(idBus, fechaSalida, fechaLlegada, null)) {
+                mostrarError(request, response, "idBus", "El bus seleccionado ya tiene otro viaje asignado en ese horario", "/vistas/viaje/registrarViaje.jsp");
+                return;
+            }
+
             Bus bus = new Bus();
             bus.setIdBus(idBus);
             Chofer chofer = new Chofer();
@@ -196,7 +208,7 @@ public class ControladorViaje extends HttpServlet {
         } catch (ParseException e) {
             mostrarError(request, response, "fecha", "Formato de fecha inválido", "/vistas/viaje/registrarViaje.jsp");
         }
-    }
+    }   
 
     private void actualizarViaje(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
@@ -216,6 +228,19 @@ public class ControladorViaje extends HttpServlet {
             //a la salida (aplica siempre, sin importar si es creacion o edicion)
             if (!fechaLlegada.after(fechaSalida)) {
                 mostrarError(request, response, "fechaHoraLlegadaEstimada", "La fecha de llegada debe ser posterior a la fecha de salida", "/vistas/viaje/editarViaje.jsp");
+                return;
+            }
+
+            //Validacion: el chofer no puede tener otro viaje en ese horario
+            //(se excluye este mismo viaje de la comparacion, ya que se esta editando)
+            if (viajeRegularPersistencia.choferTieneViajeEnHorario(idChofer, fechaSalida, fechaLlegada, idViaje)) {
+                mostrarError(request, response, "idChofer", "El chofer seleccionado ya tiene otro viaje asignado en ese horario", "/vistas/viaje/editarViaje.jsp");
+                return;
+            }
+
+            //Validacion: el bus no puede tener otro viaje en ese horario
+            if (viajeRegularPersistencia.busTieneViajeEnHorario(idBus, fechaSalida, fechaLlegada, idViaje)) {
+                mostrarError(request, response, "idBus", "El bus seleccionado ya tiene otro viaje asignado en ese horario", "/vistas/viaje/editarViaje.jsp");
                 return;
             }
 

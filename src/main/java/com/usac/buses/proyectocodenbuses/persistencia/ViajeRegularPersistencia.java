@@ -205,4 +205,74 @@ public class ViajeRegularPersistencia implements Persistencia<ViajeRegular> {
         viaje.setRuta(ruta);
         return viaje;
     }
+    
+    //Verifica si un chofer ya tiene un viaje (regular o privado) asignado
+    //cuyo horario se traslapa con el rango de fechas dado. Se usa antes
+    //de asignar un chofer a un nuevo viaje, para evitar que este en dos
+    //lugares a la vez. Se consulta directo sobre la tabla "viaje" (padre)
+    //porque tanto viajes regulares como privados comparten esas columnas
+    public boolean choferTieneViajeEnHorario(int idChofer, Date fechaSalida, Date fechaLlegada, Integer idViajeExcluir) {
+        String sql = "SELECT COUNT(*) AS total FROM viaje "
+                + "WHERE id_chofer = ? "
+                + "AND fecha_hora_salida < ? AND fecha_hora_llegada_estimada > ? ";
+
+        if (idViajeExcluir != null) {
+            sql += "AND id_viaje != ? ";
+        }
+
+        try (Connection conexion = conexionBase.obtenerConexion();
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setInt(1, idChofer);
+            ps.setTimestamp(2, new Timestamp(fechaLlegada.getTime()));
+            ps.setTimestamp(3, new Timestamp(fechaSalida.getTime()));
+            if (idViajeExcluir != null) {
+                ps.setInt(4, idViajeExcluir);
+            }
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total") > 0;
+            }
+            return false;
+
+        } catch (SQLException e) {
+            System.err.println("Error al verificar disponibilidad de chofer: " + e.getMessage());
+            return false;
+        }
+    }
+
+    //Verifica si un bus ya tiene un viaje (regular o privado) asignado
+    //cuyo horario se traslapa con el rango de fechas dado. Mismo patron
+    //que choferTieneViajeEnHorario, aplicado a la columna id_bus
+    public boolean busTieneViajeEnHorario(int idBus, Date fechaSalida, Date fechaLlegada, Integer idViajeExcluir) {
+        String sql = "SELECT COUNT(*) AS total FROM viaje "
+                + "WHERE id_bus = ? "
+                + "AND fecha_hora_salida < ? AND fecha_hora_llegada_estimada > ? ";
+
+        if (idViajeExcluir != null) {
+            sql += "AND id_viaje != ? ";
+        }
+
+        try (Connection conexion = conexionBase.obtenerConexion();
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setInt(1, idBus);
+            ps.setTimestamp(2, new Timestamp(fechaLlegada.getTime()));
+            ps.setTimestamp(3, new Timestamp(fechaSalida.getTime()));
+            if (idViajeExcluir != null) {
+                ps.setInt(4, idViajeExcluir);
+            }
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total") > 0;
+            }
+            return false;
+
+        } catch (SQLException e) {
+            System.err.println("Error al verificar disponibilidad de bus: " + e.getMessage());
+            return false;
+        }
+    }
 }
