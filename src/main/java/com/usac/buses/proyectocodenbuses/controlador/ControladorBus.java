@@ -21,12 +21,14 @@ import jakarta.servlet.http.HttpSession;
 import com.usac.buses.proyectocodenbuses.persistencia.SucursalPersistencia;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.Part;
+import com.usac.buses.proyectocodenbuses.persistencia.ViajeRegularPersistencia;
 
 @WebServlet(name = "ControladorBus", urlPatterns = {"/bus"})
 @MultipartConfig(maxFileSize = 5242880) //limite de 5MB por archivo
 public class ControladorBus extends HttpServlet {
 
     private BusPersistencia busPersistencia = new BusPersistencia();
+    private ViajeRegularPersistencia viajeRegularPersistencia = new ViajeRegularPersistencia();
 
     private boolean verificarAcceso(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
@@ -91,6 +93,9 @@ public class ControladorBus extends HttpServlet {
                 break;
             case "desactivar":
                 desactivarBus(request, response);
+                break;
+            case "reactivar":
+                reactivarBus(request, response);
                 break;
             default:
                 response.sendRedirect("bus?accion=listar");
@@ -241,9 +246,25 @@ public class ControladorBus extends HttpServlet {
     }
 
     private void desactivarBus(HttpServletRequest request, HttpServletResponse response)
+            throws IOException, ServletException {
+        int id = Integer.parseInt(request.getParameter("id"));
+
+        //Validacion: no se puede desactivar un bus con viajes
+        //programados o en transito
+        if (viajeRegularPersistencia.busTieneViajeActivo(id)) {
+            request.setAttribute("error", "No se puede desactivar el bus porque tiene viajes programados o en tránsito");
+            listarBuses(request, response);
+            return;
+        }
+
+        busPersistencia.eliminar(id);
+        response.sendRedirect("bus?accion=listar");
+    }
+    
+    private void reactivarBus(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         int id = Integer.parseInt(request.getParameter("id"));
-        busPersistencia.eliminar(id); 
+        busPersistencia.reactivar(id);
         response.sendRedirect("bus?accion=listar");
     }
 }

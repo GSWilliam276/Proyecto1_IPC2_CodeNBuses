@@ -334,4 +334,27 @@ public class BoletoPersistencia implements Persistencia<Boleto> {
         }
         return resultado;
     }
+       
+    //Calcula los asientos disponibles de un viaje: capacidad del bus
+    //menos la cantidad de boletos ya vendidos para ese viaje
+    //Se muestra esta informacion en el listado de viajes disponibles, 
+    //antes de que el cliente entre a elegir asiento. 
+    public int contarAsientosDisponibles(int idViaje, int capacidadBus) {
+        String sql = "SELECT COUNT(*) AS vendidos FROM boleto WHERE id_viaje_regular = ?";
+        try (Connection conexion = conexionBase.obtenerConexion();
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setInt(1, idViaje);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                int vendidos = rs.getInt("vendidos");
+                return capacidadBus - vendidos;
+            }
+            return capacidadBus;
+
+        } catch (SQLException e) {
+            System.err.println("Error al contar asientos disponibles: " + e.getMessage());
+            return 0;
+        }
+    }
 }

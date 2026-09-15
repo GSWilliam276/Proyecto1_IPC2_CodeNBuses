@@ -189,7 +189,7 @@ public class AdminSucursalPersistencia implements Persistencia<AdminSucursal> {
         return admins;
     }
 
-   private AdminSucursal mapearAdminSucursal(ResultSet rs) throws SQLException {
+    private AdminSucursal mapearAdminSucursal(ResultSet rs) throws SQLException {
         AdminSucursal admin = new AdminSucursal();
         admin.setIdUsuario(rs.getInt("id_usuario"));
         admin.setNombre(rs.getString("nombre"));
@@ -205,7 +205,7 @@ public class AdminSucursalPersistencia implements Persistencia<AdminSucursal> {
         return admin;
     }
    
-   public Optional<AdminSucursal> buscarPorCorreo(String correo) {
+    public Optional<AdminSucursal> buscarPorCorreo(String correo) {
         String sql = "SELECT u.*, a.id_sucursal FROM usuario u "
                 + "JOIN admin_sucursal a ON u.id_usuario = a.id_usuario WHERE u.correo = ?";
         try (Connection conexion = conexionBase.obtenerConexion();
@@ -221,6 +221,21 @@ public class AdminSucursalPersistencia implements Persistencia<AdminSucursal> {
         } catch (SQLException e) {
             System.err.println("Error al buscar admin sucursal por correo: " + e.getMessage());
             return Optional.empty();
+        }
+    }
+   
+    public boolean reactivar(int id) {
+        String sql = "UPDATE usuario SET activo = true WHERE id_usuario = ?";
+        try (Connection conexion = conexionBase.obtenerConexion();
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            ps.executeUpdate();
+            return true;
+
+        } catch (SQLException e) {
+            System.err.println("Error al reactivar admin sucursal: " + e.getMessage());
+            return false;
         }
     }
 }

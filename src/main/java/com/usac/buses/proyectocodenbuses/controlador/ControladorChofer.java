@@ -82,7 +82,7 @@ public class ControladorChofer extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+    
         if (!verificarAcceso(request, response)) {
             return;
         }
@@ -98,6 +98,9 @@ public class ControladorChofer extends HttpServlet {
                 break;
             case "desactivar":
                 desactivarChofer(request, response);
+                break;
+            case "reactivar":
+                reactivarChofer(request, response);
                 break;
             default:
                 response.sendRedirect("chofer?accion=listar");
@@ -319,6 +322,13 @@ public class ControladorChofer extends HttpServlet {
             throws IOException {
         int id = Integer.parseInt(request.getParameter("id"));
         choferPersistencia.eliminar(id);
+        response.sendRedirect("chofer?accion=listar");
+    }
+    
+    private void reactivarChofer(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+        int id = Integer.parseInt(request.getParameter("id"));
+        choferPersistencia.reactivar(id);
         response.sendRedirect("chofer?accion=listar");
     }
     

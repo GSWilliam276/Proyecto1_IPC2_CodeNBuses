@@ -194,4 +194,19 @@ public class BusPersistencia implements Persistencia<Bus> {
             return false;
         }
     }
+    
+    public boolean reactivar(int id) {
+        String sql = "UPDATE bus SET activo = true WHERE id_bus = ?";
+        try (Connection conexion = conexionBase.obtenerConexion();
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            ps.executeUpdate();
+            return true;
+
+        } catch (SQLException e) {
+            System.err.println("Error al reactivar bus: " + e.getMessage());
+            return false;
+        }
+    }
 }

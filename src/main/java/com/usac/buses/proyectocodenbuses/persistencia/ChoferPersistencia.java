@@ -236,4 +236,19 @@ public class ChoferPersistencia implements Persistencia<Chofer> {
             return Optional.empty();
         }
     }
+    
+    public boolean reactivar(int id) {
+        String sql = "UPDATE usuario SET activo = true WHERE id_usuario = ?";
+        try (Connection conexion = conexionBase.obtenerConexion();
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            ps.executeUpdate();
+            return true;
+
+        } catch (SQLException e) {
+            System.err.println("Error al reactivar chofer: " + e.getMessage());
+            return false;
+        }
+    }
 }

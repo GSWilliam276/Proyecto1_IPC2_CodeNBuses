@@ -332,4 +332,29 @@ public class ViajeRegularPersistencia implements Persistencia<ViajeRegular> {
             return 0;
         }
     }
+    
+    //Verifica si un bus tiene algun viaje "activo" 
+    //programado (aun no sale) o en transito (ya salio pero
+    //no ha llegado). Se usa para bloquear la desactivacion del bus.
+    //Cubre tanto viajes regulares como privados, ya que consulta
+    //directo la tabla padre "viaje"
+    public boolean busTieneViajeActivo(int idBus) {
+        String sql = "SELECT COUNT(*) AS total FROM viaje v "
+                + "LEFT JOIN registro_llegada rl ON v.id_viaje = rl.id_viaje "
+                + "WHERE v.id_bus = ? AND rl.id_registro_llegada IS NULL";
+        try (Connection conexion = conexionBase.obtenerConexion();
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setInt(1, idBus);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total") > 0;
+            }
+            return false;
+
+        } catch (SQLException e) {
+            System.err.println("Error al verificar viajes activos del bus: " + e.getMessage());
+            return false;
+        }
+    }
 }

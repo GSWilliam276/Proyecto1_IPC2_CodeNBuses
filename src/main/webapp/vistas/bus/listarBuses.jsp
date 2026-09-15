@@ -56,11 +56,13 @@
         <td>
             <a href="<%= request.getContextPath() %>/bus?accion=editar&id=<%= bus.getIdBus() %>" class="btn btn-sm btn-outline-primary">Editar</a>
             <%
-                //Solo se muestra la opcion de desactivar si el bus
-                //sigue activo; uno ya desactivado no necesita este enlace
+                //Se muestra "Desactivar" si esta activo, o "Reactivar"
+                //si esta inactivo, nunca ambos a la vez
                 if (bus.isActivo()) {
             %>
                 <a href="#" class="btn btn-sm btn-outline-danger" onclick="confirmarDesactivar(<%= bus.getIdBus() %>)">Desactivar</a>
+            <% } else { %>
+                <a href="#" class="btn btn-sm btn-outline-success" onclick="confirmarReactivar(<%= bus.getIdBus() %>)">Reactivar</a>
             <% } %>
         </td>
     </tr>
@@ -70,11 +72,16 @@
     %>
     </tbody>
 </table>
-<%-- Formulario oculto que se llena y envia por JavaScript cuando el
-     usuario confirma que quiere desactivar un bus especifico --%>
+<%-- Formulario oculto para desactivar bus --%>
 <form id="formDesactivar" method="POST" action="<%= request.getContextPath() %>/bus" style="display:none;">
     <input type="hidden" name="accion" value="desactivar"/>
     <input type="hidden" id="idBusDesactivar" name="id"/>
+</form>
+
+<%-- Formulario oculto para reactivar bus --%>
+<form id="formReactivar" method="POST" action="<%= request.getContextPath() %>/bus" style="display:none;">
+    <input type="hidden" name="accion" value="reactivar"/>
+    <input type="hidden" id="idBusReactivar" name="id"/>
 </form>
 
 <%-- Modal personalizado de confirmacion, con la marca CodeNBuses
@@ -104,17 +111,31 @@
     //de cargar (DOMContentLoaded) antes de crear el modal
     document.addEventListener('DOMContentLoaded', function() {
         var idSeleccionado = null;
+        var accionSeleccionada = null;
         var modalConfirmar = new bootstrap.Modal(document.getElementById('modalConfirmar'));
 
         window.confirmarDesactivar = function(idBus) {
             idSeleccionado = idBus;
+            accionSeleccionada = 'desactivar';
             document.getElementById('modalConfirmarMensaje').innerText = "¿Estás seguro de desactivar este bus?";
             modalConfirmar.show();
         };
 
+        window.confirmarReactivar = function(idBus) {
+            idSeleccionado = idBus;
+            accionSeleccionada = 'reactivar';
+            document.getElementById('modalConfirmarMensaje').innerText = "¿Estás seguro de reactivar este bus?";
+            modalConfirmar.show();
+        };
+
         document.getElementById('btnConfirmarAccion').addEventListener('click', function() {
-            document.getElementById('idBusDesactivar').value = idSeleccionado;
-            document.getElementById('formDesactivar').submit();
+            if (accionSeleccionada === 'desactivar') {
+                document.getElementById('idBusDesactivar').value = idSeleccionado;
+                document.getElementById('formDesactivar').submit();
+            } else if (accionSeleccionada === 'reactivar') {
+                document.getElementById('idBusReactivar').value = idSeleccionado;
+                document.getElementById('formReactivar').submit();
+            }
         });
     });
 </script>

@@ -94,6 +94,12 @@ public class ControladorAdmin extends HttpServlet {
             case "actualizar":
                 actualizarAdminSucursal(request, response);
                 break;
+            case "desactivar":
+                desactivarAdminSucursal(request, response);
+                break;
+            case "reactivar":
+                reactivarAdminSucursal(request, response);
+                break;
             case "guardarDepreciacion":
                 guardarConfiguracionDepreciacion(request, response);
                 break;
@@ -263,5 +269,19 @@ public class ControladorAdmin extends HttpServlet {
             request.setAttribute("error", "Debe ingresar un valor numérico válido");
             request.getRequestDispatcher("/vistas/admin/configurarDepreciacion.jsp").forward(request, response);
         }
+    }
+    
+    private void desactivarAdminSucursal(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+        int id = Integer.parseInt(request.getParameter("id"));
+        adminSucursalPersistencia.eliminar(id);
+        response.sendRedirect("admin?accion=listar");
+    }
+
+    private void reactivarAdminSucursal(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+        int id = Integer.parseInt(request.getParameter("id"));
+        adminSucursalPersistencia.reactivar(id);
+        response.sendRedirect("admin?accion=listar");
     }
 }

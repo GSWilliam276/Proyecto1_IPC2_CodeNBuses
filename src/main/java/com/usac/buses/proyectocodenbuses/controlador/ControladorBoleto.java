@@ -89,7 +89,17 @@ public class ControladorBoleto extends HttpServlet {
     private void buscarViajesDisponibles(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         ArrayList<ViajeRegular> viajes = viajeRegularPersistencia.listarTodos();
-        request.setAttribute("viajes", viajes);
+
+        //Se arma cada fila con los asientos disponibles calculados,
+        //tal como pide el enunciado en el listado de viajes
+        ArrayList<Object[]> filasReporte = new ArrayList<>();
+        for (ViajeRegular viaje : viajes) {
+            int disponibles = boletoPersistencia.contarAsientosDisponibles(
+                viaje.getIdViaje(), viaje.getBus().getCapacidad());
+            filasReporte.add(new Object[]{viaje, disponibles});
+        }
+
+        request.setAttribute("filasViajes", filasReporte);
         request.getRequestDispatcher("/vistas/boleto/buscarViajes.jsp").forward(request, response);
     }
 

@@ -54,11 +54,13 @@
         <td>
             <a href="<%= request.getContextPath() %>/chofer?accion=editar&id=<%= chofer.getIdUsuario() %>" class="btn btn-sm btn-outline-primary">Editar</a>
             <%
-                //Solo se muestra la opcion de desactivar si el chofer
-                //sigue activo
+                //Se muestra "Desactivar" si esta activo, o "Reactivar"
+                //si esta inactivo, nunca ambos a la vez
                 if (chofer.isActivo()) {
             %>
                 <a href="#" class="btn btn-sm btn-outline-danger" onclick="confirmarDesactivar(<%= chofer.getIdUsuario() %>)">Desactivar</a>
+            <% } else { %>
+                <a href="#" class="btn btn-sm btn-outline-success" onclick="confirmarReactivar(<%= chofer.getIdUsuario() %>)">Reactivar</a>
             <% } %>
         </td>
     </tr>
@@ -69,10 +71,16 @@
     </tbody>
 </table>
 
-<%-- Formulario oculto para desactivar chofer, igual patron que Bus --%>
+<%-- Formulario oculto para desactivar chofer --%>
 <form id="formDesactivar" method="POST" action="<%= request.getContextPath() %>/chofer" style="display:none;">
     <input type="hidden" name="accion" value="desactivar"/>
     <input type="hidden" id="idChoferDesactivar" name="id"/>
+</form>
+
+<%-- Formulario oculto para reactivar chofer --%>
+<form id="formReactivar" method="POST" action="<%= request.getContextPath() %>/chofer" style="display:none;">
+    <input type="hidden" name="accion" value="reactivar"/>
+    <input type="hidden" id="idChoferReactivar" name="id"/>
 </form>
 
 <%-- Modal personalizado de confirmacion, con la marca CodeNBuses
@@ -102,17 +110,31 @@
     //de cargar (DOMContentLoaded) antes de crear el modal
     document.addEventListener('DOMContentLoaded', function() {
         var idSeleccionado = null;
+        var accionSeleccionada = null;
         var modalConfirmar = new bootstrap.Modal(document.getElementById('modalConfirmar'));
 
         window.confirmarDesactivar = function(idChofer) {
             idSeleccionado = idChofer;
+            accionSeleccionada = 'desactivar';
             document.getElementById('modalConfirmarMensaje').innerText = "¿Está seguro de desactivar este chofer?";
             modalConfirmar.show();
         };
 
+        window.confirmarReactivar = function(idChofer) {
+            idSeleccionado = idChofer;
+            accionSeleccionada = 'reactivar';
+            document.getElementById('modalConfirmarMensaje').innerText = "¿Está seguro de reactivar este chofer?";
+            modalConfirmar.show();
+        };
+
         document.getElementById('btnConfirmarAccion').addEventListener('click', function() {
-            document.getElementById('idChoferDesactivar').value = idSeleccionado;
-            document.getElementById('formDesactivar').submit();
+            if (accionSeleccionada === 'desactivar') {
+                document.getElementById('idChoferDesactivar').value = idSeleccionado;
+                document.getElementById('formDesactivar').submit();
+            } else if (accionSeleccionada === 'reactivar') {
+                document.getElementById('idChoferReactivar').value = idSeleccionado;
+                document.getElementById('formReactivar').submit();
+            }
         });
     });
 </script>
