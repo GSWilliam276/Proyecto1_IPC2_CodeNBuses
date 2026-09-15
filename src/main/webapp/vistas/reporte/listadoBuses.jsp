@@ -8,8 +8,12 @@
 <%@page import="com.usac.buses.proyectocodenbuses.entidad.Bus"%>
 <%@page import="java.util.ArrayList"%>
 <%@ include file="/vistas/comunes/header.jsp" %>
+<%@ include file="/vistas/comunes/exportarHTML.jsp" %>
 
 <h1>Reporte: Listado de Buses</h1>
+<a href="<%= request.getContextPath() %>/reporte?accion=listadoBuses&exportar=true&nombreReporte=listado_buses" class="btn btn-outline-success mb-3" target="_blank">
+    <i class="bi bi-download"></i> Exportar a HTML
+</a>
 <% if (request.getAttribute("error") != null) { %>
     <div class="alert alert-danger" role="alert">
         <%= request.getAttribute("error") %>

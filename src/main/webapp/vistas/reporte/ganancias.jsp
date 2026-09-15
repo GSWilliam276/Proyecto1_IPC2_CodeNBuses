@@ -8,6 +8,7 @@
 <%@page import="com.usac.buses.proyectocodenbuses.entidad.Sucursal"%>
 <%@page import="java.util.ArrayList"%>
 <%@ include file="/vistas/comunes/header.jsp" %>
+<%@ include file="/vistas/comunes/exportarHTML.jsp" %>
 
 <h1>Reporte de Ganancias</h1>
 <% if (request.getAttribute("error") != null) { %>
@@ -15,6 +16,28 @@
         <%= request.getAttribute("error") %>
     </div>
 <% } %>
+
+<%
+    //Se recuperan los filtros actuales (si existen) para que la
+    //exportacion respete el mismo filtro que se esta viendo en pantalla
+    String desdeParam = request.getParameter("desde");
+    String hastaParam = request.getParameter("hasta");
+    String idSucursalParam = request.getParameter("idSucursal");
+    String parametrosFiltro = "";
+    if (desdeParam != null && !desdeParam.isEmpty()) {
+        parametrosFiltro += "&desde=" + desdeParam;
+    }
+    if (hastaParam != null && !hastaParam.isEmpty()) {
+        parametrosFiltro += "&hasta=" + hastaParam;
+    }
+    if (idSucursalParam != null && !idSucursalParam.isEmpty()) {
+        parametrosFiltro += "&idSucursal=" + idSucursalParam;
+    }
+%>
+
+<a href="<%= request.getContextPath() %>/reporte?accion=ganancias&exportar=true&nombreReporte=ganancias<%= parametrosFiltro %>" class="btn btn-outline-success mb-3" target="_blank">
+    <i class="bi bi-download"></i> Exportar a HTML
+</a>
 
 <%-- Filtro opcional: por rango de fecha y, opcionalmente, por sucursal --%>
 <form method="GET" action="<%= request.getContextPath() %>/reporte">

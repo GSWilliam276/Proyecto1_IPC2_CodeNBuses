@@ -11,6 +11,7 @@
 <%@page import="java.text.SimpleDateFormat"%>
 <%@page import="java.util.Locale"%>
 <%@ include file="/vistas/comunes/header.jsp" %>
+<%@ include file="/vistas/comunes/exportarHTML.jsp" %>
 
 <h1>Reporte: Ingresos por Venta de Boletos</h1>
 <% if (request.getAttribute("error") != null) { %>
@@ -22,7 +23,31 @@
 <%
     ArrayList<Ruta> rutas = (ArrayList<Ruta>) request.getAttribute("rutas");
     ArrayList<Bus> buses = (ArrayList<Bus>) request.getAttribute("buses");
+
+    //Se recuperan los filtros actuales (si existen) para que la
+    //exportacion respete el mismo filtro que se esta viendo en pantalla
+    String desdeParam = request.getParameter("desde");
+    String hastaParam = request.getParameter("hasta");
+    String idRutaParam = request.getParameter("idRuta");
+    String idBusParam = request.getParameter("idBus");
+    String parametrosFiltro = "";
+    if (desdeParam != null && !desdeParam.isEmpty()) {
+        parametrosFiltro += "&desde=" + desdeParam;
+    }
+    if (hastaParam != null && !hastaParam.isEmpty()) {
+        parametrosFiltro += "&hasta=" + hastaParam;
+    }
+    if (idRutaParam != null && !idRutaParam.isEmpty()) {
+        parametrosFiltro += "&idRuta=" + idRutaParam;
+    }
+    if (idBusParam != null && !idBusParam.isEmpty()) {
+        parametrosFiltro += "&idBus=" + idBusParam;
+    }
 %>
+
+<a href="<%= request.getContextPath() %>/reporte?accion=ingresosBoletos&exportar=true&nombreReporte=ingresos_boletos<%= parametrosFiltro %>" class="btn btn-outline-success mb-3" target="_blank">
+    <i class="bi bi-download"></i> Exportar a HTML
+</a>
 
 <%-- Filtro opcional de fechas, ruta y bus: si no se especifica,
      se toman en cuenta todos los registros --%>

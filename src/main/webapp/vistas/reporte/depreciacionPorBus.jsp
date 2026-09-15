@@ -7,8 +7,12 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="java.util.ArrayList"%>
 <%@ include file="/vistas/comunes/header.jsp" %>
+<%@ include file="/vistas/comunes/exportarHTML.jsp" %>
 
 <h1>Reporte: Depreciación por Bus</h1>
+<a href="<%= request.getContextPath() %>/reporte?accion=depreciacionPorBus&exportar=true&nombreReporte=depreciacion_por_bus" class="btn btn-outline-success mb-3" target="_blank">
+    <i class="bi bi-download"></i> Exportar a HTML
+</a>
 <% if (request.getAttribute("error") != null) { %>
     <div class="alert alert-danger" role="alert">
         <%= request.getAttribute("error") %>
