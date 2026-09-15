@@ -47,6 +47,7 @@
             <th>Chofer</th>
             <th>Salida</th>
             <th>Llegada Estimada</th>
+            <th>Estado</th>
             <th>Acciones</th>
         </tr>
     </thead>
@@ -58,6 +59,20 @@
             for (ViajeRegular viaje : viajes) {
                 boolean yaTieneSalida = registroSalidaPersistencia.buscarPorViaje(viaje.getIdViaje()).isPresent();
                 boolean yaTieneLlegada = registroLlegadaPersistencia.buscarPorViaje(viaje.getIdViaje()).isPresent();
+
+                //Se determina el estado visual del viaje segun sus registros
+                String estadoTexto;
+                String estadoClase;
+                if (yaTieneLlegada) {
+                    estadoTexto = "Completado";
+                    estadoClase = "bg-secondary";
+                } else if (yaTieneSalida) {
+                    estadoTexto = "En Tránsito";
+                    estadoClase = "bg-warning text-dark";
+                } else {
+                    estadoTexto = "Programado";
+                    estadoClase = "bg-primary";
+                }
     %>
     <tr>
         <td><%= viaje.getRuta().getSucursalOrigen().getNombre() %> - <%= viaje.getRuta().getSucursalDestino().getNombre() %></td>
@@ -65,6 +80,7 @@
         <td><%= viaje.getChofer().getCorreo() %></td>
         <td><%= formatoFechaHora.format(viaje.getFechaHoraSalida()) %></td>
         <td><%= formatoFechaHora.format(viaje.getFechaHoraLlegadaEstimada()) %></td>
+        <td><span class="badge <%= estadoClase %>"><%= estadoTexto %></span></td>
         <td>
 <%
                 //Editar y eliminar son exclusivos del AdminSucursal
