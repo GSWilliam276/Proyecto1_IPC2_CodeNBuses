@@ -20,6 +20,7 @@ import com.usac.buses.proyectocodenbuses.entidad.AdminSucursal;
 import com.usac.buses.proyectocodenbuses.entidad.Usuario;
 import jakarta.servlet.http.HttpSession;
 import com.usac.buses.proyectocodenbuses.persistencia.SucursalPersistencia;
+import java.util.Optional;
 
 @WebServlet(name = "ControladorRuta", urlPatterns = {"/ruta"})
 public class ControladorRuta extends HttpServlet {
@@ -110,26 +111,18 @@ public class ControladorRuta extends HttpServlet {
             return;
         }
         int id = Integer.parseInt(idParam);
-        rutaPersistencia.buscarPorId(id).ifPresentOrElse(
-            ruta -> {
-                request.setAttribute("ruta", ruta);
-                //Se pasa tambien la lista de sucursales, necesaria para
-                //armar los combobox de origen y destino en el JSP de edicion
-                request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
-                try {
-                    request.getRequestDispatcher("/vistas/ruta/editarRuta.jsp").forward(request, response);
-                } catch (ServletException | IOException e) {
-                    System.err.println("Error al mostrar formulario de edición: " + e.getMessage());
-                }
-            },
-            () -> {
-                try {
-                    response.sendRedirect("ruta?accion=listar");
-                } catch (IOException e) {
-                    System.err.println("Error al redirigir: " + e.getMessage());
-                }
-            }
-        );
+        Optional<Ruta> resultado = rutaPersistencia.buscarPorId(id);
+
+        if (resultado.isPresent()) {
+            Ruta ruta = resultado.get();
+            request.setAttribute("ruta", ruta);
+            //Se pasa tambien la lista de sucursales, necesaria para
+            //armar los combobox de origen y destino en el JSP de edicion
+            request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
+            request.getRequestDispatcher("/vistas/ruta/editarRuta.jsp").forward(request, response);
+        } else {
+            response.sendRedirect("ruta?accion=listar");
+        }
     }
 
     private void registrarRuta(HttpServletRequest request, HttpServletResponse response)
@@ -183,7 +176,10 @@ public class ControladorRuta extends HttpServlet {
                 request.setAttribute("error", excepcion.getMessage());
                 //Se vuelve a cargar la ruta y las sucursales para no dejar
                 //el formulario de edicion vacio al mostrar el error
-                rutaPersistencia.buscarPorId(idRuta).ifPresent(r -> request.setAttribute("ruta", r));
+                Optional<Ruta> rutaActual = rutaPersistencia.buscarPorId(idRuta);
+                if (rutaActual.isPresent()) {
+                    request.setAttribute("ruta", rutaActual.get());
+                }
                 request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
                 request.getRequestDispatcher("/vistas/ruta/editarRuta.jsp").forward(request, response);
                 return;

@@ -18,6 +18,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.util.Optional;
 
 @WebServlet(name = "ControladorUsuario", urlPatterns = {"/usuario"})
 public class ControladorUsuario extends HttpServlet {
@@ -82,25 +83,17 @@ public class ControladorUsuario extends HttpServlet {
         String correo = request.getParameter("correo");
         String contrasena = request.getParameter("contrasena");
 
-        usuarioPersistencia.autenticar(correo, contrasena).ifPresentOrElse(
-            usuario -> {
-                HttpSession sesion = request.getSession();
-                sesion.setAttribute("usuario", usuario);
-                try {
-                    response.sendRedirect("usuario?accion=perfil");
-                } catch (IOException e) {
-                    System.err.println("Error al redirigir: " + e.getMessage());
-                }
-            },
-            () -> {
-                request.setAttribute("error", "Correo o contraseña incorrectos");
-                try {
-                    request.getRequestDispatcher("/vistas/usuario/login.jsp").forward(request, response);
-                } catch (ServletException | IOException e) {
-                    System.err.println("Error al mostrar login: " + e.getMessage());
-                }
-            }
-        );
+        Optional<Usuario> resultado = usuarioPersistencia.autenticar(correo, contrasena);
+
+        if (resultado.isPresent()) {
+            Usuario usuario = resultado.get();
+            HttpSession sesion = request.getSession();
+            sesion.setAttribute("usuario", usuario);
+            response.sendRedirect("usuario?accion=perfil");
+        } else {
+            request.setAttribute("error", "Correo o contraseña incorrectos");
+            request.getRequestDispatcher("/vistas/usuario/login.jsp").forward(request, response);
+        }
     }
 
     private void crearCuenta(HttpServletRequest request, HttpServletResponse response)
@@ -143,10 +136,11 @@ public class ControladorUsuario extends HttpServlet {
             clienteRegularPersistencia.insertar(cliente);
 
             //Toda cuenta nueva inicia con su cartera en cero
-            clienteRegularPersistencia.buscarPorCorreo(correo).ifPresent(clienteCreado -> {
-                Cartera cartera = new Cartera(clienteCreado);
+            Optional<ClienteRegular> clienteCreado = clienteRegularPersistencia.buscarPorCorreo(correo);
+            if (clienteCreado.isPresent()) {
+                Cartera cartera = new Cartera(clienteCreado.get());
                 carteraPersistencia.insertar(cartera);
-            });
+            }
 
             response.sendRedirect("usuario?accion=login");
 

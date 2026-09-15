@@ -22,6 +22,7 @@ import com.usac.buses.proyectocodenbuses.persistencia.SucursalPersistencia;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.Part;
 import com.usac.buses.proyectocodenbuses.persistencia.ViajeRegularPersistencia;
+import java.util.Optional;
 
 @WebServlet(name = "ControladorBus", urlPatterns = {"/bus"})
 @MultipartConfig(maxFileSize = 5242880) //limite de 5MB por archivo
@@ -104,10 +105,10 @@ public class ControladorBus extends HttpServlet {
 
     private void listarBuses(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        ArrayList<Bus> buses = busPersistencia.listarTodos();
-        request.setAttribute("buses", buses);
-        request.getRequestDispatcher("/vistas/bus/listarBuses.jsp").forward(request, response);
-    }
+            ArrayList<Bus> buses = busPersistencia.listarTodos();
+            request.setAttribute("buses", buses);
+            request.getRequestDispatcher("/vistas/bus/listarBuses.jsp").forward(request, response);
+        }
 
     private void mostrarFormularioEditar(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -121,24 +122,16 @@ public class ControladorBus extends HttpServlet {
         }
 
         int id = Integer.parseInt(idParam);
-        busPersistencia.buscarPorId(id).ifPresentOrElse(
-            bus -> {
-                request.setAttribute("bus", bus);
-                request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
-                try {
-                    request.getRequestDispatcher("/vistas/bus/editarBus.jsp").forward(request, response);
-                } catch (ServletException | IOException e) {
-                    System.err.println("Error al mostrar formulario de edición: " + e.getMessage());
-                }
-            },
-            () -> {
-                try {
-                    response.sendRedirect("bus?accion=listar");
-                } catch (IOException e) {
-                    System.err.println("Error al redirigir: " + e.getMessage());
-                }
-            }
-        );
+        Optional<Bus> resultado = busPersistencia.buscarPorId(id);
+
+        if (resultado.isPresent()) {
+            Bus bus = resultado.get();
+            request.setAttribute("bus", bus);
+            request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
+            request.getRequestDispatcher("/vistas/bus/editarBus.jsp").forward(request, response);
+        } else {
+            response.sendRedirect("bus?accion=listar");
+        }
     }
 
     private void registrarBus(HttpServletRequest request, HttpServletResponse response)

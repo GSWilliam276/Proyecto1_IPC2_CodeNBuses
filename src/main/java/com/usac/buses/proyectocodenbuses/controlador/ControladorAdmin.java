@@ -21,6 +21,7 @@ import jakarta.servlet.http.HttpSession;
 import com.usac.buses.proyectocodenbuses.persistencia.SucursalPersistencia;
 import com.usac.buses.proyectocodenbuses.persistencia.UsuarioPersistencia;
 import com.usac.buses.proyectocodenbuses.persistencia.ConfiguracionPersistencia;
+import java.util.Optional;
         
 @WebServlet(name = "ControladorAdmin", urlPatterns = {"/admin"})
 public class ControladorAdmin extends HttpServlet {
@@ -218,7 +219,12 @@ public class ControladorAdmin extends HttpServlet {
             throws IOException, ServletException {
         int idUsuario = Integer.parseInt(request.getParameter("idUsuario"));
         request.setAttribute("error", mensajeError);
-        adminSucursalPersistencia.buscarPorId(idUsuario).ifPresent(admin -> request.setAttribute("admin", admin));
+
+        Optional<AdminSucursal> adminActual = adminSucursalPersistencia.buscarPorId(idUsuario);
+        if (adminActual.isPresent()) {
+            request.setAttribute("admin", adminActual.get());
+        }
+
         request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
         request.getRequestDispatcher("/vistas/admin/editarAdminSucursal.jsp").forward(request, response);
     }
@@ -231,24 +237,16 @@ public class ControladorAdmin extends HttpServlet {
             return;
         }
         int id = Integer.parseInt(idParam);
-        adminSucursalPersistencia.buscarPorId(id).ifPresentOrElse(
-            admin -> {
-                request.setAttribute("admin", admin);
-                request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
-                try {
-                    request.getRequestDispatcher("/vistas/admin/editarAdminSucursal.jsp").forward(request, response);
-                } catch (ServletException | IOException e) {
-                    System.err.println("Error al mostrar formulario de edición: " + e.getMessage());
-                }
-            },
-            () -> {
-                try {
-                    response.sendRedirect("admin?accion=listar");
-                } catch (IOException e) {
-                    System.err.println("Error al redirigir: " + e.getMessage());
-                }
-            }
-        );
+        Optional<AdminSucursal> resultado = adminSucursalPersistencia.buscarPorId(id);
+
+        if (resultado.isPresent()) {
+            AdminSucursal admin = resultado.get();
+            request.setAttribute("admin", admin);
+            request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
+            request.getRequestDispatcher("/vistas/admin/editarAdminSucursal.jsp").forward(request, response);
+        } else {
+            response.sendRedirect("admin?accion=listar");
+        }
     }
     
     private void mostrarConfiguracionDepreciacion(HttpServletRequest request, HttpServletResponse response)

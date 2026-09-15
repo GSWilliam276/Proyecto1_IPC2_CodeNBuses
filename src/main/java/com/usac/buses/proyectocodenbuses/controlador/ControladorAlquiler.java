@@ -21,6 +21,7 @@ import jakarta.servlet.http.HttpSession;
 import com.usac.buses.proyectocodenbuses.persistencia.BusPersistencia;
 import com.usac.buses.proyectocodenbuses.persistencia.ChoferPersistencia;
 import com.usac.buses.proyectocodenbuses.persistencia.ViajeRegularPersistencia;
+import java.util.Optional;
 
 @WebServlet(name = "ControladorAlquiler", urlPatterns = {"/alquiler"})
 public class ControladorAlquiler extends HttpServlet {
@@ -108,27 +109,19 @@ public class ControladorAlquiler extends HttpServlet {
         }
 
         int id = Integer.parseInt(request.getParameter("id"));
-        viajePrivadoPersistencia.buscarPorId(id).ifPresentOrElse(
-            viaje -> {
-                request.setAttribute("viaje", viaje);
-                //Se necesitan las listas de bus y chofer para armar los
-                //combobox de asignacion en la misma pantalla de confirmar precio
-                request.setAttribute("buses", new BusPersistencia().listarTodos());
-                request.setAttribute("choferes", new ChoferPersistencia().listarTodos());
-                try {
-                    request.getRequestDispatcher("/vistas/alquiler/confirmarPrecio.jsp").forward(request, response);
-                } catch (ServletException | IOException e) {
-                    System.err.println("Error al mostrar formulario: " + e.getMessage());
-                }
-            },
-            () -> {
-                try {
-                    response.sendRedirect("alquiler?accion=listar");
-                } catch (IOException e) {
-                    System.err.println("Error al redirigir: " + e.getMessage());
-                }
-            }
-        );
+        Optional<ViajePrivado> resultado = viajePrivadoPersistencia.buscarPorId(id);
+
+        if (resultado.isPresent()) {
+            ViajePrivado viaje = resultado.get();
+            request.setAttribute("viaje", viaje);
+            //Se necesitan las listas de bus y chofer para armar los
+            //combobox de asignacion en la misma pantalla de confirmar precio
+            request.setAttribute("buses", new BusPersistencia().listarTodos());
+            request.setAttribute("choferes", new ChoferPersistencia().listarTodos());
+            request.getRequestDispatcher("/vistas/alquiler/confirmarPrecio.jsp").forward(request, response);
+        } else {
+            response.sendRedirect("alquiler?accion=listar");
+        }
     }
 
     //El cliente solicita el alquiler indicando origen, destino, fecha y pasajeros

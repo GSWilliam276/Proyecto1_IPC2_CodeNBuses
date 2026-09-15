@@ -17,11 +17,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import com.usac.buses.proyectocodenbuses.entidad.AdminSistema;
 import com.usac.buses.proyectocodenbuses.entidad.Usuario;
 import jakarta.servlet.http.HttpSession;
+import com.usac.buses.proyectocodenbuses.persistencia.AdminSucursalPersistencia;
+import java.util.Optional;
 
 @WebServlet(name = "ControladorSucursal", urlPatterns = {"/sucursal"})
 public class ControladorSucursal extends HttpServlet {
 
     private SucursalPersistencia sucursalPersistencia = new SucursalPersistencia();
+    private AdminSucursalPersistencia adminSucursalPersistencia = new AdminSucursalPersistencia();
     
     private boolean verificarAcceso(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
@@ -92,7 +95,16 @@ public class ControladorSucursal extends HttpServlet {
     private void listarSucursales(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         ArrayList<Sucursal> sucursales = sucursalPersistencia.listarTodos();
-        request.setAttribute("sucursales", sucursales);
+
+        //Se verifica, por cada sucursal, si tiene al menos un
+        //AdminSucursal asignado, tal como pide el enunciado
+        ArrayList<Object[]> filasReporte = new ArrayList<>();
+        for (Sucursal sucursal : sucursales) {
+            boolean tieneAdmin = !adminSucursalPersistencia.listarPorSucursal(sucursal.getIdSucursal()).isEmpty();
+            filasReporte.add(new Object[]{sucursal, tieneAdmin});
+        }
+
+        request.setAttribute("filasReporte", filasReporte);
         request.getRequestDispatcher("/vistas/sucursal/listarSucursales.jsp").forward(request, response);
     }
 
@@ -104,23 +116,15 @@ public class ControladorSucursal extends HttpServlet {
             return;
         }
         int id = Integer.parseInt(idParam);
-        sucursalPersistencia.buscarPorId(id).ifPresentOrElse(
-            sucursal -> {
-                request.setAttribute("sucursal", sucursal);
-                try {
-                    request.getRequestDispatcher("/vistas/sucursal/editarSucursal.jsp").forward(request, response);
-                } catch (ServletException | IOException e) {
-                    System.err.println("Error al mostrar formulario de edición: " + e.getMessage());
-                }
-            },
-            () -> {
-                try {
-                    response.sendRedirect("sucursal?accion=listar");
-                } catch (IOException e) {
-                    System.err.println("Error al redirigir: " + e.getMessage());
-                }
-            }
-        );
+        Optional<Sucursal> resultado = sucursalPersistencia.buscarPorId(id);
+
+        if (resultado.isPresent()) {
+            Sucursal sucursal = resultado.get();
+            request.setAttribute("sucursal", sucursal);
+            request.getRequestDispatcher("/vistas/sucursal/editarSucursal.jsp").forward(request, response);
+        } else {
+            response.sendRedirect("sucursal?accion=listar");
+        }
     }
 
     private void registrarSucursal(HttpServletRequest request, HttpServletResponse response)

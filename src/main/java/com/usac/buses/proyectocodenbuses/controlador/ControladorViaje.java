@@ -19,6 +19,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.util.Optional;
 
 @WebServlet(name = "ControladorViaje", urlPatterns = {"/viaje"})
 public class ControladorViaje extends HttpServlet {
@@ -134,26 +135,18 @@ public class ControladorViaje extends HttpServlet {
             return;
         }
         int id = Integer.parseInt(idParam);
-        viajeRegularPersistencia.buscarPorId(id).ifPresentOrElse(
-            viaje -> {
-                request.setAttribute("viaje", viaje);
-                request.setAttribute("buses", new BusPersistencia().listarTodos());
-                request.setAttribute("choferes", new ChoferPersistencia().listarTodos());
-                request.setAttribute("rutas", new RutaPersistencia().listarTodos());
-                try {
-                    request.getRequestDispatcher("/vistas/viaje/editarViaje.jsp").forward(request, response);
-                } catch (ServletException | IOException e) {
-                    System.err.println("Error al mostrar formulario de edición: " + e.getMessage());
-                }
-            },
-            () -> {
-                try {
-                    response.sendRedirect("viaje?accion=listar");
-                } catch (IOException e) {
-                    System.err.println("Error al redirigir: " + e.getMessage());
-                }
-            }
-        );
+        Optional<ViajeRegular> resultado = viajeRegularPersistencia.buscarPorId(id);
+
+        if (resultado.isPresent()) {
+            ViajeRegular viaje = resultado.get();
+            request.setAttribute("viaje", viaje);
+            request.setAttribute("buses", new BusPersistencia().listarTodos());
+            request.setAttribute("choferes", new ChoferPersistencia().listarTodos());
+            request.setAttribute("rutas", new RutaPersistencia().listarTodos());
+            request.getRequestDispatcher("/vistas/viaje/editarViaje.jsp").forward(request, response);
+        } else {
+            response.sendRedirect("viaje?accion=listar");
+        }
     }
 
     private void registrarViaje(HttpServletRequest request, HttpServletResponse response)

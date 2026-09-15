@@ -26,6 +26,7 @@ import com.usac.buses.proyectocodenbuses.persistencia.SucursalPersistencia;
 import com.usac.buses.proyectocodenbuses.persistencia.UsuarioPersistencia;
 import jakarta.servlet.http.Part;
 import jakarta.servlet.annotation.MultipartConfig;
+import java.util.Optional;
 
 @WebServlet(name = "ControladorChofer", urlPatterns = {"/chofer"})
 @MultipartConfig(maxFileSize = 5242880)
@@ -122,24 +123,16 @@ public class ControladorChofer extends HttpServlet {
             return;
         }
         int id = Integer.parseInt(idParam);
-        choferPersistencia.buscarPorId(id).ifPresentOrElse(
-            chofer -> {
-                request.setAttribute("chofer", chofer);
-                request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
-                try {
-                    request.getRequestDispatcher("/vistas/chofer/editarChofer.jsp").forward(request, response);
-                } catch (ServletException | IOException e) {
-                    System.err.println("Error al mostrar formulario de edición: " + e.getMessage());
-                }
-            },
-            () -> {
-                try {
-                    response.sendRedirect("chofer?accion=listar");
-                } catch (IOException e) {
-                    System.err.println("Error al redirigir: " + e.getMessage());
-                }
-            }
-        );
+        Optional<Chofer> resultado = choferPersistencia.buscarPorId(id);
+
+        if (resultado.isPresent()) {
+            Chofer chofer = resultado.get();
+            request.setAttribute("chofer", chofer);
+            request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
+            request.getRequestDispatcher("/vistas/chofer/editarChofer.jsp").forward(request, response);
+        } else {
+            response.sendRedirect("chofer?accion=listar");
+        }
     }
 
     private void registrarChofer(HttpServletRequest request, HttpServletResponse response)

@@ -19,6 +19,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.util.Optional;
 
 @WebServlet(name = "ControladorCartera", urlPatterns = {"/cartera"})
 public class ControladorCartera extends HttpServlet {
@@ -82,48 +83,31 @@ public class ControladorCartera extends HttpServlet {
 
     private void verCartera(HttpServletRequest request, HttpServletResponse response, Usuario usuario)
             throws ServletException, IOException {
-        carteraPersistencia.buscarPorUsuario(usuario.getIdUsuario()).ifPresentOrElse(
-            cartera -> {
-                request.setAttribute("cartera", cartera);
-                try {
-                    request.getRequestDispatcher("/vistas/cartera/verCartera.jsp").forward(request, response);
-                } catch (ServletException | IOException e) {
-                    System.err.println("Error al mostrar cartera: " + e.getMessage());
-                }
-            },
-            () -> {
-                try {
-                    response.sendRedirect("usuario?accion=perfil");
-                } catch (IOException e) {
-                    System.err.println("Error al redirigir: " + e.getMessage());
-                }
-            }
-        );
+        Optional<Cartera> resultado = carteraPersistencia.buscarPorUsuario(usuario.getIdUsuario());
+
+        if (resultado.isPresent()) {
+            Cartera cartera = resultado.get();
+            request.setAttribute("cartera", cartera);
+            request.getRequestDispatcher("/vistas/cartera/verCartera.jsp").forward(request, response);
+        } else {
+            response.sendRedirect("usuario?accion=perfil");
+        }
     }
 
     private void verHistorial(HttpServletRequest request, HttpServletResponse response, Usuario usuario)
             throws ServletException, IOException {
-        carteraPersistencia.buscarPorUsuario(usuario.getIdUsuario()).ifPresentOrElse(
-            cartera -> {
-                ArrayList<MovimientoCartera> movimientos = movimientoCarteraPersistencia.listarPorCartera(cartera.getIdCartera());
-                request.setAttribute("movimientos", movimientos);
-                try {
-                    request.getRequestDispatcher("/vistas/cartera/historial.jsp").forward(request, response);
-                } catch (ServletException | IOException e) {
-                    System.err.println("Error al mostrar historial: " + e.getMessage());
-                }
-            },
-            () -> {
-                try {
-                    response.sendRedirect("usuario?accion=perfil");
-                } catch (IOException e) {
-                    System.err.println("Error al redirigir: " + e.getMessage());
-                }
-            }
-        );
+        Optional<Cartera> resultado = carteraPersistencia.buscarPorUsuario(usuario.getIdUsuario());
+
+        if (resultado.isPresent()) {
+            Cartera cartera = resultado.get();
+            ArrayList<MovimientoCartera> movimientos = movimientoCarteraPersistencia.listarPorCartera(cartera.getIdCartera());
+            request.setAttribute("movimientos", movimientos);
+            request.getRequestDispatcher("/vistas/cartera/historial.jsp").forward(request, response);
+        } else {
+            response.sendRedirect("usuario?accion=perfil");
+        }
     }
 
-    
     //El usuario recarga su cartera manualmente, indicando el monto y la fecha
     private void recargarCartera(HttpServletRequest request, HttpServletResponse response, Usuario usuario)
             throws IOException, ServletException {

@@ -6,7 +6,10 @@ package com.usac.buses.proyectocodenbuses.persistencia;
 
 import com.usac.buses.proyectocodenbuses.entidad.Usuario;
 import java.sql.*;
-import java.util.Optional;
+import java.util.Optional;import com.usac.buses.proyectocodenbuses.entidad.AdminSistema;
+import com.usac.buses.proyectocodenbuses.entidad.AdminSucursal;
+import com.usac.buses.proyectocodenbuses.entidad.Chofer;
+import com.usac.buses.proyectocodenbuses.entidad.ClienteRegular;
 /**
  *
  * @author eduar
@@ -71,18 +74,34 @@ public class UsuarioPersistencia {
                 String tipo = rs.getString("tipo");
                 //Se despacha hacia la clase especifica correcta, aprovechando
                 //que cada Persistencia ya sabe construir su propio objeto completo
-                switch (tipo) {
-                    case "ADMIN_SISTEMA":
-                        return new AdminSistemaPersistencia().buscarPorCorreo(correo).map(u -> (Usuario) u);
-                    case "ADMIN_SUCURSAL":
-                        return new AdminSucursalPersistencia().buscarPorCorreo(correo).map(u -> (Usuario) u);
-                    case "CHOFER":
-                        return new ChoferPersistencia().buscarPorCorreo(correo).map(u -> (Usuario) u);
-                    case "CLIENTE":
-                        return new ClienteRegularPersistencia().buscarPorCorreo(correo).map(u -> (Usuario) u);
-                    default:
-                        return Optional.empty();
+                Usuario usuarioEncontrado = null;
+
+                if (tipo.equals("ADMIN_SISTEMA")) {
+                    Optional<AdminSistema> resultado = new AdminSistemaPersistencia().buscarPorCorreo(correo);
+                    if (resultado.isPresent()) {
+                        usuarioEncontrado = resultado.get();
+                    }
+                } else if (tipo.equals("ADMIN_SUCURSAL")) {
+                    Optional<AdminSucursal> resultado = new AdminSucursalPersistencia().buscarPorCorreo(correo);
+                    if (resultado.isPresent()) {
+                        usuarioEncontrado = resultado.get();
+                    }
+                } else if (tipo.equals("CHOFER")) {
+                    Optional<Chofer> resultado = new ChoferPersistencia().buscarPorCorreo(correo);
+                    if (resultado.isPresent()) {
+                        usuarioEncontrado = resultado.get();
+                    }
+                } else if (tipo.equals("CLIENTE")) {
+                    Optional<ClienteRegular> resultado = new ClienteRegularPersistencia().buscarPorCorreo(correo);
+                    if (resultado.isPresent()) {
+                        usuarioEncontrado = resultado.get();
+                    }
                 }
+
+                if (usuarioEncontrado != null) {
+                    return Optional.of(usuarioEncontrado);
+                }
+                return Optional.empty();
             }
             return Optional.empty();
 
@@ -91,7 +110,7 @@ public class UsuarioPersistencia {
             return Optional.empty();
         }
     }
-
+    
     private Usuario mapearUsuario(ResultSet rs) throws SQLException {
         Usuario usuario = new Usuario();
         usuario.setIdUsuario(rs.getInt("id_usuario"));
