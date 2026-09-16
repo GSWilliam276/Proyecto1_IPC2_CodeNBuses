@@ -20,6 +20,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.util.Optional;
 
 @WebServlet(name = "ControladorBoleto", urlPatterns = {"/boleto"})
 public class ControladorBoleto extends HttpServlet {
@@ -91,12 +92,14 @@ public class ControladorBoleto extends HttpServlet {
         ArrayList<ViajeRegular> viajes = viajeRegularPersistencia.listarTodos();
 
         //Se arma cada fila con los asientos disponibles calculados,
-        //tal como pide el enunciado en el listado de viajes
+        //ademas de indicar si el viaje ya paso su fecha de salida
         ArrayList<Object[]> filasReporte = new ArrayList<>();
+        Date ahora = new Date();
         for (ViajeRegular viaje : viajes) {
             int disponibles = boletoPersistencia.contarAsientosDisponibles(
                 viaje.getIdViaje(), viaje.getBus().getCapacidad());
-            filasReporte.add(new Object[]{viaje, disponibles});
+            boolean yaPaso = viaje.getFechaHoraSalida().before(ahora);
+            filasReporte.add(new Object[]{viaje, disponibles, yaPaso});
         }
 
         request.setAttribute("filasViajes", filasReporte);
@@ -107,25 +110,17 @@ public class ControladorBoleto extends HttpServlet {
             throws ServletException, IOException {
         int idViaje = Integer.parseInt(request.getParameter("idViaje"));
 
-        viajeRegularPersistencia.buscarPorId(idViaje).ifPresentOrElse(
-            viaje -> {
-                ArrayList<Integer> asientosOcupados = boletoPersistencia.listarAsientosOcupados(idViaje);
-                request.setAttribute("viaje", viaje);
-                request.setAttribute("asientosOcupados", asientosOcupados);
-                try {
-                    request.getRequestDispatcher("/vistas/boleto/elegirAsiento.jsp").forward(request, response);
-                } catch (ServletException | IOException e) {
-                    System.err.println("Error al mostrar selección de asiento: " + e.getMessage());
-                }
-            },
-            () -> {
-                try {
-                    response.sendRedirect("boleto?accion=buscarViajes");
-                } catch (IOException e) {
-                    System.err.println("Error al redirigir: " + e.getMessage());
-                }
-            }
-        );
+        Optional<ViajeRegular> resultado = viajeRegularPersistencia.buscarPorId(idViaje);
+
+        if (resultado.isPresent()) {
+            ViajeRegular viaje = resultado.get();
+            ArrayList<Integer> asientosOcupados = boletoPersistencia.listarAsientosOcupados(idViaje);
+            request.setAttribute("viaje", viaje);
+            request.setAttribute("asientosOcupados", asientosOcupados);
+            request.getRequestDispatcher("/vistas/boleto/elegirAsiento.jsp").forward(request, response);
+        } else {
+            response.sendRedirect("boleto?accion=buscarViajes");
+        }
     }
 
     private void listarMisBoletos(HttpServletRequest request, HttpServletResponse response, Usuario usuario)

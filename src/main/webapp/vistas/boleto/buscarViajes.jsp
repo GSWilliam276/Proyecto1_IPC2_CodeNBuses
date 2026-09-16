@@ -37,13 +37,14 @@
     </thead>
     <tbody>
     <%
-        //Cada fila trae: viaje, cantidad de asientos disponibles
-        //(ya calculado en el Controlador)
+        //Cada fila trae: viaje, cantidad de asientos disponibles,
+        //y si el viaje ya paso su fecha de salida (ya calculado en el Controlador)
         ArrayList<Object[]> filas = (ArrayList<Object[]>) request.getAttribute("filasViajes");
         if (filas != null) {
             for (Object[] fila : filas) {
                 ViajeRegular viaje = (ViajeRegular) fila[0];
                 int disponibles = (int) fila[1];
+                boolean yaPaso = (boolean) fila[2];
     %>
     <tr>
         <td><%= viaje.getRuta().getSucursalOrigen().getNombre() %> - <%= viaje.getRuta().getSucursalDestino().getNombre() %></td>
@@ -52,9 +53,13 @@
         <td><%= viaje.getBus().getMarca() %></td>
         <td>
             <%
-                //Se resalta en rojo si ya no quedan asientos, para
-                //que el cliente lo note facilmente
-                if (disponibles <= 0) {
+                //Se muestra "No disponible" si el viaje ya paso su fecha
+                //de salida, sin importar cuantos asientos quedaban libres
+                if (yaPaso) {
+            %>
+                <span class="text-muted">No disponible</span>
+            <%
+                } else if (disponibles <= 0) {
             %>
                 <span class="text-danger">Agotado</span>
             <% } else { %>
@@ -62,7 +67,7 @@
             <% } %>
         </td>
         <td>
-            <% if (disponibles > 0) { %>
+            <% if (!yaPaso && disponibles > 0) { %>
                 <a href="<%= request.getContextPath() %>/boleto?accion=elegirAsiento&idViaje=<%= viaje.getIdViaje() %>" class="btn btn-sm btn-primary">Comprar Boleto</a>
             <% } %>
         </td>
