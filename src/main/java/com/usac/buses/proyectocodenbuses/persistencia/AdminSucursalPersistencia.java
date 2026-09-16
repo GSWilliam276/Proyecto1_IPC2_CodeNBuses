@@ -238,4 +238,24 @@ public class AdminSucursalPersistencia implements Persistencia<AdminSucursal> {
             return false;
         }
     }
+    
+    public int contarAdminsActivosPorSucursal(int idSucursal) {
+        String sql = "SELECT COUNT(*) AS total FROM usuario u "
+                + "JOIN admin_sucursal a ON u.id_usuario = a.id_usuario "
+                + "WHERE a.id_sucursal = ? AND u.activo = true";
+        try (Connection conexion = conexionBase.obtenerConexion();
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setInt(1, idSucursal);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+            return 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error al contar admins activos por sucursal: " + e.getMessage());
+            return 0;
+        }
+    }
 }

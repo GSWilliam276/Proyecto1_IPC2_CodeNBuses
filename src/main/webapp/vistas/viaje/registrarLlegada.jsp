@@ -39,7 +39,7 @@
 
     <button type="submit" class="btn btn-primary">Registrar Llegada</button>
 </form>
-<a href="<%= request.getContextPath() %>/viaje?accion=listar">Volver al listado</a>
+<a href="<%= request.getContextPath() %>/<%= request.getAttribute("listadoDestino") %>">Volver al listado</a>
 
 <script>
     function confirmarEnvio() {

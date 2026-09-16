@@ -8,6 +8,8 @@
 <%@page import="com.usac.buses.proyectocodenbuses.entidad.ViajePrivado"%>
 <%@page import="com.usac.buses.proyectocodenbuses.entidad.AdminSucursal"%>
 <%@page import="com.usac.buses.proyectocodenbuses.entidad.Usuario"%>
+<%@page import="com.usac.buses.proyectocodenbuses.persistencia.RegistroSalidaPersistencia"%>
+<%@page import="com.usac.buses.proyectocodenbuses.persistencia.RegistroLlegadaPersistencia"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@page import="java.util.Locale"%>
@@ -41,6 +43,11 @@
             }
         }
     }
+
+    //Se usan para saber, por cada alquiler ya confirmado, si ya tiene
+    //registro de salida y/o llegada, igual patron que en listarViajes.jsp
+    RegistroSalidaPersistencia registroSalidaPersistencia = new RegistroSalidaPersistencia();
+    RegistroLlegadaPersistencia registroLlegadaPersistencia = new RegistroLlegadaPersistencia();
 %>
 <% if (tieneAlquilerConfirmado) { %>
     <div class="alert alert-success" role="alert">
@@ -55,6 +62,8 @@
             <th>Destino</th>
             <th>Pasajeros</th>
             <th>Salida</th>
+            <th>Bus</th>
+            <th>Chofer</th>
             <th>Precio Estimado</th>
             <th>Precio Confirmado</th>
             <% if (esAdminSucursal) { %>
@@ -66,12 +75,19 @@
     <%
         if (alquileres != null) {
             for (ViajePrivado viaje : alquileres) {
+                //Solo tiene sentido consultar salida/llegada si ya
+                //tiene bus y chofer asignados (ya fue confirmado)
+                boolean tieneBusChofer = viaje.getBus() != null && viaje.getChofer() != null;
+                boolean yaTieneSalida = tieneBusChofer && registroSalidaPersistencia.buscarPorViaje(viaje.getIdViaje()).isPresent();
+                boolean yaTieneLlegada = tieneBusChofer && registroLlegadaPersistencia.buscarPorViaje(viaje.getIdViaje()).isPresent();
     %>
     <tr>
         <td><%= viaje.getOrigen() %></td>
         <td><%= viaje.getDestino() %></td>
         <td><%= viaje.getPasajeros() %></td>
         <td><%= formatoFechaHora.format(viaje.getFechaHoraSalida()) %></td>
+        <td><%= viaje.getBus() != null ? viaje.getBus().getMarca() : "Sin asignar" %></td>
+        <td><%= viaje.getChofer() != null ? viaje.getChofer().getNombre() : "Sin asignar" %></td>
         <td><%= viaje.getPrecioEstimado() %></td>
         <td><%= viaje.getPrecioConfirmado() > 0 ? viaje.getPrecioConfirmado() : "Pendiente" %></td>
         <%
@@ -89,9 +105,21 @@
                 <a href="<%= request.getContextPath() %>/alquiler?accion=confirmar&id=<%= viaje.getIdViaje() %>" class="btn btn-sm btn-outline-primary">Confirmar Precio</a>
             <%
                 } else {
+                    //Una vez confirmado y con bus/chofer asignados, se
+                    //puede registrar salida y llegada, igual que un viaje regular
+                    if (!yaTieneSalida) {
             %>
-                <span class="text-muted">Ya confirmado</span>
+                <a href="<%= request.getContextPath() %>/viaje?accion=registrarSalida&idViaje=<%= viaje.getIdViaje() %>" class="btn btn-sm btn-outline-success">Salida</a>
             <%
+                    } else if (!yaTieneLlegada) {
+            %>
+                <a href="<%= request.getContextPath() %>/viaje?accion=registrarLlegada&idViaje=<%= viaje.getIdViaje() %>" class="btn btn-sm btn-outline-warning">Llegada</a>
+            <%
+                    } else {
+            %>
+                <span class="text-muted">Completado</span>
+            <%
+                    }
                 }
             %>
         </td>

@@ -270,8 +270,25 @@ public class ControladorAdmin extends HttpServlet {
     }
     
     private void desactivarAdminSucursal(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
+            throws IOException, ServletException {
         int id = Integer.parseInt(request.getParameter("id"));
+
+        Optional<AdminSucursal> adminOpt = adminSucursalPersistencia.buscarPorId(id);
+        if (adminOpt.isPresent()) {
+            AdminSucursal admin = adminOpt.get();
+            int idSucursal = admin.getSucursal().getIdSucursal();
+
+            //Validacion: no se puede desactivar si es el unico admin
+            //activo de esa sucursal, ya que cada sucursal debe tener
+            //al menos un administrador enlazado
+            int adminsActivos = adminSucursalPersistencia.contarAdminsActivosPorSucursal(idSucursal);
+            if (adminsActivos <= 1) {
+                request.setAttribute("error", "No se puede desactivar: Este es el único administrador activo de la sucursal");
+                listarAdminsSucursal(request, response);
+                return;
+            }
+        }
+
         adminSucursalPersistencia.eliminar(id);
         response.sendRedirect("admin?accion=listar");
     }

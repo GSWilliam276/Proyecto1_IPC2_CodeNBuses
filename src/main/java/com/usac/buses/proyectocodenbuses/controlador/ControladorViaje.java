@@ -75,10 +75,12 @@ public class ControladorViaje extends HttpServlet {
                 break;
             case "registrarSalida":
                 request.setAttribute("idViaje", request.getParameter("idViaje"));
+                prepararTipoViaje(request);
                 request.getRequestDispatcher("/vistas/viaje/registrarSalida.jsp").forward(request, response);
                 break;
             case "registrarLlegada":
                 request.setAttribute("idViaje", request.getParameter("idViaje"));
+                prepararTipoViaje(request);
                 request.getRequestDispatcher("/vistas/viaje/registrarLlegada.jsp").forward(request, response);
                 break;
             default:
@@ -322,29 +324,38 @@ public class ControladorViaje extends HttpServlet {
                 return;
             }
 
+            //Se determina a que listado redirigir segun el tipo de viaje
+            String listadoDestino = (viaje instanceof ViajePrivado) ? "alquiler?accion=listar" : "viaje?accion=listar";
+
             //Validacion de permiso: solo el AdminSucursal o el chofer
             //especificamente asignado a este viaje pueden registrar su salida
             boolean esAdminSucursal = usuario instanceof AdminSucursal;
             boolean esChoferAsignado = usuario instanceof Chofer
                     && viaje.getChofer().getIdUsuario() == usuario.getIdUsuario();
             if (!esAdminSucursal && !esChoferAsignado) {
-                response.sendRedirect("viaje?accion=listar");
+                response.sendRedirect(listadoDestino);
                 return;
             }
 
             //Validacion: no se puede registrar salida si ya existe una
             if (registroSalidaPersistencia.buscarPorViaje(idViaje).isPresent()) {
                 request.setAttribute("error", "Este viaje ya tiene registrada su salida");
-                response.sendRedirect("viaje?accion=listar");
+                response.sendRedirect(listadoDestino);
                 return;
             }
 
             double kilometrajeSalida = Double.parseDouble(request.getParameter("kilometrajeSalida"));
 
+            //Validacion: el kilometraje no puede ser negativo
+            if (kilometrajeSalida < 0) {
+                mostrarError(request, response, "kilometrajeSalida", "El kilometraje no puede ser un valor negativo", "/vistas/viaje/registrarSalida.jsp");
+                return;
+            }
+
             RegistroSalida registro = new RegistroSalida(viaje, new Date(), kilometrajeSalida);
             registroSalidaPersistencia.insertar(registro);
 
-            response.sendRedirect("viaje?accion=listar");
+            response.sendRedirect(listadoDestino);
 
         } catch (NumberFormatException e) {
             mostrarError(request, response, "kilometrajeSalida", "Debe ingresar un valor numérico válido", "/vistas/viaje/registrarSalida.jsp");
@@ -362,32 +373,47 @@ public class ControladorViaje extends HttpServlet {
                 return;
             }
 
+            //Se determina a que listado redirigir segun el tipo de viaje
+            String listadoDestino = (viaje instanceof ViajePrivado) ? "alquiler?accion=listar" : "viaje?accion=listar";
+
             //Validacion de permiso: solo el AdminSucursal o el chofer
             //especificamente asignado a este viaje pueden registrar su llegada
             boolean esAdminSucursal = usuario instanceof AdminSucursal;
             boolean esChoferAsignado = usuario instanceof Chofer
                     && viaje.getChofer().getIdUsuario() == usuario.getIdUsuario();
             if (!esAdminSucursal && !esChoferAsignado) {
-                response.sendRedirect("viaje?accion=listar");
+                response.sendRedirect(listadoDestino);
                 return;
             }
 
             //Validacion: no se puede registrar llegada si ya existe una
             if (registroLlegadaPersistencia.buscarPorViaje(idViaje).isPresent()) {
                 request.setAttribute("error", "Este viaje ya tiene registrada su llegada");
-                response.sendRedirect("viaje?accion=listar");
+                response.sendRedirect(listadoDestino);
                 return;
             }
 
             double kilometrajeLlegada = Double.parseDouble(request.getParameter("kilometrajeLlegada"));
             double gastoCombustible = Double.parseDouble(request.getParameter("gastoCombustible"));
 
+            //Validacion: los valores no pueden ser negativos
+            if (kilometrajeLlegada < 0 || gastoCombustible < 0) {
+                mostrarError(request, response, "kilometrajeLlegada/gastoCombustible", "Los valores no pueden ser negativos", "/vistas/viaje/registrarLlegada.jsp");
+                return;
+            }
+
             //Se necesita el kilometraje de salida para calcular correctamente
             //los kilometros recorridos en ESTE viaje especifico
             RegistroSalida salida = registroSalidaPersistencia.buscarPorViaje(idViaje).orElse(null);
             if (salida == null) {
                 request.setAttribute("error", "Este viaje no tiene registrada su salida todavía");
-                response.sendRedirect("viaje?accion=listar");
+                response.sendRedirect(listadoDestino);
+                return;
+            }
+
+            //Validacion: el kilometraje de llegada no puede ser menor al de salida
+            if (kilometrajeLlegada < salida.getKilometrajeSalida()) {
+                mostrarError(request, response, "kilometrajeLlegada", "El kilometraje de llegada no puede ser menor al de salida", "/vistas/viaje/registrarLlegada.jsp");
                 return;
             }
 
@@ -398,7 +424,7 @@ public class ControladorViaje extends HttpServlet {
 
             registroLlegadaPersistencia.registrarLlegada(registro, viaje.getBus().getIdBus());
 
-            response.sendRedirect("viaje?accion=listar");
+            response.sendRedirect(listadoDestino);
 
         } catch (NumberFormatException e) {
             mostrarError(request, response, "kilometrajeLlegada/gastoCombustible", "Debe ingresar valores numéricos válidos", "/vistas/viaje/registrarLlegada.jsp");
@@ -410,5 +436,15 @@ public class ControladorViaje extends HttpServlet {
         ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido(campo, mensaje);
         request.setAttribute("error", excepcion.getMessage());
         request.getRequestDispatcher(vista).forward(request, response);
+    }
+    
+    private void prepararTipoViaje(HttpServletRequest request) {
+        int idViaje = Integer.parseInt(request.getParameter("idViaje"));
+        Viaje viaje = viajePersistencia.buscarPorId(idViaje).orElse(null);
+        if (viaje instanceof ViajePrivado) {
+            request.setAttribute("listadoDestino", "alquiler?accion=listar");
+        } else {
+            request.setAttribute("listadoDestino", "viaje?accion=listar");
+        }
     }
 }

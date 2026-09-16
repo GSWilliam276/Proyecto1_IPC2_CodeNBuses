@@ -33,7 +33,7 @@
 
     <button type="submit" class="btn btn-primary">Registrar Salida</button>
 </form>
-<a href="<%= request.getContextPath() %>/viaje?accion=listar">Volver al listado</a>
+<a href="<%= request.getContextPath() %>/<%= request.getAttribute("listadoDestino") %>">Volver al listado</a>
 
 <script>
     //Modal de confirmacion antes de guardar, ya que el registro

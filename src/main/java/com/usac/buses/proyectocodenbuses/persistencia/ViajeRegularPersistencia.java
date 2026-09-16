@@ -377,4 +377,24 @@ public class ViajeRegularPersistencia implements Persistencia<ViajeRegular> {
         }
         return viajes;
     }
+    
+    public boolean choferTieneViajeActivo(int idChofer) {
+        String sql = "SELECT COUNT(*) AS total FROM viaje v "
+                + "LEFT JOIN registro_llegada rl ON v.id_viaje = rl.id_viaje "
+                + "WHERE v.id_chofer = ? AND rl.id_registro_llegada IS NULL";
+        try (Connection conexion = conexionBase.obtenerConexion();
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setInt(1, idChofer);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total") > 0;
+            }
+            return false;
+
+        } catch (SQLException e) {
+            System.err.println("Error al verificar viajes activos del chofer: " + e.getMessage());
+            return false;
+        }
+    }
 }

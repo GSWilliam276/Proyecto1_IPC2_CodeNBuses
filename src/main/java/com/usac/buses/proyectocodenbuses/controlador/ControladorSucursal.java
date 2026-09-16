@@ -97,10 +97,10 @@ public class ControladorSucursal extends HttpServlet {
         ArrayList<Sucursal> sucursales = sucursalPersistencia.listarTodos();
 
         //Se verifica, por cada sucursal, si tiene al menos un
-        //AdminSucursal asignado, tal como pide el enunciado
+        //AdminSucursal ACTIVO asignado, tal como pide el enunciado
         ArrayList<Object[]> filasReporte = new ArrayList<>();
         for (Sucursal sucursal : sucursales) {
-            boolean tieneAdmin = !adminSucursalPersistencia.listarPorSucursal(sucursal.getIdSucursal()).isEmpty();
+            boolean tieneAdmin = adminSucursalPersistencia.contarAdminsActivosPorSucursal(sucursal.getIdSucursal()) > 0;
             filasReporte.add(new Object[]{sucursal, tieneAdmin});
         }
 

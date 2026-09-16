@@ -27,6 +27,7 @@ import com.usac.buses.proyectocodenbuses.persistencia.UsuarioPersistencia;
 import jakarta.servlet.http.Part;
 import jakarta.servlet.annotation.MultipartConfig;
 import java.util.Optional;
+import com.usac.buses.proyectocodenbuses.persistencia.ViajeRegularPersistencia;
 
 @WebServlet(name = "ControladorChofer", urlPatterns = {"/chofer"})
 @MultipartConfig(maxFileSize = 5242880)
@@ -34,6 +35,7 @@ public class ControladorChofer extends HttpServlet {
 
     private ChoferPersistencia choferPersistencia = new ChoferPersistencia();
     private UsuarioPersistencia usuarioPersistencia = new UsuarioPersistencia();
+    private ViajeRegularPersistencia viajeRegularPersistencia = new ViajeRegularPersistencia();
     
     private boolean verificarAcceso(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
@@ -312,8 +314,17 @@ public class ControladorChofer extends HttpServlet {
     }
 
     private void desactivarChofer(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
+            throws IOException, ServletException {
         int id = Integer.parseInt(request.getParameter("id"));
+
+        //Validacion: no se puede desactivar un chofer con viajes
+        //programados o en transito, mismo criterio que se aplica a Bus
+        if (viajeRegularPersistencia.choferTieneViajeActivo(id)) {
+            request.setAttribute("error", "No se puede desactivar el chofer porque tiene viajes programados o en tránsito");
+            listarChoferes(request, response);
+            return;
+        }
+
         choferPersistencia.eliminar(id);
         response.sendRedirect("chofer?accion=listar");
     }
