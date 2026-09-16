@@ -49,7 +49,7 @@
         <td><%= viaje.getRuta().getSucursalOrigen().getNombre() %> - <%= viaje.getRuta().getSucursalDestino().getNombre() %></td>
         <td><%= formatoFechaHora.format(viaje.getFechaHoraSalida()) %></td>
         <td><%= viaje.getRuta().getPrecioBoleto() %></td>
-        <td><%= viaje.getBus().getPlaca() %></td>
+        <td><%= viaje.getBus().getMarca() %></td>
         <td>
             <%
                 //Se resalta en rojo si ya no quedan asientos, para
