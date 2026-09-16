@@ -46,7 +46,7 @@
         <%
             for (Chofer chofer : choferes) {
         %>
-            <option value="<%= chofer.getIdUsuario() %>"><%= chofer.getCorreo() %></option>
+            <option value="<%= chofer.getIdUsuario() %>"><%= chofer.getNombre() %></option>
         <%
             }
         %>

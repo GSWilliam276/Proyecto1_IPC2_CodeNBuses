@@ -20,7 +20,8 @@
     <thead>
         <tr>
             <th>Foto</th>
-            <th>Nombre/Correo</th>
+            <th>Nombre</th>
+            <th>Correo</th>
             <th>Licencia</th>
             <th>Tipo</th>
             <th>Vencimiento</th>
@@ -45,14 +46,14 @@
                 Sin foto
             <% } %>
         </td>
+        <td><%= chofer.getNombre() %></td>
         <td><%= chofer.getCorreo() %></td>
         <td><%= chofer.getNumeroLicencia() %></td>
         <td><%= chofer.getTipoLicencia() %></td>
         <td><%= chofer.getFechaVencimiento() %></td>
         <td><%= chofer.getSalarioBase() %></td>
         <td><%= chofer.isActivo() ? "Activo" : "Inactivo" %></td>
-        <td>
-            <a href="<%= request.getContextPath() %>/chofer?accion=editar&id=<%= chofer.getIdUsuario() %>" class="btn btn-sm btn-outline-primary">Editar</a>
+        <td><a href="<%= request.getContextPath() %>/chofer?accion=editar&id=<%= chofer.getIdUsuario() %>" class="btn btn-sm btn-outline-primary">Editar</a>
             <%
                 //Se muestra "Desactivar" si esta activo, o "Reactivar"
                 //si esta inactivo, nunca ambos a la vez

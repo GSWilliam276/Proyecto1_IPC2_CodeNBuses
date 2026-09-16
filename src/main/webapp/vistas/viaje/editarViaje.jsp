@@ -55,7 +55,7 @@
                 boolean seleccionado = chofer.getIdUsuario() == viaje.getChofer().getIdUsuario();
         %>
             <option value="<%= chofer.getIdUsuario() %>" <%= seleccionado ? "selected" : "" %>>
-                <%= chofer.getCorreo() %>
+                <%= chofer.getNombre() %>
             </option>
         <%
             }

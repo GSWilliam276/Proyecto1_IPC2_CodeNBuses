@@ -203,6 +203,12 @@ public class ControladorAlquiler extends HttpServlet {
                 return;
             }
 
+            //Se cargan las listas de bus y chofer para el caso de que
+            //haya que recargar el formulario con un mensaje de error
+            request.setAttribute("viaje", viajeActual);
+            request.setAttribute("buses", new BusPersistencia().listarTodos());
+            request.setAttribute("choferes", new ChoferPersistencia().listarTodos());
+
             //Validacion: el chofer no puede tener otro viaje en ese horario
             if (viajeRegularPersistencia.choferTieneViajeEnHorario(idChofer,
                     viajeActual.getFechaHoraSalida(), viajeActual.getFechaHoraLlegadaEstimada(), idViaje)) {
@@ -229,6 +235,10 @@ public class ControladorAlquiler extends HttpServlet {
 
             viajeActual.setBus(bus);
             viajeActual.setChofer(chofer);
+            //Se actualiza tambien el precio en el objeto en memoria, para
+            //que actualizar() no lo sobreescriba de vuelta con el valor
+            //viejo (0) que tenia cargado desde antes de confirmarPrecio()
+            viajeActual.setPrecioConfirmado(precioConfirmado);
             viajePrivadoPersistencia.actualizar(viajeActual);
 
             response.sendRedirect("alquiler?accion=listar");

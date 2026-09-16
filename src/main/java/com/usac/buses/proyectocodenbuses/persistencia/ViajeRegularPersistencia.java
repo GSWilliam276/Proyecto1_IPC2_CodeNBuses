@@ -295,17 +295,17 @@ public class ViajeRegularPersistencia implements Persistencia<ViajeRegular> {
     }
     
     public String obtenerChoferActualPorBus(int idBus) {
-        String sql = "SELECT u.correo FROM viaje v "
+        String sql = "SELECT u.nombre FROM viaje v "
                 + "JOIN usuario u ON v.id_chofer = u.id_usuario "
                 + "WHERE v.id_bus = ? "
                 + "ORDER BY v.fecha_hora_salida DESC LIMIT 1";
         try (Connection conexion = conexionBase.obtenerConexion();
-             PreparedStatement ps = conexion.prepareStatement(sql)) {
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
 
             ps.setInt(1, idBus);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                return rs.getString("correo");
+                return rs.getString("nombre");
             }
             return "Sin asignar";
 
@@ -356,5 +356,25 @@ public class ViajeRegularPersistencia implements Persistencia<ViajeRegular> {
             System.err.println("Error al verificar viajes activos del bus: " + e.getMessage());
             return false;
         }
+    }
+    
+    public ArrayList<ViajeRegular> listarPorChofer(int idChofer) {
+        ArrayList<ViajeRegular> viajes = new ArrayList<>();
+        String sql = "SELECT * FROM viaje v "
+                + "JOIN viaje_regular vr ON v.id_viaje = vr.id_viaje "
+                + "WHERE v.id_chofer = ?";
+        try (Connection conexion = conexionBase.obtenerConexion();
+            PreparedStatement ps = conexion.prepareStatement(sql)) {
+
+            ps.setInt(1, idChofer);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                viajes.add(mapearViajeRegular(rs));
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al listar viajes por chofer: " + e.getMessage());
+        }
+        return viajes;
     }
 }

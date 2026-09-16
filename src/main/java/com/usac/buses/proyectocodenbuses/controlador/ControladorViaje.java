@@ -122,7 +122,19 @@ public class ControladorViaje extends HttpServlet {
 
     private void listarViajes(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        ArrayList<ViajeRegular> viajes = viajeRegularPersistencia.listarTodos();
+        HttpSession sesion = request.getSession();
+        Usuario usuario = (Usuario) sesion.getAttribute("usuario");
+
+        ArrayList<ViajeRegular> viajes;
+        if (usuario instanceof Chofer) {
+            //Un chofer solo debe ver sus propios viajes asignados,
+            //no los de todos los demas choferes de la empresa
+            viajes = viajeRegularPersistencia.listarPorChofer(usuario.getIdUsuario());
+        } else {
+            //AdminSucursal ve todos los viajes, sin restriccion
+            viajes = viajeRegularPersistencia.listarTodos();
+        }
+
         request.setAttribute("viajes", viajes);
         request.getRequestDispatcher("/vistas/viaje/listarViajes.jsp").forward(request, response);
     }
@@ -151,6 +163,13 @@ public class ControladorViaje extends HttpServlet {
 
     private void registrarViaje(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
+        //Se cargan las listas de buses, choferes y rutas ANTES de cualquier
+        //validacion, para que esten disponibles si hay que recargar el
+        //formulario con un mensaje de error
+        request.setAttribute("buses", new BusPersistencia().listarTodos());
+        request.setAttribute("choferes", new ChoferPersistencia().listarTodos());
+        request.setAttribute("rutas", new RutaPersistencia().listarTodos());
+
         try {
             int idBus = Integer.parseInt(request.getParameter("idBus"));
             int idChofer = Integer.parseInt(request.getParameter("idChofer"));
@@ -204,12 +223,24 @@ public class ControladorViaje extends HttpServlet {
         } catch (ParseException e) {
             mostrarError(request, response, "fecha", "Formato de fecha inválido", "/vistas/viaje/registrarViaje.jsp");
         }
-    }   
-
+    }
+    
     private void actualizarViaje(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
+        //Se cargan las listas necesarias y el viaje actual ANTES de
+        //cualquier validacion, para que esten disponibles si hay que
+        //recargar el formulario con un mensaje de error
+        int idViaje = Integer.parseInt(request.getParameter("idViaje"));
+        request.setAttribute("buses", new BusPersistencia().listarTodos());
+        request.setAttribute("choferes", new ChoferPersistencia().listarTodos());
+        request.setAttribute("rutas", new RutaPersistencia().listarTodos());
+
+        Optional<ViajeRegular> viajeActualOpt = viajeRegularPersistencia.buscarPorId(idViaje);
+        if (viajeActualOpt.isPresent()) {
+            request.setAttribute("viaje", viajeActualOpt.get());
+        }
+
         try {
-            int idViaje = Integer.parseInt(request.getParameter("idViaje"));
             int idBus = Integer.parseInt(request.getParameter("idBus"));
             int idChofer = Integer.parseInt(request.getParameter("idChofer"));
             int idRuta = Integer.parseInt(request.getParameter("idRuta"));

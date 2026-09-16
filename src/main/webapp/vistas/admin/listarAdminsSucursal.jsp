@@ -19,6 +19,7 @@
 <table class="table table-striped">
     <thead>
         <tr>
+            <th>Nombre</th>
             <th>Correo</th>
             <th>DPI</th>
             <th>Sucursal</th>
@@ -36,6 +37,7 @@
             for (AdminSucursal admin : admins) {
     %>
     <tr>
+        <td><%= admin.getNombre() %></td>
         <td><%= admin.getCorreo() %></td>
         <td><%= admin.getDpi() %></td>
         <td><%= admin.getSucursal().getNombre() %></td>

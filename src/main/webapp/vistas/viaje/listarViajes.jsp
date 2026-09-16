@@ -77,7 +77,7 @@
     <tr>
         <td><%= viaje.getRuta().getSucursalOrigen().getNombre() %> - <%= viaje.getRuta().getSucursalDestino().getNombre() %></td>
         <td><%= viaje.getBus().getPlaca() %></td>
-        <td><%= viaje.getChofer().getCorreo() %></td>
+        <td><%= viaje.getChofer().getNombre() %></td>
         <td><%= formatoFechaHora.format(viaje.getFechaHoraSalida()) %></td>
         <td><%= formatoFechaHora.format(viaje.getFechaHoraLlegadaEstimada()) %></td>
         <td><span class="badge <%= estadoClase %>"><%= estadoTexto %></span></td>
@@ -142,10 +142,6 @@
 </div>
 
 <script>
-    //Se usa un modal personalizado de Bootstrap en vez del confirm()
-    //nativo del navegador, para mostrar la marca CodeNBuses en vez
-    //del generico "localhost dice". Se espera a que el HTML termine
-    //de cargar (DOMContentLoaded) antes de crear el modal
     document.addEventListener('DOMContentLoaded', function() {
         var idSeleccionado = null;
         var modalConfirmar = new bootstrap.Modal(document.getElementById('modalConfirmar'));
