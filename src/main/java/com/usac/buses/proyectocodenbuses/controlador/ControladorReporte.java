@@ -55,6 +55,10 @@ public class ControladorReporte extends HttpServlet {
         try {
             switch (accion) {
                 case "menu":
+                    if (!(usuario instanceof AdminSucursal) && !(usuario instanceof AdminSistema)) {
+                        response.sendRedirect("usuario?accion=perfil");
+                    return;
+                    }
                     request.getRequestDispatcher("/vistas/reporte/menuReportes.jsp").forward(request, response);
                     break;
                 case "listadoBuses":
