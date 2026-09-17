@@ -23,13 +23,14 @@
     <thead>
         <tr>
             <th>Placa</th>
+            <th>Marca</th>
             <th>Kilometraje Total</th>
             <th>Depreciación Acumulada Real</th>
         </tr>
     </thead>
     <tbody>      
     <%
-        //Cada fila trae: placa, kilometraje, depreciacion acumulada real
+        //Cada fila trae: placa, marca, kilometraje, depreciacion acumulada real
         //(sumada desde los registros de llegada ya guardados, respetando
         //que cada uno uso el monto por km vigente en su momento)
         ArrayList<Object[]> filas = (ArrayList<Object[]>) request.getAttribute("filasReporte");
@@ -40,6 +41,7 @@
         <td><%= fila[0] %></td>
         <td><%= fila[1] %></td>
         <td><%= fila[2] %></td>
+        <td><%= fila[3] %></td>
     </tr>
     <%
             }

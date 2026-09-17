@@ -195,13 +195,14 @@ public class ControladorReporte extends HttpServlet {
         ArrayList<Object[]> filasReporte = new ArrayList<>();
         for (Bus bus : buses) {
             double depreciacionAcumulada = registroLlegadaPersistencia.obtenerDepreciacionAcumuladaPorBus(bus.getIdBus());
-            filasReporte.add(new Object[]{bus.getPlaca(), bus.getKilometraje(), depreciacionAcumulada});
+            filasReporte.add(new Object[]{bus.getPlaca(), bus.getMarca(), bus.getKilometraje(), depreciacionAcumulada});
         }
 
         request.setAttribute("filasReporte", filasReporte);
         request.getRequestDispatcher("/vistas/reporte/depreciacionPorBus.jsp").forward(request, response);
     }
 
+    
     //Reportes de AdminSistema
 
     //Reporte de ganancias: combina ingresos de boletos, ingresos de alquiler

@@ -59,6 +59,7 @@
             <th>Destino</th>
             <th>Fecha de Salida</th>
             <th>Bus Asignado</th>
+            <th>Chofer Asignado</th>
             <th>Precio Confirmado</th>
         </tr>
     </thead>
@@ -75,7 +76,8 @@
         <td><%= viaje.getOrigen() %></td>
         <td><%= viaje.getDestino() %></td>
         <td><%= formatoFechaHora.format(viaje.getFechaHoraSalida()) %></td>
-        <td><%= viaje.getBus() != null ? viaje.getBus().getPlaca() : "Sin asignar" %></td>
+        <td><%= viaje.getBus() != null ? viaje.getBus().getPlaca() + " - " + viaje.getBus().getMarca() : "Sin asignar" %></td>
+        <td><%= viaje.getChofer() != null ? viaje.getChofer().getNombre() : "Sin asignar" %></td>
         <td><%= viaje.getPrecioConfirmado() %></td>
     </tr>
     <%
@@ -83,7 +85,7 @@
         }
     %>
     <tr>
-        <td colspan="5"></td>
+        <td colspan="6"></td>
         <td><strong>Total: <%= totalIngresos %></strong></td>
     </tr>
     </tbody>
