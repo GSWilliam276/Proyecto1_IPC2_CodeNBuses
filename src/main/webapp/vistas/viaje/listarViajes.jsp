@@ -76,7 +76,7 @@
     %>
     <tr>
         <td><%= viaje.getRuta().getSucursalOrigen().getNombre() %> - <%= viaje.getRuta().getSucursalDestino().getNombre() %></td>
-        <td><%= viaje.getBus().getPlaca() %></td>
+        <td><%= viaje.getBus().getPlaca() %> - <%= viaje.getBus().getMarca() %></td>
         <td><%= viaje.getChofer().getNombre() %></td>
         <td><%= formatoFechaHora.format(viaje.getFechaHoraSalida()) %></td>
         <td><%= formatoFechaHora.format(viaje.getFechaHoraLlegadaEstimada()) %></td>

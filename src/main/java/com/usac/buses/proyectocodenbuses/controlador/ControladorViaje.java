@@ -302,8 +302,19 @@ public class ControladorViaje extends HttpServlet {
         boolean tieneBoletosPagados = boletoPersistencia.contarPorViaje(id) > 0;
 
         if (tieneSalida || tieneBoletosPagados) {
-            ExcepcionViajeNoEliminable excepcion = new ExcepcionViajeNoEliminable(
-                "No se puede eliminar el viaje porque ya fue iniciado o ya tiene boletos vendidos");
+            //Se arma un mensaje mas preciso segun la razon real, en vez de
+            //un mensaje generico que puede confundir (ej. decir "ya fue
+            //iniciado" cuando en realidad el viaje ya esta completado)
+            String mensaje;
+            if (tieneSalida && tieneBoletosPagados) {
+                mensaje = "No se puede eliminar el viaje porque ya fue iniciado y tiene boletos vendidos";
+            } else if (tieneSalida) {
+                mensaje = "No se puede eliminar el viaje porque ya fue iniciado o completado";
+            } else {
+                mensaje = "No se puede eliminar el viaje porque ya tiene boletos vendidos";
+            }
+
+            ExcepcionViajeNoEliminable excepcion = new ExcepcionViajeNoEliminable(mensaje);
             request.setAttribute("error", excepcion.getMessage());
             listarViajes(request, response);
             return;

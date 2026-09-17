@@ -50,7 +50,7 @@
         <td><%= viaje.getRuta().getSucursalOrigen().getNombre() %> - <%= viaje.getRuta().getSucursalDestino().getNombre() %></td>
         <td><%= formatoFechaHora.format(viaje.getFechaHoraSalida()) %></td>
         <td><%= viaje.getRuta().getPrecioBoleto() %></td>
-        <td><%= viaje.getBus().getMarca() %></td>
+        <td><%= viaje.getBus().getPlaca() %> - <%= viaje.getBus().getMarca() %></td>
         <td>
             <%
                 //Se muestra "No disponible" si el viaje ya paso su fecha

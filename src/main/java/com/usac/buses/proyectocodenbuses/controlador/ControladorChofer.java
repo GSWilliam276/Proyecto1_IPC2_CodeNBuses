@@ -193,7 +193,7 @@ public class ControladorChofer extends HttpServlet {
                 request.getRequestDispatcher("/vistas/chofer/registrarChofer.jsp").forward(request, response);
                 return;
             }
-    
+
             //Validacion de DPI duplicado
             if (usuarioPersistencia.existeUsuarioConDpi(dpi)) {
                 ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido("dpi", "Ya existe una cuenta registrada con ese DPI");
@@ -209,9 +209,17 @@ public class ControladorChofer extends HttpServlet {
                 request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
                 request.getRequestDispatcher("/vistas/chofer/registrarChofer.jsp").forward(request, response);
                 return;
-            }
-            if (!numeroLicencia.matches("\\d{13}")) {
+            } if (!numeroLicencia.matches("\\d{13}")) {
                 ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido("numeroLicencia", "El número de licencia debe contener exactamente 13 números");
+                request.setAttribute("error", excepcion.getMessage());
+                request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
+                request.getRequestDispatcher("/vistas/chofer/registrarChofer.jsp").forward(request, response);
+                return;
+            }
+
+            //Validacion: el salario no puede ser negativo
+            if (salarioBase < 0) {
+                ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido("salarioBase", "El salario no puede ser un valor negativo");
                 request.setAttribute("error", excepcion.getMessage());
                 request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
                 request.getRequestDispatcher("/vistas/chofer/registrarChofer.jsp").forward(request, response);
@@ -273,24 +281,37 @@ public class ControladorChofer extends HttpServlet {
             double salarioBase = Double.parseDouble(request.getParameter("salarioBase"));
             int idSucursal = Integer.parseInt(request.getParameter("idSucursal"));
 
+            //Se trae el chofer actual primero, para no perder la foto
+            //que no viene en este formulario y evitar sobreescribirla con null,
+            //y tambien para poder recargar el formulario si algo falla despues
+            Chofer choferActual = choferPersistencia.buscarPorId(idUsuario).orElse(null);
+            if (choferActual == null) {
+                response.sendRedirect("chofer?accion=listar");
+                return;
+            }
+
             if (tipoLicencia != TipoLicencia.A && tipoLicencia != TipoLicencia.B) {
                 ExcepcionLicenciaNoValidaParaBus excepcion = new ExcepcionLicenciaNoValidaParaBus(
                     "La licencia debe ser tipo A o B para conducir transporte extraurbano de pasajeros");
                 request.setAttribute("error", excepcion.getMessage());
+                request.setAttribute("chofer", choferActual);
+                request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
+                request.getRequestDispatcher("/vistas/chofer/editarChofer.jsp").forward(request, response);
+                return;
+            }
+
+            //Validacion: el salario no puede ser negativo
+            if (salarioBase < 0) {
+                ExcepcionFormatoInvalido excepcion = new ExcepcionFormatoInvalido("salarioBase", "El salario no puede ser un valor negativo");
+                request.setAttribute("error", excepcion.getMessage());
+                request.setAttribute("chofer", choferActual);
+                request.setAttribute("sucursales", new SucursalPersistencia().listarTodos());
                 request.getRequestDispatcher("/vistas/chofer/editarChofer.jsp").forward(request, response);
                 return;
             }
 
             SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
             Date fechaVencimiento = formato.parse(fechaVencimientoStr);
-
-            //Se trae el chofer actual primero, para no perder la foto
-            //que no viene en este formulario y evitar sobreescribirla con null
-            Chofer choferActual = choferPersistencia.buscarPorId(idUsuario).orElse(null);
-            if (choferActual == null) {
-                response.sendRedirect("chofer?accion=listar");
-                return;
-            }
 
             Sucursal sucursal = new Sucursal();
             sucursal.setIdSucursal(idSucursal);

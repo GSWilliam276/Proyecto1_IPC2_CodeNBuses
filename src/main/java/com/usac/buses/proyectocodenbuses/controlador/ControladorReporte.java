@@ -363,7 +363,10 @@ public class ControladorReporte extends HttpServlet {
     private Date obtenerFechaOTodas(HttpServletRequest request, String parametro, boolean esInicio) throws ParseException {
         String fechaStr = request.getParameter(parametro);
         if (fechaStr == null || fechaStr.trim().isEmpty()) {
-            return esInicio ? new Date(0) : new Date();
+            //Por defecto se cubre un rango amplio: desde el inicio de los
+            //tiempos hasta muy en el futuro, para no excluir viajes
+            //programados o confirmados que aun no han ocurrido
+            return esInicio ? new Date(0) : new Date(4102444800000L); // año 2100
         }
         SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
         return formato.parse(fechaStr);
